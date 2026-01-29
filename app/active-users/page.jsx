@@ -8,10 +8,10 @@ import UserViewModal from "../UserViewModal";
 
 // Skeleton component for loading state
 const UserSkeleton = () => (
-    <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        padding: "12px 16px", 
+    <div style={{
+        display: "flex",
+        alignItems: "center",
+        padding: "12px 16px",
         gap: "20px",
         borderBottom: "1px solid #f0f0f0"
     }}>
@@ -32,14 +32,15 @@ export default function ManageUsersData() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    
+
     const { data: userData, isLoading, isError, error } = useGetUsersQuery();
+
 
     const users = userData?.data?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if(!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -121,9 +122,9 @@ export default function ManageUsersData() {
             selector: (row) => parseFloat(row.funds || 0),
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "600", 
-                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280" 
+                <span style={{
+                    fontWeight: "600",
+                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280"
                 }}>
                     ₹{parseFloat(row.funds || 0).toLocaleString('en-IN')}
                 </span>
@@ -137,9 +138,9 @@ export default function ManageUsersData() {
             cell: (row) => {
                 const isActive = row.status === true || row.status === 1;
                 return (
-                    <span 
-                        style={{ 
-                            color: "#fff", 
+                    <span
+                        style={{
+                            color: "#fff",
                             fontWeight: "500",
                             backgroundColor: isActive ? "#22c55e" : "#ef4444",
                             padding: "4px 12px",
@@ -203,10 +204,10 @@ export default function ManageUsersData() {
     ];
 
     const filteredData = users.filter((item) => {
-        if (statusFilter === "active" && !(item.status === true || item.status === 1)) {
+        if(statusFilter === "active" && !(item.status === true || item.status === 1)) {
             return false;
         }
-        if (filterText) {
+        if(filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const phone = (item.phone || "").toString().toLowerCase();
@@ -217,9 +218,9 @@ export default function ManageUsersData() {
     });
 
     const subHeaderComponent = (
-        <div style={{ 
-            display: "flex", 
-            justifyContent: "space-between", 
+        <div style={{
+            display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
             padding: "15px 0",
             width: "100%",
@@ -232,10 +233,10 @@ export default function ManageUsersData() {
                     placeholder="Search by name, phone or ID..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
-                    style={{ 
-                        padding: "10px 14px", 
-                        borderRadius: "8px", 
-                        border: "1px solid #d1d5db", 
+                    style={{
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #d1d5db",
                         minWidth: "280px",
                         fontSize: "14px",
                         outline: "none",
@@ -265,9 +266,9 @@ export default function ManageUsersData() {
                     </button>
                 )}
             </div>
-            <div style={{ 
-                display: "flex", 
-                alignItems: "center", 
+            <div style={{
+                display: "flex",
+                alignItems: "center",
                 gap: "20px",
                 fontSize: "14px",
                 color: "#6b7280"
@@ -317,12 +318,12 @@ export default function ManageUsersData() {
         },
     };
 
-    if (isError) {
+    if(isError) {
         return (
             <main style={{ padding: "20px" }}>
-                <div style={{ 
-                    color: "#dc2626", 
-                    padding: "40px", 
+                <div style={{
+                    color: "#dc2626",
+                    padding: "40px",
                     textAlign: "center",
                     backgroundColor: "#fef2f2",
                     borderRadius: "12px",
@@ -351,17 +352,17 @@ export default function ManageUsersData() {
 
     return (
         <main style={{ padding: "9px" }}>
-            <div style={{ 
-                backgroundColor: "#fff", 
-                borderRadius: "12px", 
+            <div style={{
+                backgroundColor: "#fff",
+                borderRadius: "12px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                 overflow: "hidden"
             }}>
                 <DataTable
                     title={
-                        <div style={{ 
-                            display: "flex", 
-                            alignItems: "center", 
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
                             gap: "10px",
                             padding: "10px 0"
                         }}>
@@ -383,8 +384,8 @@ export default function ManageUsersData() {
                     responsive
                     customStyles={customStyles}
                     noDataComponent={
-                        <div style={{ 
-                            padding: "40px", 
+                        <div style={{
+                            padding: "40px",
                             textAlign: "center",
                             color: "#6b7280"
                         }}>
@@ -416,8 +417,8 @@ export default function ManageUsersData() {
 
             {/* User View Modal */}
             {showModal && selectedUserId && (
-                <UserViewModal 
-                    userId={selectedUserId} 
+                <UserViewModal
+                    userId={selectedUserId}
                     onClose={handleCloseModal}
                     variant="default"
                 />

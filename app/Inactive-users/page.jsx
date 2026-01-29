@@ -27,13 +27,15 @@ const UserSkeleton = () => (
     </div>
 );
 
+
 export default function ManageInactiveUsersData() {
     const [filterText, setFilterText] = useState("");
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     
     const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery();
-    const users = userData?.data?.users || [];
+    console.log("Inactive Users Data:", userData);
+    const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
