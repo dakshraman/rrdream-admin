@@ -29,7 +29,7 @@ export default function Login() {
         }));
 
         toast.success(result.message || "Login successful", { duration: 800 });
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         toast.error(result.message || "Invalid credentials", { duration: 1500 });
       }

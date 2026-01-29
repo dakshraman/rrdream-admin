@@ -9,7 +9,8 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+// import storage from "redux-persist/lib/storage";
+import storage from "./storage";
 import { authAPISlice } from "./backendSlice/authAPISlice";
 import { apiAPISlice } from "./backendSlice/apiAPISlice";
 import authReducer from "./backendSlice/authReducer";
