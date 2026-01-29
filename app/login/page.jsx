@@ -22,10 +22,10 @@ export default function Login() {
     try {
       const result = await loginMutation({ username, password }).unwrap();
       console.log("Login Result:", result);
-      if (result.success) {
+      if (result.token) {
         dispatch(login({
-          admin: result.admin,
-          token: result.token || result.admin.token,
+          admin: result.Admin || result.admin,
+          token: result.token,
         }));
 
         toast.success(result.message || "Login successful", { duration: 800 });

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import Head from 'next/head';
+
 import "../public/admin-assets/styles/style.css";
 import MainHeaderFooter from "@/components/backendcomponents/MainHeaderFooter";
 import NextTopLoader from "nextjs-toploader";
@@ -15,12 +15,8 @@ export const metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <ReduxProvider>
-        <Head>
-          <title>RDream Admin Panle</title>
-          <meta name="description" content="Admin Panel for RDream" />
-        </Head>
-        <body  cz-shortcut-listen="true">
+      <body cz-shortcut-listen="true">
+        <ReduxProvider>
           <Loader />
           <MainHeaderFooter />
           <Suspense fallback={<Loader />}>
@@ -52,8 +48,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               },
             }}
           />
-        </body>
-      </ReduxProvider>
+        </ReduxProvider>
+      </body>
     </html>
   );
 }
