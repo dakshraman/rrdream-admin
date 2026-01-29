@@ -9,16 +9,14 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/api/:path*",
-        destination: "http://localhost:3002/api/:path*", 
+        destination: "https://game.rrdream.in/api/:path*",
       }
     ];
   },
   reactStrictMode: true,
   // swcMinify: true,
   output: "standalone",
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   typescript: {
     ignoreBuildErrors: true,
   },
