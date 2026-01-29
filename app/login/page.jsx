@@ -21,7 +21,8 @@ export default function Login() {
     setLoading(true);
     try {
       const result = await loginMutation({ username, password }).unwrap();
-      if(result.success) {
+      console.log("Login Result:", result);
+      if (result.success) {
         dispatch(login({
           admin: result.admin,
           token: result.token || result.admin.token,
@@ -32,7 +33,7 @@ export default function Login() {
       } else {
         toast.error(result.message || "Invalid credentials", { duration: 1500 });
       }
-    } catch(error) {
+    } catch (error) {
       console.error("Login error:", error);
       toast.error("Something went wrong. Please try again.", { duration: 1500 });
     } finally {
