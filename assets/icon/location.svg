@@ -1,0 +1,16 @@
+<svg width="45" height="44" viewBox="0 0 45 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.5001 38.8457L23.8222 37.356C25.3224 35.6379 26.6718 34.0078 27.8723 32.4573L28.8634 31.1499C33.0015 25.5745 35.0716 21.1493 35.0716 17.8787C35.0716 10.8973 29.4438 5.2381 22.5001 5.2381C15.5565 5.2381 9.92871 10.8973 9.92871 17.8787C9.92871 21.1493 11.9988 25.5745 16.1369 31.1499L17.1279 32.4573C18.8407 34.6519 20.6326 36.7813 22.5001 38.8457Z" stroke="url(#paint0_linear_724_3818)" stroke-width="1.85714" stroke-linecap="round" stroke-linejoin="round"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.5001 38.8457L23.8222 37.356C25.3224 35.6379 26.6718 34.0078 27.8723 32.4573L28.8634 31.1499C33.0015 25.5745 35.0716 21.1493 35.0716 17.8787C35.0716 10.8973 29.4438 5.2381 22.5001 5.2381C15.5565 5.2381 9.92871 10.8973 9.92871 17.8787C9.92871 21.1493 11.9988 25.5745 16.1369 31.1499L17.1279 32.4573C18.8407 34.6519 20.6326 36.7813 22.5001 38.8457Z" stroke="black" stroke-opacity="0.2" stroke-width="1.85714" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22.4998 23.0477C25.3927 23.0477 27.7379 20.7025 27.7379 17.8096C27.7379 14.9166 25.3927 12.5715 22.4998 12.5715C19.6069 12.5715 17.2617 14.9166 17.2617 17.8096C17.2617 20.7025 19.6069 23.0477 22.4998 23.0477Z" stroke="url(#paint1_linear_724_3818)" stroke-width="1.85714" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22.4998 23.0477C25.3927 23.0477 27.7379 20.7025 27.7379 17.8096C27.7379 14.9166 25.3927 12.5715 22.4998 12.5715C19.6069 12.5715 17.2617 14.9166 17.2617 17.8096C17.2617 20.7025 19.6069 23.0477 22.4998 23.0477Z" stroke="black" stroke-opacity="0.2" stroke-width="1.85714" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<linearGradient id="paint0_linear_724_3818" x1="35.0716" y1="22.043" x2="9.92871" y2="22.043" gradientUnits="userSpaceOnUse">
+<stop stop-color="#006CE4"/>
+<stop offset="1" stop-color="#3691F6"/>
+</linearGradient>
+<linearGradient id="paint1_linear_724_3818" x1="27.7379" y1="17.8096" x2="17.2617" y2="17.8096" gradientUnits="userSpaceOnUse">
+<stop stop-color="#006CE4"/>
+<stop offset="1" stop-color="#3691F6"/>
+</linearGradient>
+</defs>
+</svg>

@@ -1,0 +1,2266 @@
+@forward './var'
+@forward './form'
+@use './var' as *
+@use './form' as *
+*,
+*::before,     
+*::after
+    padding: 0  
+    margin: 0
+    list-style: none 
+    box-sizing: border-box 
+
+$scrollwidth: 8px
+
+:root
+    --headerpadding: 12px
+    --headerheight: 90px
+    --headerfixed: 70px
+    --mobilesearchbar: 45px
+    --arrow: 25px
+    --arrowsize: 20px
+    --triangle: 10px
+    --space: 11px
+    --footerstrip: 38px
+    --filterstrip: 42px
+    --elementhover: #003B95
+    --primary: #003B95
+    --secondary: #0355d1
+    --lightprime: #D6E6FF
+    --lightblue: #e9f1ff
+    --colortext: #000
+    --red: #FF2323
+    --green: #4EA95F
+    --sucgreen: #008000 
+    --blue: #2773E5
+    --text: #666666
+    --white: #FFFFFF
+    --black: #000000
+    --gray: #EFEFEF
+    --container: 1280px
+    --containerfluid: 10px
+    --gradient-a: linear-gradient(90deg, #006CE4 0%, #3691F6 100%)
+    --gradient-b: linear-gradient(90deg, #3691F6 0%, #006CE4 100%)
+    @include media(768)
+        --headerheight: 80px
+        --headerfixed: 60px
+        --headerpadding: 8px
+
+.sec-head
+    font-weight: 400
+    font-size: 20px
+    letter-spacing: 10px
+    text-transform: uppercase
+    line-height: 1.5
+    color: #fff
+    @include media(768)
+        font-size: 18px
+    @include media(540)
+        font-size: 16px
+        line-height: 1.5
+
+.sec-heading
+    max-width: 600px
+    margin: 0 auto
+    text-align: center
+
+.sec-pad
+    padding: 60px 0 0
+    @include media(991)
+        padding: 50px 0 0 
+    @include media(768)
+        padding: 40px 0 0
+    @include media(540)
+        padding: 30px 0 0
+
+.sec-pad-all
+    padding: 60px 0 
+    @include media(991)
+        padding: 50px 0  
+    @include media(768)
+        padding: 40px 0 
+    @include media(540)
+        padding: 30px 0 
+
+body
+    &::-webkit-scrollbar
+        width: $scrollwidth
+        background: $white
+    &::-webkit-scrollbar-track
+        box-shadow: none
+    &::-webkit-scrollbar-thumb
+        background-color: var(--primary)
+        border-radius: 10px
+    @include media(540)
+        -webkit-tap-highlight-color: transparent
+    &.overflow-hidden
+        overflow: hidden
+        margin-right: $scrollwidth
+        @include media(991)
+            margin-right: 0
+        header
+            width: calc(100% - $scrollwidth)
+            @include media(991)
+                width: 100%
+body,html
+    font-size: 16px
+    line-height: 1.5
+    font-optical-sizing: auto
+    font-style: normal
+    font-family: $Poppins 
+    font-weight: normal
+    p
+        line-height: 1.2
+        color: $text
+
+a[href]
+    color: #fff
+    text-decoration: none
+    cursor: pointer
+    transition: .5s ease
+    &.logo
+        display: block
+        line-height: 0
+
+.view_all
+    font-size: 14px
+    font-weight: 500
+    display: flex
+    align-items: center
+    gap: 10px
+    color: $primary
+    @include media(540) 
+        gap: 6px
+    img
+        width: 24px
+        @include media(540) 
+            width: 20px
+    &:hover
+        svg, img
+            transform: translateX(5px)
+
+svg
+    path
+        transition: .5s ease
+    
+.container
+    @include container
+.container-fluid
+    padding: 0 var(--containerfluid)
+    display: block
+    margin: 0 auto
+h1,h2,h3,h4,h5,h6
+    font-weight: normal
+    font-family: $Poppins
+h1 
+    font-size: 48px
+    line-height: 1.17
+    font-weight: 600
+    @include media(767)
+        font-size: 48px
+h2
+    font-size: 40px
+    line-height: 1.05
+    font-weight: 600
+h3
+    font-size: 36px
+    line-height: 1.06
+.heading
+    @include media(540) 
+        text-align: center
+    &.color
+        h2
+            font-size: 36px
+            @include media(991)
+                font-size: 32px
+            @include media(768)
+                font-size: 30px
+            @include media(540)
+                font-size: 24px
+        h2
+            color: var(--primary)
+            font-weight: 600
+            @include media(991)
+                font-size: 32px
+            @include media(768)
+                font-size: 30px
+            @include media(540)
+                font-size: 28px
+    h2
+        font-size: 22px
+        line-height: 1.2
+        @include media(540) 
+            font-size: 20px
+    &.h-large
+        h3,h2
+            font-size: 36px
+    &.c-white
+        h3,h2
+            color: $white
+    >p
+        margin-top: 10px
+
+
+h4
+    font-size: 36px
+    line-height: 1.28
+h5
+    font-size: 24px
+    line-height: 1.25
+    @include media(1152)
+        font-size: 22px
+    @include media(675)
+        font-size: 20px
+h6
+    font-size: 20px
+.text-center
+    text-align: center
+.text-left
+    text-align: left
+.text-right
+    text-align: right
+.text-uppercase
+    text-transform: uppercase
+.flex
+    @include flex
+.grid
+    display: grid
+
+.span-2
+    grid-column: span(2)
+.inline-flex
+    --gap: 12px
+    display: inline-flex
+    align-items: center
+    gap: 0 var(--gap)
+img
+    width: 100%
+    height: 100%
+    object-fit: cover
+    max-width: 100%
+input,button,select
+    font-family: inherit
+    font-size: inherit
+    cursor: pointer
+input
+    border-radius: 0
+    border: none
+    outline: none
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button
+        -webkit-appearance: none
+        margin: 0
+    &[type=number]
+        -moz-appearance: textfield
+video
+    pointer-events: none
+    user-select: none
+button
+    border: none
+    background: none
+    appearance: none
+    cursor: pointer
+    &.remove, &.edit
+        font-size: 14px
+        text-transform: uppercase
+    &.remove
+        color: $text
+
+.btn_wrap
+    display: flex
+    align-items: center
+    gap: 15px
+
+.tab-nav
+    cursor: default
+    [data-tab]
+        cursor: pointer
+        caret-color: transparent
+.tab-nav-content
+    position: relative
+    .tabs
+        transform: translateY(10px)
+        transition: 0.3s ease
+        &.active
+            transform: translateY(0)
+        &:not(.active)
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            pointer-events: none
+            user-select: none
+            opacity: 0
+            height: 0
+            overflow: hidden
+            transform: translateY(3%)
+.item-md
+    position: relative
+    @include before
+    @include after
+    &::before,&::after
+        z-index: 1
+    figure,.figure
+        display: block
+        overflow: hidden
+        line-height: 0
+        height: 100%
+        img,video
+            height: 100%
+            width: 100%
+            object-fit: cover
+            transition: .5s ease
+    figcaption
+        position: absolute
+        bottom: 0
+        left: 0
+        right: 0
+        z-index: 2
+    .link-md
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+        z-index: 3
+    &.center-item
+        figcaption
+            bottom: auto
+            top: 50%
+            translate: 0 -50%
+
+.testimony_col
+    &::before
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.6) 88%)
+    figcaption
+        display: flex
+        align-items: center
+        justify-content: space-between
+        padding: 0 20px 20px
+        bottom: 3%
+        translate: 0 3%
+        .content
+            h6, p
+                color: $white
+            h6
+                font-size: 24px
+                @include media(991)
+                    font-size: 22px
+            p
+                font-size: 14px
+        .play-btn
+            --btnsize: 40px
+
+
+.product_col
+    height: 100%
+    width: 100%
+    background-color: $white
+    position: relative
+    overflow: hidden
+    &:hover
+        figure, .figure
+            img
+                transform: scale(1)
+        .hoverItem
+            transform: translateY(0)
+    figure, .figure
+        display: block
+        line-height: 0
+        height: 100%
+        max-height: 500px
+        width: 100%
+        overflow: hidden
+        padding: 20px 0
+        img
+            width: 100%
+            height: 100%
+            object-fit: contain
+            transform: scale(0.9)
+    figcaption
+        overflow: hidden
+        padding: 0 20px 30px
+        @include media(540)
+            padding: 0 10px 10px
+        h6
+            font-family: $Poppins
+            font-size: 16px
+            font-weight: 700
+            padding: 0 20px 5px
+            @include media(540)
+                padding: 0 5px 5px
+        p
+            font-size: 14px
+            font-weight: 400
+            padding: 0 20px 0px
+            @include media(540)
+                padding: 0 5px 0
+    .wislist
+        position: absolute
+        top: 3%
+        right: 5%
+        transform: translate(5%, -3%)
+    .hoverItem
+        display: flex
+        align-items: center
+        transform: translateY(100%)
+        transition: .5s ease
+        width: 100%
+        position: absolute
+        bottom: 0
+        a, button
+            flex: 1
+            text-align: center
+            padding: 15px 10px
+            line-height: 1.2
+        .enquireBtn
+            background: $black
+            color: $white
+            @include media(540)
+                padding: 8px 5px
+                font-size: 12px
+        .viewDetails
+            background: var(--gray)
+            color: $black
+            @include media(540)
+                padding: 8px 5px
+                font-size: 12px
+
+
+.city_col
+    display: block
+    width: 100%
+    height: 100%
+    background: var(--white)
+    border-radius: 10px
+    border: 1px solid #AEAEAE
+    text-align: center
+    padding: 15px 20px
+    transition: .3s ease
+    @include media(768)
+        padding: 10px
+    &:hover
+        box-shadow: 0 5px 15px #00000059
+        .cname
+            color: $primary
+    img
+        height: 85px
+        width: 85px
+        @include media(768)
+            width: 70px
+            height: 70px
+        @include media(540)
+            width: 60px
+            height: 60px
+    .cname
+        margin: 10px 0 3px
+        font-weight: 500
+        font-size: 16px
+        color: $black
+        transition: .3s ease
+        @include media(540)
+            font-size: 14px
+            margin: 5px 0 
+    .parks
+        font-size: 14px
+        color: $text
+        font-weight: 400
+        transition: .3s ease
+        @include media(540)
+            font-size: 12px
+.category_col
+    &::before
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.3) 88%)
+        border-radius: 10px
+        z-index: 1
+    &::after
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.3) 88%)
+        border-radius: 10px
+        z-index: 0
+    &:hover
+        figure
+            img
+                transform: scale(1.2)
+    figure
+        position: relative
+        border-radius: 10px
+        height: 274px
+        video
+            position: absolute
+            left: 0
+            top: 0
+            z-index: -1
+        img
+            transition: 1s ease
+    .wishlist
+        position: absolute
+        right: 15px
+        top: 15px
+        z-index: 3
+    figcaption
+        z-index: 2
+        width: 100%
+        height: 100%
+        padding: 15px 15px 20px
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+        .top_sec
+            align-items: center
+            justify-content: space-between
+            p
+                font-size: 14px
+                font-weight: 500
+                color: $white
+        .lower_sec
+            h3
+                font-size: 18px
+                font-weight: 600
+                color: $white
+                line-height: 1.2
+                @include media(991)  
+                    font-size: 16px
+                @include media(768)  
+                    @include line-clamp(2)
+                    
+            p
+                margin-top: 10px
+                font-size: 14px
+                font-weight: 400  
+                color: $white
+
+.industry_col
+    width: 100%
+    height: 100%
+    &:hover
+        figure
+            .img_wrap
+                img
+                    transform: scale(1.2)
+    figure
+        position: relative
+        height: 195px
+        @include before
+        @include after
+        &::before,&::after
+            z-index: 1
+        &::before
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.3) 88%)
+            border-radius: 5px
+        &::after
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.3) 88%)
+            border-radius: 5px
+    .img_wrap
+        display: block
+        overflow: hidden
+        line-height: 0
+        height: 100%
+        border-top-left-radius: 5px
+        border-top-right-radius: 5px
+        img,video
+            height: 100%
+            width: 100%
+            object-fit: cover
+            transition: .5s ease
+    .wishlist
+        position: absolute
+        right: 15px
+        top: 15px
+        z-index: 3
+    .img_content
+        position: absolute
+        bottom: 0
+        left: 0
+        right: 0
+        z-index: 2
+        width: 100%
+        height: 100%
+        padding: 15px 15px 20px
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+        .top_sec
+            align-items: center
+            justify-content: space-between
+            p
+                font-size: 14px
+                font-weight: 500
+                color: $white
+        .lower_sec
+            h3
+                font-size: 14px
+                font-weight: 600
+                color: $white
+                line-height: 1.2
+                display: -webkit-box
+                -webkit-line-clamp: 2
+                -webkit-box-orient: vertical
+                overflow: hidden
+                text-overflow: ellipsis
+            p
+                margin-top: 10px
+                font-size: 12px
+                font-weight: 400
+                color: $white
+    figcaption
+        background: $white
+        padding: 25px 15px
+        border-bottom-left-radius: 5px
+        border-bottom-right-radius: 5px
+        @include media(540) 
+            padding: 20px 15px
+        > p
+            font-size: 14px
+            color: $text 
+            font-weight: 400
+            display: -webkit-box
+            -webkit-line-clamp: 3
+            -webkit-box-orient: vertical
+            overflow: hidden
+            text-overflow: ellipsis
+        .distance
+            display: flex
+            align-items: start
+            gap: 10px
+            padding: 20px 0 
+            .dis_col
+                flex: 1
+                p, span
+                    display: block
+                    color: $text
+                p
+                    font-size: 14px
+                    font-weight: 500
+                span
+                    font-size: 12px
+                    line-height: 1.2
+                    margin-top: 7px
+        .btn_wrapper
+            display: flex
+            align-items: center
+            gap: 10px
+            .btn
+                flex: 1
+                @include media(768)
+                    --padding: 5px
+
+.overlay
+    position: fixed
+    left: 0
+    right: 0
+    bottom: 0
+    top: 0
+    z-index: 6
+    opacity: 0
+    background: rgb(0 0 0 / 50%)
+    transform: translateY(100%)
+    transition: 0s ease .5s,opacity .5s ease
+    cursor: pointer
+    @include media(991)
+        z-index: 2
+    @include media(540)
+        display: none
+    &.is-open
+        transition: opacity 1s ease
+        opacity: 1
+        transform: translateY(0%)
+.overlay2
+    position: fixed
+    left: 0
+    right: 0
+    bottom: 0
+    top: 0
+    z-index: 5
+    opacity: 0
+    background: rgb(0 0 0 /.7)
+    transform: translateY(100%)
+    transition: 0s ease .5s,opacity .5s ease
+    pointer-events: none
+    cursor: pointer
+    @include media(991)
+        z-index: 2
+    @include media(675)
+        display: none
+    &.is-open
+        transition: opacity 1s ease
+        opacity: 1
+        transform: translateY(0%)
+
+.model
+    position: fixed
+    top: 0
+    bottom: 0
+    z-index: 7
+    background: $white
+    background-position: 0% 80%
+    background-size: 75%
+    max-width: 435px
+    width: 100%
+    .close
+        &:not(.btn)
+            position: absolute
+            top: 0
+            right: 0
+            top: 40px
+            right: 40px
+            @include media(520)
+                top: 20px
+                right: 20px
+            path
+                stroke: $black
+
+img
+    width: 100%
+    object-fit: cover
+    transition: .5s ease
+
+
+.btn
+    --height: 34px
+    --padding: 18px
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    gap: 10px
+    border-radius: 5px
+    vertical-align: middle
+    height: var(--height)
+    line-height: var(--height)
+    padding: 0 var(--padding)
+    overflow: hidden
+    text-transform: capitalize
+    color: var(--white)
+    -webkit-appearance: none
+    -moz-appearance: none
+    appearance: none
+    transition: 0.5s ease
+    caret-color: transparent
+    -webkit-user-select: none
+    -moz-user-select: none
+    user-select: none
+    background: var(--primary)
+    z-index: 1
+    position: relative
+    @include before($gradient-a)
+    @include after($gradient-b) 
+    &::before, &::after
+        z-index: -1
+        transition: .5s ease
+    &::after
+        opacity: 0
+    @include media(540)
+        font-size: 12px
+        --padding: 14px
+    &:hover
+        &::before
+            opacity: 0
+        &::after 
+            opacity: 1
+        path
+            fill: $primary
+    img
+        width: 24px
+        transition: .3s ease
+    &.btn-large,&.btn-medium
+        font-size: 16px
+        letter-spacing: 0px
+    &.w-100
+        width: 100%
+    &.btn-large
+        --height: 52px
+        --padding: 38px
+    &.small
+        --height: 30px
+        --padding: 12px
+        font-size: 14px 
+    &.btn-medium
+        --height: 45px
+        --padding: 25px
+    &.white-border
+        border: 1px solid var(--white)
+        background: none
+        &::before 
+            background: transparent
+        &::after 
+            background: var(--white)
+        &:hover
+            color: var(--primary)
+            img
+                filter: invert(1)
+    &.color-border
+        border: 1px solid var(--primary)
+        border-radius: 25px
+        background: none
+        color: var(--primary)
+        &::before 
+            background: transparent
+        &::after 
+            background: var(--primary)
+        &:hover
+            color: var(--white)
+    &.primary-border
+        border: 1px solid var(--primary)
+        border-radius: 5px
+        background: none
+        color: var(--primary)
+        &::before 
+            background: var(--white)
+        &::after 
+            background: var(--primary)
+        &:hover
+            color: var(--white)
+    &.white
+        border: 1px solid var(--white)
+        background: none
+        color: $black
+        &::before 
+            background: var(--white)
+        &::after 
+            background: none
+        &:hover
+            color: var(--white)
+            img
+                filter: invert(1)
+.form-grid
+    --item: 1
+    --gaplr: 30px
+    --gaptb: 32px
+    display: grid
+    grid-template-columns: repeat(var(--item), calc((100% - (var(--gaplr) * (var(--item) - 1))) / var(--item)))
+    gap: var(--gaptb) var(--gaplr)
+    .full
+        grid-column: span var(--item)
+    &.form-2
+        --item: 2 
+    &.form-3
+        --item: 3 
+    &.form-4
+        --item: 4 
+
+
+//banner
+
+.banner
+    position: relative
+    @include before
+    &::before
+        z-index: 1
+        background: linear-gradient(270deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%),linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.6) 88%)
+    .bg
+        line-height: 0
+        @include media(1366)
+            height: calc(100vh - var(--headerheight))
+        video,img
+            width: 100%
+            height: 100%
+            object-fit: cover
+    .banner-wrapper
+        position: absolute
+        left: 0
+        right: 0
+        top: 50%
+        translate: 0 -50%
+        z-index: 2
+        h1
+            font-family: $Poppins
+            text-transform: uppercase
+            font-size: 48px
+            line-height: 1.28
+            color: $white
+        .content
+            p
+                color: $white
+                font-size: 20px
+                line-height: 1.23
+                margin-top: 4px
+                @include media(991)
+                    font-size: 18px
+                @include media(768)
+                    font-size: 16px
+
+.banner-banner
+    .content
+        h1
+            font-family: $Poppins
+            font-size: 32px
+            line-height: 1.1875
+            text-transform: uppercase
+        p
+            margin-top: 18px
+            color: $text
+
+// swiper
+
+.swiper-slide
+    height: auto
+
+.swiper-nav
+    line-height: 0
+    &.no_bg
+        .swiper-prev,.swiper-next
+            background: none
+            box-shadow: none
+            img, svg
+                width: 30px
+                height: 30px
+    &.white-border
+        .swiper-prev,.swiper-next
+            background: none
+            box-shadow: none
+            border: 1px solid $white
+            img, svg
+                width: 30px
+                height: 30px
+                path
+                    stroke: $white
+    &.primary-border
+        .swiper-prev,.swiper-next
+            background: none
+            box-shadow: none
+            border: 1px solid $primary
+            img, svg
+                width: 30px
+                height: 30px
+                path
+                    stroke: $primary
+    &.center-full
+        position: absolute
+        top: 50%
+        left: 50%
+        translate: -50% -50%
+        z-index: 2
+        display: flex
+        align-items: center
+        justify-content: space-between
+        width: 100%
+        max-width: 100%
+        margin: 0 auto
+        pointer-events: none
+        user-select: none
+        .swiper-prev,.swiper-next
+            pointer-events: all
+            user-select: auto
+    &.group
+        display: flex
+        flex-wrap: wrap
+        align-items: center
+        gap: 0 15px
+        @include media(1152)
+            gap: 0 8px
+    &.icon-width-auto
+        .swiper-next,.swiper-prev
+            svg
+                width: auto
+                height: auto
+
+
+.swiper-prev,.swiper-next
+    width: 40px
+    height: 40px
+    background: $white
+    border-radius: 50%
+    box-shadow: 0px 5px 15px 0 rgba(0, 0, 0, 0.3490196078)
+    @include media(540) 
+        width: 30px
+        height: 30px
+    img, svg
+        vertical-align: middle
+    &.swiper-button-disabled
+        cursor: no-drop
+        opacity: .4
+    &.swiper-button-lock
+        display: none !important
+
+
+// Other
+
+.play-btn
+    --btnsize: 56px
+    --border: 2px
+    --bordercolor: var(--white)
+    --playbtncolor: var(--white)
+    height: var(--btnsize)
+    width: var(--btnsize)
+    border-radius: 50%
+    border: var(--border) solid var(--bordercolor)
+    position: relative
+    background: none
+    @include media(1024)
+        --btnsize: 50px
+    @include media(675)
+        --btnsize: 45px
+        --border: 1px
+    &::before
+        width: 100%
+        height: 100%
+        top: 50%
+        right: 0
+        bottom: 0
+        left: 50%
+        position: absolute
+        content: ""
+        transform: translateX(-50%) translateY(-50%)
+        background: var(--bordercolor)
+        border-radius: 50%
+        display: block
+        animation: pulse-border 1500ms ease-out infinite
+        @keyframes pulse-border
+            0%
+                transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1)
+                opacity: 0.5
+            100%
+                transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1.5)
+                opacity: 0
+    &::after
+        content: ''
+        position: absolute
+        top: 50%
+        left: 50%
+        translate: -50% -50%
+        width: 0
+        height: 0
+        border-top: calc(var(--btnsize) / 8) solid transparent
+        border-bottom: calc(var(--btnsize) / 8) solid transparent
+        border-left: calc(var(--btnsize) / 5.6) solid var(--playbtncolor)
+        
+.website-content
+    > :first-child 
+        margin-top: 0 !important
+    > :last-child
+        margin-bottom: 0 !important
+    h1
+        font-size: 48px
+        margin-bottom: 45px
+        line-height: 1.21
+        font-weight: normal
+        @include media(768)
+            font-size: 40px
+        @include media(540)
+            font-size: 32px
+    h2
+        font-size: 36px
+        line-height: 1.21
+        @include font(500)
+        @include media(768)
+            font-size: 32px
+        @include media(540)
+            font-size: 28px
+    h3
+        font-size: 32px
+        line-height: 1.21
+        @include font(500)
+        @include media(768)
+            font-size: 28px
+        @include media(540)
+            font-size: 24px
+    h4
+        font-size: 28px
+        line-height: 1.21
+        @include font(500)
+        @include media(768)
+            font-size: 24px
+        @include media(540)
+            font-size: 20px
+    h5
+        font-size: 24px
+        line-height: 1.2
+        @include font(500)
+        @include media(768)
+            font-size: 20px
+        @include media(540)
+            font-size: 16px
+    h6
+        font-size: 20px
+        line-height: 1.3
+        @include font(600)
+        @include media(540)
+            font-size: 16px
+    h2,h3,h4
+        margin: 40px 0 18px
+        @include media(1336)
+            margin: 30px 0 18px
+        @include media(768)
+            margin: 20px 0 15px
+        @include media(540)
+            margin: 15px 0 
+    h5,h6
+        margin: 22px 0 18px
+        @include media(768)
+            margin: 15px 0 
+        @include media(540)
+            margin: 10px 0
+    p,li
+        color: $text
+        text-align: justify
+        hyphens: auto
+        @include media(540)
+            font-size: 14px
+        b, strong
+            @include font(600)
+            color: $black
+    p
+        padding-bottom: 10px
+    a
+        color: $black
+        &:hover
+            text-decoration: underline  
+    ul
+        &:not(.seo-loc-ser)
+            padding-left: 18px
+            margin-bottom: 30px
+            @include media(675)
+                padding-left: 10px
+            li
+                position: relative
+                padding-left: 28px
+                @include media(675)
+                    padding-left: 20px
+                &:not(:last-child)  
+                    margin-bottom: 6px
+                &::before
+                    content: ''
+                    position: absolute
+                    top: 8px
+                    left: 0
+                    width: 10px
+                    aspect-ratio: 1
+                    border-radius: 50%
+                    background: var(--primary)
+                    @include media(520)
+                        width: 6px
+    &.website-content-medium 
+        h2,h3,h4
+            margin: 20px 0 18px
+            font-size: 20px
+            @include font(500)
+        h5,h6
+            font-size: 18px
+            @include font(500)
+        p,ul
+            margin-bottom: 20px
+    .seo-loc-ser
+        li
+            display: inline-block
+            vertical-align: middle
+            line-height: 1
+            &:not(:last-child)
+                border-right: 1px solid $text
+                padding-right: 10px
+                margin-right: 10px
+            a
+                display: inline-block
+                color: $text
+                font-size: 14px
+                &:hover
+                    color: var(--primary) 
+    &.website-content-white
+        *
+            color: $white
+        ul
+            li
+                &::before
+                    background: $white
+    &.website-content-small
+        h2
+            font-size: 28px
+            @include media(675)
+                font-size: 22px
+        h3
+            font-size: 26px
+            @include media(675)
+                font-size: 20px
+        h4
+            font-size: 22px
+            @include media(675)
+                font-size: 18px
+        h5,h6
+            font-size: 18px
+    table
+        thead
+            background-color: #6666661a
+            color: $black
+            th
+                padding: 10px
+        tbody
+            tr 
+                td
+                    padding: 5px 10px
+                    color: $text
+
+.seo-section
+    .website-content
+        h1, h2, h3  
+            font-size: 30px
+            margin: 40px 0 18px
+            @include media(769)
+                font-size: 24px
+                margin: 30px 0 18px
+            @include media(540)
+                font-size: 20px
+                margin: 25px 0 15px
+        h4, h5, h6
+            margin: 30px 0 15px
+            @include media(769)
+                margin: 25px 0 15px
+            @include media(540)
+                margin: 20px 0 12px
+
+.container-fluid 
+    &.slider-section
+        .upper-sec
+            .slider-nav
+                right: 3%
+                transform: translate(3%, -50%)
+
+
+
+.slider-section
+    .container
+        @include media(675)
+            padding-right: 0
+    .upper-sec
+        position: relative
+        margin-bottom: 4rem
+        @include media(991)
+            margin-bottom: 3rem
+        @include media(768)
+            margin-bottom: 2rem
+        @include media(540)
+            margin-bottom: 1.5rem
+        .slider-nav
+            position: absolute
+            top: 50%
+            right: 0
+            transform: translate(0, -50%)
+            display: flex
+            align-items: center
+            gap: 20px
+            @include media(768)
+                display: none
+            .swiper-prev
+                svg, img
+                    transform: scaleX(-1)
+        .heading
+            text-align: center
+
+.lctn
+    font-size: 14px
+    line-height: 1
+    color: $text
+    --arrow: 20px
+    --space: 5px
+    position: relative
+    padding-left: calc(var(--arrow) + var(--space))
+    &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 50%
+        translate: 0 -50%
+        height: var(--arrow)
+        width: var(--arrow)
+        background-image: url(/assets/icon/location-gradient.svg)
+        background-repeat: no-repeat
+        background-size: 100% 100%
+        background-position: 0 0
+        transition: .5s ease
+        transform-origin: center right
+    &.clndr
+        color: $white
+        --arrow: 17px
+        --space: 12px
+        &::before
+            background-image: url(/assets/icon/calender.svg)
+
+.common-grid
+    display: grid
+    grid-template-columns: repeat(3,1fr)
+    grid-gap: 50px 20px
+    @include media(991)
+        grid-template-columns: repeat(2,1fr)
+        grid-gap: 30px 18px
+    @include media(675)
+        grid-template-columns: 100%
+        grid-gap: 10px
+
+.product-col
+    position: relative
+    @include shine()
+    .figure,figure
+        display: block
+        line-height: 0
+        overflow: hidden
+        position: relative
+        .add-to
+            width: 100%
+            position: absolute
+            right: 0
+            bottom: 0
+            text-align: right
+            display: flex
+            align-items: center
+            justify-content: end
+            opacity: 0
+            transition: .5s ease
+            a
+                display: block
+                padding: 11px 20px
+                transition: .5s ease
+                svg
+                    width: 25px
+                    height: 25px
+                    vertical-align: middle
+                &.add2cart
+                    background-color: #13195F
+                    &:hover
+                        background-color: #fff
+                        svg
+                            path 
+                                fill: var(--primary)
+                &.add2wish
+                    background-color: #030735
+                    &.active
+                        background-color: #fff
+                        svg
+                            path 
+                                fill: var(--primary)
+                    &:hover
+                        background-color: #fff
+                        svg
+                            path 
+                                stroke: var(--primary)
+        img
+            width: 100%
+            object-position: cover
+            object-position: top
+            transition: .5s ease
+            transform-origin: left top
+    figcaption
+        text-align: center
+        padding: 18px 20px 0
+        max-width: 305px
+        margin: 0 auto
+        .pro_name
+            display: block
+            font-weight: 400
+            font-size: 16px
+            line-height: 1.2
+            letter-spacing: 4px
+            text-transform: uppercase
+            text-align: center
+            color: #000
+            padding-bottom: 10px
+        .price
+            display: block
+            text-align: center
+            font-size: 16px
+            line-height: 1.2
+            font-weight: 400
+            color: #666666
+        .color-select-wrap
+            padding-bottom: 10px
+            li
+                display: inline-block
+                vertical-align: middle
+                position: relative
+                &:not(:last-child)
+                    margin-right: 15px
+                &:has(input:checked)
+                    span
+                        &::before
+                            opacity: 1
+                span
+                    display: inline-block
+                    width: 20px
+                    height: 20px
+                    background-color: #000
+                    border-radius: 50%
+                    position: relative
+                    &::before
+                        content: ""
+                        position: absolute
+                        left: -3px
+                        bottom: -3px
+                        width: 26px
+                        height: 26px
+                        border: 1px solid #000
+                        border-radius: 50%
+                        opacity: 0  
+                input
+                    position: absolute
+                    left: 0
+                    right: 0
+                    top: 0 
+                    bottom: 0
+                    width: 100%
+                    height: 100%
+                    z-index: 2
+                    appearance: none
+                    opacity: 0
+                    &:checked
+                        ~ span
+                            &::before
+                                opacity: 1
+    &:hover
+        .add-to
+            opacity: 1
+        .figure,figure
+            img
+                transform: scale(1.1)
+
+.product-col,.product-col-2
+    .wishlist-ico
+        position: absolute
+        top: 13px
+        right: 10px
+        width: 30px
+        height: 30px
+        border-radius: 50%
+        background: $white
+        display: flex
+        align-items: center
+        justify-content: center
+        opacity: 0
+        pointer-events: none
+        img,svg
+            width: 15px
+            height: auto
+        &:hover,&.is-active
+            background: $primary
+            img
+                filter: $white-filter
+    &:hover
+        .wishlist-ico
+            opacity: 1
+            pointer-events: all
+.product-col-2,.product-col-3
+    position: relative
+    @include before
+    .figure,figure
+        display: block
+        line-height: 0
+        height: 100%
+        overflow: hidden
+        img
+            width: 100%
+            height: 100%
+            object-fit: cover
+            object-position: top
+            transform-origin: left top
+            transition: .5s ease
+    &::before
+        z-index: 1
+    &:hover
+        .figure,figure
+            img
+                transform: scale(1.1)
+    figcaption
+        position: absolute
+        bottom: 0
+        left: 0
+        right: 0
+        z-index: 2
+
+.product-col-2
+    &::before
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%)
+    figcaption
+        text-align: center
+        padding: 0 2rem 46px
+        .prdt-nm,.prd-price
+            display: block
+            display: block
+            color: $white
+            font-size: 18px
+        .prdt-nm
+            margin-bottom: 8px
+.product-col-3
+    &::before
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.95) 100%)
+    &:hover
+        .figure,figure
+            img
+                transform: scale(1.05)
+    figure,.figure
+        img
+            aspect-ratio: 0.9
+    figcaption
+        text-align: center
+        padding: 0 2rem
+        margin-bottom: 3.5rem
+        transition: .5s ease
+        --btnheight: 36px
+        --titlepad: 30px
+        .ico
+            line-height: 0
+            margin-bottom: 20px
+            transform: translateY(30px) scale(.4)
+            transition: .5s ease
+            opacity: 0
+        h6
+            font-family: $Poppins
+            color: $white
+            font-size: 22px
+            line-height: 1.283
+            // letter-spacing: 0.2em
+            text-transform: uppercase
+            transition: .6s ease
+    .xbjs
+        position: absolute
+        left: 50%
+        translate: -50% 0
+        bottom: 0
+        opacity: 0
+        transform: translateY(30px) scale(.9)
+        transition: .6s ease
+        .btn
+            --height: var(--btnheight)
+    &:hover
+        transform: translateY(0px)
+        figcaption
+            .ico
+                transform: translateY(0px) scale(1)
+                opacity: 1
+            h6
+                padding-bottom: calc(var(--btnheight) + var(--titlepad))
+            .xbjs
+                opacity: 1
+                transform: translateY(0px) scale(1)
+
+.gray-bg
+    background: $gray
+
+.gradient-head
+    display: inline-block
+    text-transform: initial
+    -webkit-background-clip: text
+    -webkit-text-fill-color: transparent
+    background-image: var(--gradient-a)
+
+.whitetxt
+    font-size: 16px
+    line-height: 20px
+    font-weight: 400
+    color: #fff
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active
+    border-radius: 50%
+    background: $primary
+    border-color: $primary
+    height: 17px
+    width: 17px
+    border: none !important
+    top: 50%
+    translate: 0 -50%
+    &:focus
+        outline: none
+.ui-slider-horizontal
+    height: 2px
+    border: none !important
+.ui-widget-content
+    background: #CECECE
+    border: none !important
+.ui-widget-header
+    background: $primary
+
+
+.no-data
+    width: 100%
+    text-align: center
+    font-size: 14px
+
+
+
+.kmr-select-wrap
+    position: relative
+    display: inline-block
+    --labelheight: 45px
+    --liheight: 34px
+    --boxsize: calc(var(--liheight) - 14px)
+    --arrowsize: 16px
+    --space: 11px
+    .label 
+        color: $black
+        height: var(--labelheight)
+        line-height: var(--labelheight)
+        background-image: url(/assets/icon/arrow-down-black.svg)
+        background-repeat: no-repeat
+        background-position-y: 50%
+        background-position-x: 100%
+        background-size: var(--arrowsize) auto
+        padding-right: calc(var(--arrowsize) + var(--space))
+        cursor: pointer
+        caret-color: transparent
+        user-select: none
+        font-size: 12px
+        text-transform: uppercase
+        letter-spacing: 1px
+        font-family: $Poppins
+    &.active
+        --btn: 10px
+        &.price_select
+            .kmr-select-menu
+                .upper-sec
+                    .reset-btn
+                        display: block
+    &.slt-rgt
+        .kmr-select-menu
+            right: 0
+            left: auto
+    &.color-select
+        .kmr-select-menu
+            li
+                .in-bx
+                    border-color: #ccc
+                    border-radius: 50%
+    &.price_select
+        .kmr-select-menu
+            padding: 20px
+            width: 325px
+            .upper-sec
+                display: flex
+                .reset-btn
+                    font-size: 14px
+                    @include font(500)
+                    display: none
+                    svg
+                        width: 15px
+                        height: auto
+                        display: inline-block
+                        vertical-align: middle
+                        margin-left: 3px
+            h6
+                flex: 1
+                font-size: 14px
+                color: $black
+                font-family: $Poppins
+                @include font(500)
+        .product-range-slider-wrap
+            margin: 30px 0 40px
+        .price-range-input-wrap
+            display: flex
+            gap: 18px
+            align-items: center
+            color: $text
+            .price-range-input
+                flex: 1
+                border: 1px solid #E0E0E0
+                background: $white
+                display: flex
+                align-items: center
+                padding: 0 10px
+                height: 30px
+                color: $text
+                gap: 10px
+                input
+                    border: none
+                    width: 100%
+                    color: $text
+                    &:focus
+                        outline: none
+    .kmr-select-menu
+        position: absolute
+        z-index: 1
+        left: 0
+        top: 100%
+        background: $white
+        width: 260px
+        padding: 20px 0
+        display: none
+        max-height: 244px
+        overflow-y: auto
+        @include scrollbar($width: 6px,$color : $text,$radius: 10px)
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px
+        &:has(input[type="radio"])
+            li
+                .in-bx
+                    border-radius: 50%
+                    &::before
+                        display: none
+            &:has(input:checked)
+                li
+                    .in-bx
+                        outline: 5px solid $white
+                        outline-offset: -10px
+        li
+            position: relative
+            display: flex
+            align-items: center
+            gap: 12px
+            height: var(--liheight)
+            padding: 0 14px
+            &:has(input:checked)
+                .in-bx
+                    background: $black
+                    transition: .4s ease
+                    &::before
+                        opacity: 1
+            .in-bx
+                height: var(--boxsize)
+                width: var(--boxsize)
+                border: 1px solid $black
+                border-radius: 3px
+                transition: 0s ease
+                @include before(url(/assets/icon/tick-white.svg))
+                &::before
+                    background-repeat: no-repeat
+                    background-size: 48%
+                    background-position: center center
+                    opacity: 0
+            span
+                display: block
+                flex: 1
+                font-size: 14px
+                line-height: 1
+                @include font(500)
+            input
+                position: absolute
+                top: 0
+                left: 0
+                right: 0
+                bottom: 0
+                z-index: 1
+                height: 100%
+                width: 100%
+                appearance: none
+                opacity: 0
+
+.breadcrumps
+    @include media(991)
+        display: none
+    li
+        display: inline-block
+        vertical-align: middle
+        a
+            color: $primary
+            font-size: 14px
+            @include media(520)
+                font-size: 12px
+                text-overflow: ellipsis
+            &.active
+                color: $text
+        &:not(:last-child)
+            position: relative
+            padding-right: 20px
+            @include media(520)
+                padding-right: 10px
+            &::before
+                content: '>'
+                position: absolute
+                left: 100%
+                top: 50%
+                translate: 0 -50%
+                font-size: 12px
+                font-family: monospace
+                color: $text
+        &:not(:first-child)
+            padding-left: 20px
+            @include media(520)
+                padding-left: 10px
+
+[data-scrollTo]
+    cursor: pointer
+
+.fancybox__container
+    --fancybox-bg: var(--black)
+
+.green-color
+    color: $green !important
+.light-green
+    color: var(--green)
+.red-color
+    color: $red !important
+.orange-color
+    color: orange !important
+
+em
+    font-style: normal
+
+.mt-hdrfxd
+    margin-top: var(--headerfixed)
+.mt-hdr
+    margin-top: var(--headerheight)
+
+.w-full
+    width: 100%
+
+.disc
+    margin: 15px 0 
+    text-align: center
+    p
+        font-size: 14px
+        line-height: 1.2
+        color: $text
+        transition: .5s ease
+        a
+            color: var(--primary) !important
+            transition: .5s ease
+            &:hover
+                text-decoration: underline
+
+.check_term
+    margin: 15px 0 
+    .input_box
+        position: relative
+        display: flex
+        gap: 10px
+        --boxsize: 15px
+        padding-bottom: 10px
+        &:has(input:checked)
+            .in-bx
+                background: var(--primary)
+                transition: .4s ease
+                &::before
+                    opacity: 1
+        input
+            position: absolute
+            top: 0
+            left: 0
+            right: 0
+            bottom: 0
+            z-index: 1
+            height: 100%
+            width: 100%
+            -webkit-appearance: none
+            -moz-appearance: none
+            appearance: none
+            opacity: 0
+        .in-bx
+            height: var(--boxsize) 
+            width: var(--boxsize)
+            border: 1px solid var(--black)
+            border-radius: 3px
+            transition: 0s ease
+            position: relative
+            &::before
+                content: ""
+                position: absolute
+                top: 0
+                left: 0
+                right: 0
+                bottom: 0
+                z-index: 0
+                pointer-events: none
+                background: url(/assets/icon/tick-white.svg)
+                transition: .5s ease
+                background-repeat: no-repeat
+                background-size: 48%
+                background-position: center center
+                opacity: 0
+        p
+            flex: 1 
+            font-size: 14px
+            line-height: 1
+            color: $text
+
+.sm-block
+    display: none
+    @include media(540)
+        display: block
+
+.md-block
+    display: none
+    @include media(768)
+        display: block
+
+.sm-none
+    display: block
+    @include media(540)
+        display: none
+
+.md-none
+    display: block
+    @include media(768)
+        display: none
+
+.bestSeller_slider_wrapper
+    position: relative
+    z-index: 0
+    .container-fluid
+        .btn_wrapper
+            margin-top: 50px
+            text-align: center
+
+.verify
+    position: absolute
+    left: 0
+    color: red
+    font-weight: 500
+    font-size: 14px
+    top: calc(100% + 10px)
+
+@keyframes scroll
+    0%
+        transform: translateY(10px)
+    50%
+        transform: translateY(20px)
+    100%
+        transform: translateY(10px)
+
+.display-none
+    display: none
+.pos-rel
+    position: relative
+
+.wishlist
+    svg
+        width: 30px
+    &.added  
+        svg
+            path 
+                fill: $primary
+                stroke: $primary
+
+.compare_toggle
+    position: fixed
+    z-index: 4
+    bottom: 5% 
+    right: 2%
+    transform: translateX(100%)
+    transition: .5s ease
+    &.active 
+        transform: translateX(0)
+    @include media(540) 
+        bottom: 9%
+    .main_wrap
+        position: relative
+        display: flex
+        align-items: center
+        &.initial
+            display: none
+        &.closed
+            .compare_pro_wrap
+                transform: scale(0) 
+        .compare_pro_wrap
+            padding: 15px
+            background: $white
+            border-radius: 2px
+            box-shadow: -1px -3px 8px 0 rgba(99, 99, 99, 0.2)  
+            position: absolute
+            bottom: 100%
+            right: 0 
+            display: flex 
+            align-items: center
+            gap: 10px
+            transition: .5s ease
+            transform-origin: bottom right
+            transform: scale(1)
+            @include media(540) 
+                padding: 0
+                background: transparent
+            .closeCom
+                cursor: pointer
+                display: flex
+                align-items: center
+                justify-content: center
+                width: 25px
+                height: 25px
+                border-radius: 50%
+                background: $white
+                position: absolute
+                right: -2%
+                top: -9%
+                box-shadow: 0px 0px 2px 3px #cecece
+                z-index: 2
+                svg
+                    width: 17px
+                    height: 17px
+            .compare_pro
+                position: relative
+                width: 130px
+                @include media(540) 
+                    display: none
+                .pro_image
+                    line-height: 0
+                    height: 75px
+                    border-radius: 5px
+                    overflow: hidden
+                    img
+                        height: 100%
+                .pro_name
+                    padding-top: 5px 
+                    font-size: 14px
+                    line-height: 1.2
+                    @include line-clamp($line: 1)
+                .close
+                    cursor: pointer
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    width: 25px
+                    height: 25px
+                    background: $white
+                    position: absolute
+                    top: 0%
+                    right: 2%
+                    z-index: 1
+                    border-radius: 50%
+                    svg
+                        width: 17px
+                        height: 17px
+            .compare_more_count
+                display: flex
+                align-items: center
+                justify-content: center
+                flex-direction: column
+                background: $primary
+                color: $white
+                line-height: 1.2
+                padding: 10px
+                border-radius: 5px
+                width: 130px
+                height: 95px
+                @include media(540) 
+                    flex-direction: row-reverse
+                    padding: 8px 15px
+                    font-size: 12px
+                    width: 100%
+                    height: auto
+                    gap: 10px
+                span
+                    &:not(.des, .mob)
+                        font-size: 28px
+                        font-weight: 700 
+                        display: block
+                        transition: .5s ease
+                        @include media(540) 
+                            font-size: 18px
+                    &.des
+                        display: block
+                        font-size: 14px
+                        font-weight: 500
+                        @include media(540) 
+                            display: none
+                    &.mob
+                        display: none
+                        font-size: 14px
+                        font-weight: 500
+                        @include media(540) 
+                            display: block
+        .remove_all
+            background: $white
+            font-weight: 500
+            font-size: 14px
+            border-radius: 4px
+            height: 40px
+            padding: 0 20px
+            opacity: 0
+            transition: .3s ease
+            pointer-events: none
+            &.active
+                opacity: 1
+                pointer-events: all
+        .compare_link
+            display: flex
+            align-items: center
+            justify-content: center
+            gap: 10px
+            font-weight: 500
+            font-size: 14px
+            border-radius: 4px
+            height: 40px
+            padding: 0 20px
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .2)
+            background: $primary
+            display: none
+            .count
+                display: flex
+                align-items: center
+                justify-content: center
+                width: 20px
+                height: 20px
+                background: #175ac1
+                border-radius: 2px
+
+.phone-input
+    .iti.iti--allow-dropdown
+        width: 100%
+    
+.iti__search-icon
+    left: unset !important
+    right: 8px
+.iti__search-clear
+    background: var(--white) !important
+    border-radius: 50% !important
+    .iti__search-clear-svg
+        width: 18px
+        height: 18px
+    .iti__search-clear-bg
+        fill: var(--primary) !important
+
+.mb-0
+    margin-bottom: 0 !important
+.ml-0
+    margin-left: 0 !important
+.mt-0
+    margin-top: 0 !important
+.mr-0
+    margin-right: 0 !important
+.pb-0
+    padding-bottom: 0 !important
+.pl-0
+    padding-left: 0 !important
+.pt-0
+    padding-top: 0 !important
+.pr-0
+    padding-right: 0 !important
+
+.text-black
+    color: $black !important
+
+a.cta , .cta
+    font-weight: 600
+    font-size: 14px
+    color: var(--primary)
+
+.mapWindow
+    position: sticky
+    top: 200px
+
+.showPass
+    position: absolute
+    top: 50%
+    right: 0
+    transform: translate(0, -50%)
+    z-index: 2
+
+.back-to-top
+    position: fixed
+    z-index: 4
+    right: 30px
+    bottom: 30px
+    height: 50px
+    width: 50px
+    display: flex
+    align-items: center
+    justify-content: center
+    border-radius: 50% 
+    background: $primary
+    transition: .6s ease
+    transform: translateX(calc( 100% + 30px ))
+    outline: none
+    @include media(768)
+        width: 45px
+        height: 45px
+        right: 20px
+    &:active
+        opacity: .8
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px
+    &.active
+        transform: translateX(0)
+    svg
+        width: 50%
+        height: auto
+        fill: $white
+
+.faqs-sec
+    .heading
+        text-align: center
+        margin-bottom: 2.5rem
+        h2
+            font-size: 36px
+            line-height: 1.2
+            font-weight: 600
+            color: var(--primary)
+        p
+            max-width: 400px
+            margin: 10px auto 0
+
+.loader-submit
+    display: flex
+    align-items: center
+    gap: 10px
+    .loader-box
+       width: 15px
+       height: 15px
+       border-radius: 50%
+       border: 1px solid #fff
+       border-top-color: var(--primary)
+       animation: spin 0.7s linear infinite
+    span
+        color: $white
+        font-size: 14px
+
+.site-loader
+    position: fixed
+    inset: 0
+    width: 100%
+    height: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    background: rgba(0, 0, 0, 0.65)
+    backdrop-filter: blur(4px)
+    z-index: 10
+    transition: opacity 0.3s ease
+    pointer-events: all
+    .loader-box
+       width: 40px
+       height: 40px
+       border-radius: 50%
+       border: 4px solid #fff
+       border-top-color: var(--primary)
+       animation: spin 0.7s linear infinite
+
+@keyframes spin
+    0%
+        transform: rotate(0deg)
+    100%
+        transform: rotate(360deg)
+
+.error
+    color: red
+    font-size: 12px
+    line-height: normal
+    position: absolute
+    top: calc(100% + 3px)
+    left: 0
+    right: 0
+    &.static
+        position: static
+        margin: 10px 0 
+.options
+    position: relative
+    display: flex
+    align-items: center
+    gap: 7px
+    color: #000
+    --boxsize: 15px
+    .in-bx
+        height: var(--boxsize)
+        width: var(--boxsize)
+        border: 1px solid #666 
+        border-radius: 3px
+        transition: all
+        position: relative
+        &::before
+            content: ""
+            z-index: 0
+            pointer-events: none
+            -webkit-user-select: none
+            -moz-user-select: none
+            user-select: none
+            opacity: 0
+            background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+            transition: all .5s
+            position: absolute
+            inset: 0
+    span
+        font-size: 14px
+        flex: 1
+        display: block
+        color: #666
+    input
+        width: 100%
+        height: 100%
+        opacity: 0
+        appearance: none
+        position: absolute
+        z-index: 1
+        &:checked
+            ~ .in-bx
+                background-color: var(--primary)
+                border-color: var(--primary)
+                &::before
+                    opacity: 1

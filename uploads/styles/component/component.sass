@@ -1,0 +1,1456 @@
+@use '../_common' as *    
+
+    
+.size
+    text-align: center
+    &.cart_size 
+        .size_count  
+            background: $white
+            input 
+                max-width: 35px
+                height: 20px
+    p
+        padding-bottom: 5px
+        font-size: 14px
+        line-height: 1.2
+        text-transform: uppercase
+        font-weight: 600
+        @include media(540)
+            color: $text
+    .size_count
+        width: 100%
+        padding: 7px 6px
+        border: 1px solid #B4B1B1
+        border-radius: 5px
+        display: flex
+        align-items: center
+        gap: 3px
+        @include media(540)
+            padding: 4px 2px
+            gap: 1px
+        button
+            line-height: 1
+            svg
+                width: 15px
+                height: 15px
+        input
+            outline: none
+            border: none
+            background: transparent
+            max-width: 40px
+            padding: 0 5px
+            line-height: 1
+            height: 30px
+            text-align: center
+
+.model.address-pop
+    height: fit-content
+    max-width: 500px
+    top: unset
+    bottom: 0%
+    left: 50%
+    transform: translate(-50%, 100%)
+    transition: .5s ease
+    @include media(540) 
+        height: 100%
+    &.is-open
+        bottom: 50%
+        transform: translate(-50%, 50%)
+    .close
+        top: 20px
+        right: 20px
+        svg
+            width: 20px
+            height: 20px
+    .model-body
+        padding: 20px 25px
+        @include media(540) 
+            padding: 60px 25px
+        h3
+            font-size: 20px
+            text-transform: uppercase
+        .form
+            --gaptb: 10px
+            --inputsize: 38px
+            padding-top: 20px
+            --labelfontbefore: 14px
+            --labelafter: #000
+            --labelfontafter: 12px
+            --borderbefore: #666
+            --borderafter: #000
+            height: 400px
+            overflow-y: auto
+            @include media(540) 
+                height: 100%
+                overflow-y: visible
+            .double-group
+                display: grid
+                grid-template-columns: repeat(2, 1fr)
+                gap: 20px
+            h6
+                font-size: 16px
+                font-family: $Poppins
+        .disclaimer
+            padding: 15px 0 20px
+            display: flex
+            align-items: center
+            gap: 7px
+            position: relative
+            .check-box
+                --box: 20px
+                height: 100%
+                .in-bx
+                    width: var(--box)
+                    height: var(--box)
+                    background: #D9D7D7
+                    border-radius: 3px
+                    position: relative
+                    z-index: 1
+                    &::before
+                        content: ""
+                        position: absolute
+                        width: 100%
+                        height: 100%
+                        background: url(/assets/icon/tick-white.svg) no-repeat
+                        background-position: 50% 50%
+                        background-size: calc( var(--box) - 10px )
+                        filter: invert(1)
+                        z-index: 1
+                        opacity: 0
+                input
+                    position: absolute
+                    width: 100%
+                    height: 100%
+                    left: 0
+                    top: 0
+                    opacity: 0
+                    z-index: 1
+                    &:checked 
+                        ~ .in-bx
+                            &::before
+                                opacity: 1
+            p
+                font-size: 14px
+                color: $text 
+
+.thankyou_box
+    --container: 800px
+    @include media(768)
+        --container: 520px
+    .container
+        display: flex
+        align-items: center
+        border: 1px solid #D2D2D2
+        padding: 40px 25px 70px
+        background: url(/assets/images/checkout/checkout_bg.svg) no-repeat
+        background-size: 140px
+        background-position: left bottom
+        @include media(768)
+            flex-direction: column
+            justify-content: center
+            align-items: center
+            text-align: center
+            gap: 30px
+        .colA
+            text-align: center
+            flex:  0 1 40%
+            .icon
+                img
+                    width: 50px
+            p
+                max-width: 150px
+                font-size: 20px
+                font-weight: 700
+                margin: 0 auto
+                line-height: 1.2
+        .colB
+            flex: 1
+            padding-left: 40px
+            border-left: 1px solid #00000047
+            @include media(768)
+                padding-left: 0
+                border-left: none
+            p, span, a:not(.btn)
+                color: $text
+            span, a:not(.btn)
+                display: block
+                font-weight: 700
+                margin-bottom: 20px
+                @include media(540)
+                    margin-bottom: 15px
+            .btn
+                padding: 0 30px
+                border-radius: 50px
+
+.model.changePass-pop
+    height: fit-content
+    max-width: 450px 
+    top: unset
+    bottom: 0%
+    left: 50%
+    transform: translate(-50%, 100%)
+    transition: .5s ease
+    &.is-open
+        bottom: 50%
+        transform: translate(-50%, 50%)
+    .close
+        top: 20px
+        right: 20px
+        svg
+            width: 20px
+            height: 20px
+    .model-body
+        padding: 40px 25px
+        h6
+            font-size: 16px
+            font-family: $Poppins
+            font-weight: 700
+        .form
+            margin-top: 30px
+            --inputsize: 36px
+            .btn_wrapper
+                margin-top: 15px
+
+.banner.video-banner
+    .bg 
+        height: 100vh
+        @include media(768)
+            height: 80vh 
+        @include media(540)
+            height: 50vh
+        .banner-wrapper
+            width: 100%
+            left: 50%
+            top: unset
+            bottom: 15%
+            translate: -50% 15%
+            @include media(768)
+                width: 100%
+            .content
+                .icon
+                    width: 70px
+                    height: 70px
+                    margin: 0 auto 30px
+                    @include media(1024)
+                        margin: 0 auto 25px
+                    @include media(540)
+                        width: 50px
+                        height: 50px
+                h1
+                    @include media(991)
+                        font-size: 42px
+                    @include media(768)
+                        font-size: 36px
+                    @include media(540)
+                        font-size: 30px
+                p
+                    font-size: 16px
+                    max-width: 400px
+                    margin: 0 auto
+                    @include media(540)
+                        font-size: 14px
+                .scroll_down
+                    margin-top: 30px
+                    animation: scroll 1.5s ease-in-out infinite forwards
+  
+.landing-banner.banner
+    .bg
+        height: 100vh
+        .banner-wrapper
+            z-index: 2
+            .content 
+                display: flex
+                align-items: center
+                justify-content: center
+                gap: 40px
+                h1
+                    flex: 0 1 auto
+                    text-align: left
+                    max-width: 680px
+                    font-size: 40px
+                .form_wrapper
+                    flex: 1
+                    max-width: 500px
+                    padding: 40px 30px
+                    background-color: $white
+                    border-radius: 5px
+                    .title
+                        max-width: 300px
+                        margin: 0 auto 30px
+                        .icon
+                            width: 60px 
+                            height: 60px 
+                            margin: 0 auto 10px
+                        p
+                            color: $black
+                    .landing-form
+                        --item: 2
+                        --gaptb: 20px
+                        --gaplr: 20px
+                        .btn
+                            margin-top: 10px
+
+.assistPop.model
+    max-width: 1024px
+    height: 90vh
+    top: unset
+    bottom: 0
+    border-radius: 10px
+    left: 50%
+    transform: translate(-50%, 100%)
+    transition: .5s ease
+    @include media(1140)    
+        height: 100%
+        border-radius: 0
+    &.is-open
+        bottom: 50%
+        transform: translate(-50%, 50%)
+    .close
+        &:not(.btn)
+            top: 20px
+            right: 20px
+            display: flex
+            align-items: center
+            gap: 7px
+            font-size: 14px
+            color: $text
+            @include media(540) 
+                top: 10px
+            svg, img
+                width: 18px
+                @include media(540) 
+                    width: 15px
+                path
+                    stroke: $primary
+                    stroke-width: 2px
+    .model-body
+        width: 100%
+        height: 100%
+        overflow-y: auto
+        @include scrollbar($width: 4px, $color : $primary, $radius: 5px)
+        .flex
+            width: 100%
+            height: 100%
+            .colA
+                flex: 0 1 30%
+                max-width: 30%
+                line-height: 0
+                position: relative
+                @include media(991)     
+                    display: none
+                img
+                    border-top-left-radius: 10px
+                    border-bottom-left-radius: 10px
+                    @include media(1140)    
+                        border-top-left-radius: 0
+                        border-bottom-left-radius: 0
+                .gif
+                    width: 124px
+                    height: 150px
+                    position: absolute
+                    top: 40%
+                    left: 50%
+                    translate: -50% -40%
+            .colB
+                flex: 1
+                max-width: 70%  
+                width: 100%
+                padding: 30px 50px
+                --padcolBlr: 15px
+                --padt: 15px
+                --padb: 15px
+                --padlr: var(--padcolBlr, 15px)
+                @include media(991) 
+                    max-width: 100%
+                    margin-top: 30px
+                    padding: 0 30px 30px
+                @include media(768) 
+                    --padcolBlr: 10px
+                @include media(540) 
+                    padding: 0px 10px 30px
+                .title
+                    margin-bottom: 30px
+                    padding: 0 var(--padcolBlr)
+                    @include media(768) 
+                        margin-bottom: 20px
+                    @include media(540) 
+                        margin-bottom: 10px
+                    h2
+                        font-size: 24px
+                        font-weight: 500
+                        @include media(768) 
+                            font-size: 22px
+                        @include media(540) 
+                            font-size: 20px
+                .assist_form
+                    .col-md
+                        &:not(:last-child)
+                            margin-bottom: 5px
+                        .css-73ibjp-control
+                            max-width: 100%
+                        .css-17q8u64-control
+                            max-width: 100%
+                        h6
+                            font-size: 16px
+                            line-height: 1.2 
+                            padding: 0 var(--padlr)
+                            color: $black
+                            font-weight: 400
+                            @include media(540) 
+                                font-size: 14px
+                        .radio-div
+                            max-width: 100%
+                            padding: var(--padt) var(--padlr) var(--padb)
+                            // padding: 0 var(--padlr)
+                            &.pad-bot
+                                --padb: 15px
+                            .swiper
+                                padding: 2px
+                            .swiper-nav
+                                width: 100%
+                                .swiper-prev, .swiper-next
+                                    position: absolute
+                                    top: 30%
+                                    @include media(540)     
+                                        top: 40%
+                                .swiper-prev
+                                    right: 97%
+                                    @include media(540) 
+                                        right: 95%
+                                .swiper-next
+                                    left: 97%
+                                    @include media(540) 
+                                        left: 95%
+                            .type-input
+                                border: 1px solid #C8C8C8
+                                border-radius: 10px
+                                overflow: hidden
+                                position: relative
+                                text-align: center
+                                padding: 10px
+                                height: 100%
+                                display: flex
+                                flex-direction: column
+                                align-items: center
+                                justify-content: center
+                                @include media(540)     
+                                    padding: 7px
+                                &:has(input:checked)
+                                    background: #EAF4FF
+                                    border-color: $primary
+                                    box-shadow: 0px 8px 24px 0px #959DA533
+                                    span
+                                        --background: var(--primary)
+                                        &::before
+                                            transform: scale(1) translate(-50%, -50%)
+                                            opacity: 1
+                                    p
+                                        color: $primary
+                                        font-weight: 500
+                                span
+                                    display: block
+                                    text-align: center
+                                    width: 20px
+                                    height: 20px
+                                    border-radius: 50%
+                                    --background: #666666B2
+                                    border: 2px solid var(--background)
+                                    position: relative
+                                    transition: .3s ease
+                                    margin: 0 auto 8px
+                                    @include media(540)    
+                                        width: 17px
+                                        height: 17px
+                                    &::before
+                                        content: ""
+                                        background: $primary
+                                        position: absolute
+                                        top: 50%
+                                        left: 50%
+                                        translate: -50% -50%
+                                        width: 50%
+                                        height: 50%
+                                        border-radius: 50%
+                                        transform: translate(-50%, -50%) scale(.7)
+                                        opacity: 0
+                                        transition: .2s ease-out
+                                p
+                                    color: var(--text)
+                                    font-size: 13px
+                                    transition: .5s ease
+                                    @include media(540)     
+                                        font-size: 12px
+                                input
+                                    position: absolute
+                                    top: 0
+                                    left: 0
+                                    width: 100%
+                                    height: 100%
+                                    z-index: 2
+                                    appearance: none
+                                    opacity: 0
+                        .drop-wrap
+                            padding: 0 var(--padlr)
+                            margin: 0 0 var(--padb) 
+                            align-items: center
+                            gap: 30px
+                            @include media(768) 
+                                gap: 20px
+                            @include media(540) 
+                                gap: 10px
+                            .dropdown
+                                flex: 1
+                                border-bottom: 1px solid $text 
+                                @include media(540)     
+                                    width: 100%
+                                    flex: 0 1 100%
+                        .select-wrap
+                            padding: 0 var(--padlr)
+                            margin: var(--padt) 0 var(--padb)
+                            align-items: center
+                            gap: 15px
+                            @include media(540)     
+                                gap: 9px
+                            .select_box
+                                position: relative
+                                display: flex
+                                align-items: center
+                                gap: 5px
+                                padding: 6px 10px
+                                border: 1px solid #C8C8C8 
+                                border-radius: 5px
+                                --box: 15px
+                                &:has(input:checked)
+                                    border-color: $primary
+                                    background: #EAF4FF
+                                    span
+                                        color: $primary
+                                    .in-bx
+                                        border-color: $primary
+                                        background: $primary
+                                        &::before
+                                            opacity: 1
+                                input 
+                                    position: absolute
+                                    width: 100%
+                                    height: 100%
+                                    left: 0
+                                    top: 0
+                                    opacity: 0
+                                    appearance: none
+                                    z-index: 1
+                                .in-bx
+                                    width: var(--box)
+                                    height: var(--box)
+                                    border: 1px solid #BDBDBD
+                                    border-radius: 3px
+                                    transition: 0s ease
+                                    @include before(url(/assets/icon/tick-white.svg))
+                                    &::before
+                                        background-repeat: no-repeat
+                                        background-size: 48%
+                                        background-position: center center
+                                        opacity: 0
+                                span
+                                    font-size: 12px
+                                    line-height: 1
+                                    color: $text
+                                    font-weight: 400
+                        .range-wrap
+                            display: grid
+                            grid-template-columns: repeat(2, 1fr)
+                            column-gap: 30px
+                            @include media(991)
+                                margin-top: 30px
+                            @include media(768) 
+                                column-gap: 20px
+                            @include media(540)     
+                                grid-template-columns: repeat(1, 1fr)
+                            .range-col 
+                                margin-bottom: var(--padb)
+                        .range-col
+                            flex: 1
+                            padding: 0 var(--padlr)
+                            @include media(540)     
+                                padding: 0
+                            h6
+                                @include media(768) 
+                                    font-size: 14px
+                                    text-align: center
+                            .customRange
+                                @include media(768) 
+                                    margin: 10px !important
+                            .top-select
+                                display: flex
+                                align-items: center
+                                gap: 20px
+                                h6
+                                    padding: 0
+                                    font-size: 14px
+                                    flex: 1
+                                .dropdown
+                                    border-bottom: none
+                                    // max-width: 70px
+                                    .css-73ibjp-control, .css-17q8u64-control
+                                        min-height: auto
+                            span
+                                display: block
+                                font-size: 12px
+                                color: $text
+                                font-weight: 500
+                                text-align: center
+                        .unit_wrapper
+                            position: relative
+                            background: url(/assets/icon/arrow-down-gray.svg) no-repeat
+                            background-position: 96% 50%
+                            background-size: 13px
+                            height: 40px
+                            flex: 1
+                            @include media(540)     
+                                padding: 0
+                            .unit_title
+                                height: 100%
+                                display: flex
+                                align-items: center
+                                border-bottom: 1px solid $black
+                                cursor: pointer
+                                h6
+                                    padding: 0
+                                    font-weight: 400
+                                    font-size: 14px  
+                                    color: $text
+                            .filter_wrapper
+                                max-height: 200px
+                                display: none
+                                position: absolute
+                                top: calc( 100% + 1px)
+                                right: 0
+                                background: var(--white)
+                                box-shadow: rgba(149, 157, 165, 0.2) 1px 20px 24px
+                                border-radius: 5px
+                                padding: 15px
+                                z-index: 1
+                                width: 100%
+                                transition: all .5s ease
+                                line-height: 1
+                                --boxsize: 15px
+                                @include scrollbar($background: $white,$color : var(--primary))
+                                overflow-y: auto
+                                &.is-open 
+                                    display: block
+                                .option
+                                    position: relative
+                                    display: flex
+                                    align-items: center
+                                    gap: 7px
+                                    color: #000
+                                    &:not(:last-child)
+                                        margin-bottom: 8px
+                                    .in-bx
+                                        height: var(--boxsize)
+                                        width: var(--boxsize)
+                                        border: 1px solid #666 
+                                        border-radius: 3px
+                                        transition: all
+                                        position: relative
+                                        &::before
+                                            content: ""
+                                            z-index: 0
+                                            pointer-events: none
+                                            -webkit-user-select: none
+                                            -moz-user-select: none
+                                            user-select: none
+                                            opacity: 0
+                                            background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+                                            transition: all .5s
+                                            position: absolute
+                                            inset: 0
+                                    span
+                                        font-size: 12px
+                                        flex: 1
+                                        display: block
+                                        color: #666
+                                    input
+                                        width: 100%
+                                        height: 100%
+                                        opacity: 0
+                                        appearance: none
+                                        position: absolute
+                                        z-index: 1
+                                        &:checked
+                                            ~ .in-bx
+                                                background-color: var(--primary)
+                                                border-color: var(--primary)
+                                                &::before
+                                                    opacity: 1
+                    .btn_wrap
+                        padding: 0 var(--padlr)
+                        @include media(540) 
+                            margin-top: 10px
+                        .btn
+                            &::before, &::after
+                                display: none
+
+.service_col
+    display: flex
+    gap: 20px
+    background: $white
+    box-shadow: 0px 2px 8px 0 #63636333
+    border-radius: 5px
+    padding: 25px 15px
+    @include media(1140)   
+        gap: 13px
+        padding: 20px 15px
+    @include media(768)
+        flex-direction: column
+    figure, .figure
+        display: block
+        line-height: 0
+        flex: 0 1 30%
+        @include media(1140)   
+            height: 80px
+        @include media(768)
+            height: 100%
+            flex: 0 1 100%
+        img
+            border-radius: 5px
+    figcaption
+        flex: 1
+        h6
+            font-size: 16px
+            color: $black
+            font-weight: 500
+            line-height: 1.2
+        p
+            font-size: 14px
+            color: $text
+            font-weight: 400
+            margin: 5px 0 10px
+            @include line-clamp($line: 3)
+        .btn2
+            color: $primary
+            font-size: 14px
+            font-weight: 500 
+
+.thanks.banner
+    &::before
+        background: linear-gradient(360deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .8)), linear-gradient(rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, .6) 88%)
+    .bg
+        height: 100vh
+    .banner-wrapper
+        width: 100%
+        bottom: 40% 
+        left: 50%
+        transform: translate(-50%, 40%)
+        .content
+            display: flex
+            flex-direction: column 
+            justify-content: center
+            align-items: center
+            text-align: center
+            figure
+                width: 80px
+                margin-bottom: 20px
+                img, svg
+                    width: 100%
+                    height: 100%
+            h1
+                margin-bottom: 5px
+            p
+                font-size: 16px
+                margin: 0 auto 30px
+                max-width: 495px
+
+// Main filter
+
+.filter-strip 
+    position: relative
+.upper-strip
+    width: 100%
+    padding: 20px var(--padding) 0
+    background: #EDEDED
+    border-top-left-radius: 10px
+    border-top-right-radius: 10px
+    position: relative
+    .category_slider
+        max-width: 96%
+        .swiper-slide
+            width: auto
+        .category_option
+            position: relative
+            display: flex
+            align-items: center
+            justify-content: center
+            gap: 5px
+            padding-bottom: 15px
+            cursor: pointer
+            filter: grayscale(1)
+            &.active
+                filter: grayscale(0)
+                .icon
+                    svg
+                        path
+                            fill: var(--primary)
+                span
+                    color: var(--primary)
+                &::before
+                    width: 100%
+            &::before
+                content: ""
+                position: absolute
+                bottom: 0
+                left: 0
+                height: 2px
+                width: 0%
+                background: var(--primary)
+                transition: .5s ease
+            .icon
+                flex: 0 1 auto
+                width: 24px
+                height: 24px
+                img
+                    object-fit: contain
+            span
+                flex: 1 
+                display: block 
+                line-height: 1.2
+                font-weight: 500 
+                font-size: 14px 
+                color: $black
+                white-space: nowrap
+                overflow: hidden
+                text-overflow: ellipsis
+.lower-strip
+    width: 100%
+    padding: 20px
+    display: flex
+    align-items: center
+    gap: 20px
+    @include media(1140)    
+        flex-wrap: wrap
+    .button_wrap
+        flex: 1
+        display: flex
+        align-items: center
+        justify-content: end
+        gap: 10px
+        .view_all
+            position: relative
+            gap: 5px
+            &:hover
+                svg
+                    transform: rotate(-90deg)
+            svg
+                width: 20px
+                height: 20px
+                transition: .5s ease
+        .view_all, .clearBtn
+            white-space: nowrap
+    .country_select
+        display: flex
+        align-items: center
+        position: relative
+        padding-left: 30px
+        &::before
+            content: ""
+            background: url(/assets/icon/location.svg) no-repeat
+            position: absolute
+            left: 0
+            top: 0
+            width: 100%
+            height: 100%
+            background-position: 0% 50%
+            background-size: 25px
+        .css-73ibjp-control, .css-17q8u64-control
+            min-width: 90px
+    .filter_select
+        flex: 0 1 auto
+        line-height: 1
+        position: relative
+        background: url(/assets/icon/arrow-down-gray.svg) no-repeat
+        background-position: 90% 50%
+        background-size: 13px
+        @include media(1140)    
+            flex: 1
+        &.state_select
+            .css-73ibjp-control, .css-17q8u64-control
+                min-width: 120px
+        &.land_select
+            .css-73ibjp-control, .css-17q8u64-control
+                min-width: 90px
+            .unit_show
+                width: 130px
+                cursor: pointer
+                p
+                    font-size: 14px
+                    color: $black
+            .unit_dropdown
+                max-height: 0
+                opacity: 0
+                position: absolute
+                top: calc( 100% + 10px)
+                right: 0
+                max-width: 100%
+                background: var(--white)
+                box-shadow: rgba(149, 157, 165, 0.2) 1px 20px 24px
+                border-radius: 5px
+                user-select: none
+                pointer-events: none
+                z-index: 1
+                min-width: max-content
+                transition: all .5s ease
+                line-height: 1
+                &::before
+                    content: ""
+                    display: block
+                    position: absolute
+                    bottom: calc(100% - var(--triangle) / 2)
+                    right: 20%
+                    translate: 20% 0
+                    width: var(--triangle)
+                    height: var(--triangle)
+                    background: #fff
+                    transform: rotate(45deg)
+                    z-index: -1
+                &.is-open 
+                    user-select: auto 
+                    pointer-events: auto 
+                    max-height: 80vh
+                    opacity: 1
+                .unit_wrapper
+                    padding: 20px
+                    .title
+                        margin-bottom: 12px
+                        h6
+                            font-size: 16px
+                            color: $text
+                            font-weight: 500
+                    .filter_wrapper
+                        --boxsize: 15px
+                        .option
+                            position: relative
+                            display: flex
+                            align-items: center
+                            gap: 7px
+                            color: #000
+                            &:not(:last-child)
+                                margin-bottom: 8px
+                            .in-bx
+                                height: var(--boxsize)
+                                width: var(--boxsize)
+                                border: 1px solid #666 
+                                border-radius: 3px
+                                transition: all
+                                position: relative
+                                &::before
+                                    content: ""
+                                    z-index: 0
+                                    pointer-events: none
+                                    -webkit-user-select: none
+                                    -moz-user-select: none
+                                    user-select: none
+                                    opacity: 0
+                                    background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+                                    transition: all .5s
+                                    position: absolute
+                                    inset: 0
+                            span
+                                font-size: 12px
+                                flex: 1
+                                display: block
+                                color: #666
+                            input
+                                width: 100%
+                                height: 100%
+                                opacity: 0
+                                appearance: none
+                                position: absolute
+                                z-index: 1
+                                &:checked
+                                    ~ .in-bx
+                                        background-color: var(--primary)
+                                        border-color: var(--primary)
+                                        &::before
+                                            opacity: 1
+
+        &.greenrating_select
+            .css-73ibjp-control, .css-17q8u64-control
+                min-width: 100px
+        .count
+            position: absolute
+            display: flex
+            align-items: center
+            justify-content: center
+            width: 18px
+            height: 18px
+            border-radius: 50%
+            background: #80B2FF
+            color: #fff
+            font-size: 10px
+            right: -7px
+            top: 0
+    .selectCat
+        position: relative
+        cursor: pointer
+        .placeholder
+            width: 100%
+            height: 35px
+            border-radius: 4px
+            font-size: 14px
+            padding-right: 25px
+            display: flex
+            align-items: center
+            background: url(/assets/icon/arrow-down-black.svg) no-repeat
+            background-position: 98% center
+            input
+                border: none
+                box-shadow: none
+                &:focus
+                    box-shadow: none
+        .dropdown__wrap
+            width: 100%
+            position: absolute
+            background-color: var(--white)
+            top: 100%
+            height: max-content
+            overflow-y: auto
+            transform-origin: top
+            box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px
+            left: 0%
+            transform: perspective(2000px) translate3d(0px, 0px, 50px) rotateX(-90deg) scale3d(0.86, 0.75, 1) translateY(50px)
+            opacity: 0
+            transition: 0.4s ease
+            &::-webkit-scrollbar
+                width: 4px
+            &::-webkit-scrollbar-thumb
+                background-color: #ccc  
+            &.active
+                opacity: 1
+                transform: scale3d(1, 1, 1)
+            .dropdown_menu
+                padding: 10px 0 0
+                .options
+                    margin-bottom: 7px
+                    --boxsize: 15px
+                    overflow-x: hidden
+                    p
+                        position: relative
+                        display: flex
+                        align-items: center
+                        gap: 7px
+                        color: #000
+                        padding: 0 10px 6px 
+                        .in-bx
+                            height: var(--boxsize)
+                            width: var(--boxsize)
+                            border: 1px solid #666 
+                            border-radius: 3px
+                            transition: all
+                            position: relative
+                            &::before
+                                content: ""
+                                z-index: 0
+                                pointer-events: none
+                                -webkit-user-select: none
+                                -moz-user-select: none
+                                user-select: none
+                                opacity: 0
+                                background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+                                transition: all .5s
+                                position: absolute
+                                inset: 0
+                        span
+                            font-size: 14px
+                            flex: 1
+                            display: block
+                            color: #666
+                        input
+                            width: 100%
+                            height: 100%
+                            opacity: 0
+                            appearance: none
+                            position: absolute
+                            z-index: 1
+                            &:checked
+                                ~ .in-bx
+                                    background-color: #000
+                                    &::before
+                                        opacity: 1
+                    ul
+                        padding: 10px 0 10px 20px
+                        background-color: #f5f5f5
+                        li
+                            display: flex
+                            align-items: center
+                            gap: 7px
+                            font-size: 13px
+                            padding-bottom: 6px
+                            position: relative
+                            .in-bx
+                                height: var(--boxsize)
+                                width: var(--boxsize)
+                                border: 1px solid #666
+                                border-radius: 3px
+                                transition: all
+                                position: relative
+                                &::before
+                                    content: ""
+                                    z-index: 0
+                                    pointer-events: none
+                                    -webkit-user-select: none
+                                    -moz-user-select: none
+                                    user-select: none
+                                    opacity: 0
+                                    background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+                                    transition: all .5s
+                                    position: absolute
+                                    inset: 0
+                            span
+                                font-size: 13px
+                                flex: 1
+                                display: block
+                                font-weight: 500
+                            input
+                                width: 100%
+                                height: 100%
+                                opacity: 0
+                                appearance: none
+                                position: absolute
+                                z-index: 1
+                                &:checked
+                                    ~ .in-bx
+                                        background-color: #000
+                                        &::before
+                                            opacity: 1
+    .search_wrapper
+        padding-left: 20px
+        border-left: 1px solid #CCCCCC
+        flex: 1
+        .search_wrap
+            position: relative
+            transition: .5s ease
+            .search_input_wrap
+                width: 100%
+                font-size: 14px
+                input
+                    width: 100%
+                    color: $black
+                    &::placeholder
+                        color: $black
+            .search_dropdown_menu
+                max-height: 0
+                opacity: 0
+                position: absolute
+                top: calc(100% - 1px)
+                right: 0
+                left: 0
+                background: var(--white)
+                box-shadow: rgba(149, 157, 165, 0.2) 1px 20px 24px
+                border-top-left-radius: 0
+                border-top-right-radius: 0
+                border-bottom-left-radius: 5px
+                border-bottom-right-radius: 5px
+                overflow-y: auto
+                z-index: 1
+                transition: all .5s ease
+                @include scrollbar($width: 4px, $color : $primary, $radius: 5px)
+                &.is-open
+                    max-height: 80vh
+                    opacity: 1
+                .dropdown_wrap
+                    display: grid
+                    grid-template-columns: repeat(1, 1fr)
+                    max-height: 290px
+                    overflow-y: auto
+                    @include scrollbar($width: 4px, $color : $primary, $radius: 5px)
+                    .search_pro
+                        display: flex
+                        gap: 10px
+                        width: 100%
+                        line-height: 1
+                        padding: 10px
+                        border-bottom: 1px solid #efefef
+                        &:hover
+                            background: #EDEDED
+                        .icon
+                            flex: 0 1 20%
+                            max-width: 20%
+                            height: 100%
+                        .content
+                            flex: 1
+                            .title
+                                font-size: 12px
+                                font-weight: 400
+                                color: $black
+                                line-height: 1.3
+                                margin-bottom: 5px
+                                display: -webkit-box
+                                -webkit-line-clamp: 2
+                                -webkit-box-orient: vertical
+                                overflow: hidden
+                                text-overflow: ellipsis
+                            .desc
+                                display: -webkit-box
+                                -webkit-line-clamp: 1
+                                -webkit-box-orient: vertical
+                                overflow: hidden
+                                text-overflow: ellipsis
+                            p
+                                font-size: 12px
+    .btn
+        flex: 0 1 auto
+.more_filter
+    max-height: 0
+    opacity: 0
+    position: absolute
+    top: calc( 100% + 5px)
+    right: 0
+    max-width: 100%
+    background: var(--white)
+    box-shadow: rgba(149, 157, 165, 0.2) 1px 20px 24px
+    border-radius: 5px
+    user-select: none
+    pointer-events: none
+    z-index: 1
+    transition: all .5s ease
+    line-height: 1
+    &::before
+        content: ""
+        display: block
+        position: absolute
+        bottom: calc(100% - var(--triangle) / 2)
+        right: 20%
+        translate: 20% 0
+        width: var(--triangle)
+        height: var(--triangle)
+        background: #fff
+        transform: rotate(45deg)
+        z-index: -1
+    &.is-open
+        user-select: auto 
+        pointer-events: auto 
+        max-height: 80vh
+        opacity: 1
+    .main_filter_wrapper
+        padding: 20px 30px
+        width: 100%
+        .tab-nav
+            display: flex
+            align-items: center
+            gap: 20px
+            li
+                cursor: pointer
+                font-size: 14px
+                color: $text
+                padding-bottom: 5px
+                transition: .5s ease
+                position: relative
+                &.active, &:hover
+                    color: $primary
+                    &::before 
+                        width: 100%
+                &::before
+                    content: ""
+                    position: absolute
+                    left: 0
+                    bottom: 0
+                    height: 1px
+                    background: var(--primary)
+                    width: 0
+                    transition: .5s ease
+                .count
+                    top: -12px
+                    right: -14px
+        .tab-nav-content
+            margin-top: 20px
+            .tabs
+                .filter_container
+                    display: grid
+                    grid-template-columns: repeat(3, 1fr)
+                    grid-gap: 15px 30px
+                    --boxsize: 15px
+                    .option
+                        position: relative
+                        display: flex
+                        align-items: center
+                        gap: 7px
+                        color: #000
+                        .in-bx
+                            height: var(--boxsize)
+                            width: var(--boxsize)
+                            border: 1px solid #666 
+                            border-radius: 3px
+                            transition: all
+                            position: relative
+                            &::before
+                                content: ""
+                                z-index: 0
+                                pointer-events: none
+                                -webkit-user-select: none
+                                -moz-user-select: none
+                                user-select: none
+                                opacity: 0
+                                background: url(/assets/icon/tick-white.svg) center / 60% no-repeat
+                                transition: all .5s
+                                position: absolute
+                                inset: 0
+                        span
+                            font-size: 12px
+                            flex: 1
+                            display: block
+                            color: #666
+                        input
+                            width: 100%
+                            height: 100%
+                            opacity: 0
+                            appearance: none
+                            position: absolute
+                            z-index: 1
+                            &:checked
+                                ~ .in-bx
+                                    background-color: var(--primary)
+                                    &::before
+                                        opacity: 1
+
+.filter-pop.model
+    max-width: 100%
+    background: $white
+    right: 0
+    transform: translateX(100%)
+    transition: .7s ease
+    background: $white
+    &.is-open
+        transform: translateX(0%)
+    .close
+        top: 20px
+        right: 20px
+        display: flex
+        align-items: center
+        gap: 7px
+        font-size: 14px
+        color: $text
+        svg, img
+            width: 18px
+            path
+                stroke: $primary
+                stroke-width: 2px
+    .model-body
+        width: 100%
+        height: 100%
+        overflow-y: auto
+        @include scrollbar($width: 4px, $color : $primary, $radius: 5px)
+
+.count
+    position: absolute
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 18px
+    height: 18px
+    border-radius: 50%
+    background: #80B2FF
+    color: #fff
+    font-size: 10px
+    right: -7px
+    top: 0
+
+.faq-section
+    .col
+        --padlr: 0
+        border-radius: 10px
+        transition: .5s ease
+        margin-bottom: 15px
+        &.active
+            .title
+                border-bottom: none
+                border-bottom-left-radius: 0
+                border-bottom-right-radius: 0
+                background: var(--lightblue)
+                h6
+                    color: $black
+                .ico
+                    &::after
+                        transform: scaleY(0)
+            article
+                max-height: fit-content
+                opacity: 1
+        .title
+            @include flex
+            overflow: hidden
+            align-items: center
+            padding: 15px 20px
+            cursor: pointer
+            transition: .5s ease
+            border: 1px solid #ccc
+            background-color: #f5f5f5
+            border-radius: 5px
+            @include media(540)
+                padding: 10px 15px
+            h6
+                color: $text
+                font-size: 16px
+                line-height: 1.2
+                @include font(500) 
+                flex: 1 
+                padding-right: 1rem
+                transition: .5s ease
+                @include media(540)
+                    font-size: 16px
+                @include media(345)
+                    font-size: 14px
+            .ico
+                flex: 0 1 auto
+                --size: 18px
+                --border: 2px
+                --bgcolor: var(--black)
+                height: var(--size)
+                width: var(--size)
+                @include before(var(--bgcolor))
+                @include after(var(--bgcolor))
+                &::before,&::after
+                    transition: .5s ease
+                &::before
+                    top: calc(var(--size) / 2 - var(--border) / 2)
+                    bottom: auto
+                    height: var(--border)
+                    width: 100%
+                &::after
+                    left: calc(var(--size) / 2)
+                    translate: -50% 0 
+                    right: auto
+                    width: var(--border)
+                    height: 100%
+        article
+            position: relative
+            background: $white
+            border: 1px solid #ccc
+            border-top: none
+            max-height: 0
+            opacity: 0
+            overflow: hidden
+            transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out
+            border-radius: 0 0 5px 5px 
+            .content-desc
+                padding: 15px 20px 20px
+                p,ul,h2,h3,h4,h5,h6
+                    margin-bottom: 16px
+                *
+                    &:not(button)
+                        color: $text
+                        font-size: 16px
+                        line-height: 1.5
+                h1,h2,h3,h4,h5,h6,b
+                    color: $black
+                    @include font(500)
+                ul
+                    padding-left: 20px
+                    li
+                        list-style: none
+                        &::before
+                            background-color: var(--black)
+                        @include media(540)
+                            font-size: 14px
+                        &:not(:last-child)
+                            margin-bottom: 5px
+                p
+                    font-size: 14px

@@ -1,0 +1,243 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@keyframes shine {
+  from {
+    opacity: 0;
+    left: 0%;
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    left: 100%;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA {
+    margin-top: calc(var(--headerheight) + 40px);
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secA {
+    margin-top: calc(var(--headerheight) + 30px);
+  }
+}
+.contact-secA .heading {
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA .heading {
+    margin: 0 auto 2.5rem;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secA .heading {
+    margin: 0 auto 2rem;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secA .heading {
+    margin: 0 auto 1.5rem;
+  }
+}
+.contact-secA .heading h2 {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--primary);
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA .heading h2 {
+    font-size: 32px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secA .heading h2 {
+    font-size: 28px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secA .heading h2 {
+    font-size: 26px;
+  }
+}
+.contact-secA .heading p {
+  font-weight: 500;
+}
+@media only screen and (max-width: 768px) {
+  .contact-secA .heading p {
+    margin-top: 5px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secA .heading p {
+    font-size: 14px;
+  }
+}
+.contact-secA .contact_wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 15px;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA .contact_wrapper {
+    grid-gap: 10px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secA .contact_wrapper {
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 15px;
+  }
+}
+.contact-secA .contact_wrapper .contact-col {
+  border: 1px solid #D1D0D0;
+  border-radius: 15px;
+  text-align: center;
+  padding: 20px 10px;
+  transition: 0.5s ease;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA .contact_wrapper .contact-col {
+    padding: 15px 10px;
+  }
+}
+.contact-secA .contact_wrapper .contact-col:hover {
+  background: #D6E6FF;
+}
+.contact-secA .contact_wrapper .contact-col:hover a {
+  color: var(--primary);
+}
+.contact-secA .contact_wrapper .contact-col .icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 10px;
+}
+@media only screen and (max-width: 540px) {
+  .contact-secA .contact_wrapper .contact-col .icon {
+    margin: 0 auto 5px;
+  }
+}
+.contact-secA .contact_wrapper .contact-col h6 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  transition: 0.5s ease;
+}
+.contact-secA .contact_wrapper .contact-col a {
+  display: block;
+  color: var(--text);
+  font-weight: 400;
+  transition: 0.5s ease;
+  line-height: 1.2;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secA .contact_wrapper .contact-col a {
+    font-size: 14px;
+  }
+}
+
+.contact-secB {
+  background: var(--lightprime);
+}
+.contact-secB .heading {
+  max-width: 590px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secB .heading {
+    max-width: 550px;
+    margin: 0 auto 40px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secB .heading {
+    max-width: 470px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secB .heading {
+    margin: 0 auto 30px;
+  }
+}
+.contact-secB .heading h2 {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--primary);
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secB .heading h2 {
+    font-size: 32px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secB .heading h2 {
+    font-size: 28px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secB .heading h2 {
+    font-size: 24px;
+  }
+}
+.contact-secB .heading p {
+  color: var(--black);
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secB .heading p {
+    max-width: 340px;
+    margin: 10px auto 0;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secB .heading p {
+    font-size: 14px;
+  }
+}
+.contact-secB .contact_wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.contact-secB .contact_wrapper .contact_form {
+  --item: 2;
+}
+@media only screen and (max-width: 540px) {
+  .contact-secB .contact_wrapper .contact_form {
+    --item: 1;
+  }
+}
+.contact-secB .contact_wrapper .contact_form .btn-wrap {
+  text-align: center;
+}
+.contact-secB .contact_wrapper .contact_form .contactBtn {
+  max-width: -moz-fit-content;
+  max-width: fit-content;
+}
+
+.contact-secC {
+  line-height: 1;
+}
+.contact-secC iframe {
+  filter: grayscale(1);
+  transition: 0.5s ease;
+  height: 700px;
+}
+@media only screen and (max-width: 1024px) {
+  .contact-secC iframe {
+    height: 550px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .contact-secC iframe {
+    height: 500px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .contact-secC iframe {
+    height: 450px;
+  }
+}
+.contact-secC iframe:hover {
+  filter: grayscale(0);
+}/*# sourceMappingURL=contact.css.map */

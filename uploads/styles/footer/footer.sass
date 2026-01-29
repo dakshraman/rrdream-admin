@@ -1,0 +1,202 @@
+@use '../_common' as *
+
+.call_to_action
+    background: #F0F0F0
+    width: 100%
+    height: 100%
+    padding: 40px 0 
+    @include media(540) 
+        padding: 30px 0
+    .content_wrapper
+        display: flex
+        align-items: center
+        justify-content: center
+        @include media(768)  
+            flex-direction: column
+            gap: 10px
+        .action
+            flex: 1
+            text-align: center
+            padding: 10px 30px
+            &:not(:last-child)
+                border-right: 1px solid #4141411A
+                @include media(768)  
+                    border-right: none
+            @include media(991)  
+                padding: 10px 15px
+            @include media(768)   
+                padding: 10px
+            .icon
+                width: 35px
+                height: 35px
+                margin: 0 auto 15px
+                @include media(991)  
+                    width: 30px
+                    height: 30px
+                @include media(768)  
+                    margin: 0 auto 10px
+            h6
+                font-size: 20px
+                font-weight: 600
+                color: $primary
+                @include media(991)  
+                    font-size: 18px
+            p
+                font-size: 14px
+                font-weight: 400
+                padding: 15px 0 20px
+                color: #333
+                @include media(768)  
+                    padding: 10px 0 15px
+            .btn
+                &::before
+                    background: transparent
+            .social_icons
+                align-items: center
+                justify-content: center
+                gap: 15px
+                a
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    width: 45px
+                    height: 45px
+                    border: 1px solid $primary
+                    border-radius: 50%
+                    @include media(991)  
+                        width: 35px
+                        height: 35px
+                    &:hover
+                        background: $primary
+                        svg
+                            path 
+                                fill: $white
+                    svg
+                        vertical-align: middle
+                        @include media(991)  
+                            width: 50%
+                            height: 50%
+
+footer
+    width: 100%
+    background: $primary
+    --containerfluid: 25px
+    .main_wrapper
+        display: flex
+        gap: 150px 
+        padding: 70px var(--containerfluid) 50px
+        @include media(1140)    
+            gap: 100px
+            padding: 60px var(--containerfluid) 50px
+        @include media(991)  
+            padding: 40px var(--containerfluid)
+            gap: 40px
+        @include media(768)  
+            flex-wrap: wrap
+            gap: 30px
+        @include media(540) 
+            padding: 30px 13px
+            gap: 20px
+        .colA 
+            flex: 1
+            .logo
+                display: block
+                width: 170px
+                @include media(991)  
+                    width: 130px
+            .desc
+                padding: 10px 0 20px  
+                color: #FFFFFFB2
+                font-weight: 400
+                font-size: 14px
+                line-height: 1.5
+            .read_more
+                display: flex
+                align-items: center
+                gap: 7px
+                font-size: 14px
+                font-weight: 600
+                svg
+                    transition: .3s ease
+                &:hover
+                    svg
+                        transform: translateX(3px)
+        .colB
+            flex: 0 1 auto
+            @include media(540) 
+                flex: 0 1 100%
+            h6
+                font-size: 16px
+                font-weight: 700
+                color: $white
+            ul
+                padding-top: 15px
+                @include media(991)  
+                    padding-top: 10px
+                li
+                    a
+                        display: block
+                        width: 100%
+                        padding-bottom: 4px
+                        color: #FFFFFFB2
+                        font-size: 14px
+                        &:hover
+                            transform: translateX(3px)
+                            color: $white
+        .colC
+            flex: 1
+            @include media(540) 
+                flex: 0 1 100%
+            h6
+                font-size: 16px
+                font-weight: 700
+                color: $white
+                padding-bottom: 15px
+                @include media(991)  
+                    padding-bottom: 10px
+            .loc
+                display: block
+                width: 100%
+                max-width: 80%
+                color: #FFFFFFB2
+                font-size: 14px
+                &:hover
+                    transform: translateX(3px)
+                    color: $white
+            p
+                color: $white
+                padding: 15px 0 20px 
+                font-size: 18px
+                font-weight: 500
+                @include media(991)  
+                    font-size: 16px
+                a
+                    display: inline-block
+                    &:hover
+                        transform: translateX(3px)
+            .btn_wrap
+                @include media(991)  
+                    flex-direction: column
+                    .btn
+                        max-width: 100%
+                        width: 100%
+    .lower-footer
+        padding: 20px var(--containerfluid) 30px
+        border-top: 1px solid #FFFFFF2B
+        .flex
+            align-items: center
+            justify-content: space-between
+            @include media(768) 
+                flex-direction: column
+                justify-content: center
+                gap: 2px
+            p
+                color: $white
+                font-size: 14px
+                font-weight: 400
+                display: flex
+                align-items: center
+                gap: 10px
+                img, svg
+                    vertical-align: middle
+                    width: 60px

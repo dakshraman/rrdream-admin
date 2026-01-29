@@ -1,0 +1,1109 @@
+@use '../_var' as *
+
+.hero_banner.banner
+    &::before
+        background: linear-gradient(90deg, #003B95 0%, #2C5FAE 50%, #003B95 100%)
+    .bg
+        height: 550px
+        @include media(991)  
+            height: 500px
+        @include media(768)  
+            height: 400px
+        .filter-wrapper
+            width: 1180px
+            --padding: 20px
+            position: absolute
+            bottom: -15%
+            left: 50%
+            translate: -50% -20%
+            background: var(--white)
+            box-shadow: 0px 5px 15px 0 #00000059
+            border-radius: 10px
+            z-index: 1
+            @include media(1140) 
+                width: 990px
+            @include media(1024) 
+                bottom: 0
+                translate: -50% 0%
+                width: 100%
+            .banner_img
+                width: 220px
+                position: absolute
+                bottom: 100%
+                left: 10%
+                translate: -10% 0%
+                z-index: 1
+                @include media(1024)
+                    width: 200px
+                    left: 5%
+                    translate: -5% 0%
+                @include media(768)
+                    width: 150px
+                @include media(540)  
+                    width: 115px
+            .hand_vector_wrapper
+                width: 180px
+                position: absolute
+                bottom: 100%
+                right: 10%
+                translate: 10% 0%
+                z-index: 1
+                @include media(1024)
+                    width: 140px
+                @include media(768)
+                    width: 100px
+                @include media(540)  
+                    width: 80px
+            .hand_video
+                mask-image: url(/assets/images/home/hand-mask.svg)
+                mask-size: 100%
+                mask-repeat: no-repeat
+                line-height: 0
+                position: absolute
+                top: 9px
+                left: 11%
+                height: 89px
+                aspect-ratio: 0.7
+                width: 151px
+                height: 213px
+                @include media(1024)
+                    width: 117px
+                @include media(768)
+                    width: 82px
+                    height: 112px
+                    top: 7px
+                    left: 12%
+                @include media(540)  
+                    width: 65px
+                    top: 5px
+            .filter-strip 
+                @include media(1024) 
+                    display: none
+            
+        .banner-wrapper
+            top: 45%
+            translate: 0 -45%
+            width: 100%
+            @include media(1024) 
+                top: 60%
+                translate: 0 -60%
+            @include media(768)  
+                top: 65%
+                translate: 0 -65%
+            @include media(540)  
+                top: 55%
+                translate: 0 -55%   
+            .heading
+                text-align: center
+                color: $white
+                max-width: max-content
+                margin: 0 auto
+            .upper-head, .middle-head, .lower-head
+                line-height: 1.2
+                text-transform: uppercase
+            .upper-head
+                font-size: 35px
+                font-weight: 300
+                line-height: 1.2
+                @include media(991)
+                    font-size: 18px
+                @include media(768)  
+                    font-size: 14px 
+            .middle-head
+                font-size: 48px
+                font-weight: 700
+                @include media(991) 
+                    font-size: 35px
+                @include media(768)  
+                    font-size: 30px
+            .lower-head
+                font-size: 20px
+                font-weight: 300
+                @include media(991)
+                    font-size: 18px
+                @include media(768)  
+                    font-size: 14px
+            .broker
+                border: 1px dashed $white
+                padding: 6px 10px
+                display: flex
+                align-items: center
+                gap: 15px
+                border-radius: 5px
+                width: 100%
+                max-width: max-content
+                margin: 20px auto 0
+                @include media(768)  
+                    gap: 10px
+                @include media(540) 
+                    margin: 10px auto 0
+                    padding: 4px 8px
+                .perct
+                    flex: 0 1 auto
+                    width: 45px
+                    height: 37px
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    background: $white
+                    border-radius: 5px
+                    font-size: 20px
+                    font-weight: 600
+                    color: var(--primary)
+                    @include media(768)  
+                        width: 40px
+                        height: 30px
+                    @include media(540) 
+                        width: 40px
+                        height: 28px
+                p
+                    font-weight: 600
+                    font-size: 16px
+                    color: $white
+                    @include media(540) 
+                        font-size: 14px
+
+.home-secA
+    @include media(1024) 
+        margin-top: 0
+    .container
+        @include media(540) 
+            padding: 0
+    .upper_sec
+        align-items: center
+        justify-content: space-between
+        @include media(768)
+            flex-direction: column
+            gap: 20px
+        @include media(540) 
+            padding: 0 13px
+        .category_tabs
+            align-items: center
+            gap: 20px 
+            @include media(540)  
+                flex-wrap: nowrap
+                overflow-x: auto 
+                width: 100%
+                &::-webkit-scrollbar
+                   width: 0
+                   height: 0
+                &::-webkit-scrollbar-thumb
+                   background: $primary 
+            li
+                font-size: 14px
+                padding-bottom: 5px
+                color: $black
+                font-weight: 500
+                cursor: pointer
+                position: relative
+                @include media(540) 
+                    white-space: nowrap
+                &.active
+                    color: $primary
+                    &::before
+                        width: 100%
+                &::before
+                    content: ""
+                    position: absolute
+                    bottom: 0
+                    left: 0
+                    height: 2px
+                    width: 0%
+                    background: var(--primary)
+                    transition: .5s ease
+    .category_slider_wrapper
+        margin-top: 40px
+        @include media(991)
+            margin-top: 30px
+        @include media(540) 
+            margin-top: 25px
+        .tabs
+            .category_container
+                position: relative
+                .cat-nav
+                    max-width: 104%
+                    width: 104%
+                    @include media(540) 
+                        display: none
+
+.home-secB
+    .upper_sec
+        align-items: center
+        gap: 30px
+        @include media(768)
+            flex-direction: column
+            gap: 20px
+        .heading, .city_select
+            flex: 0 1 auto
+            @include media(540)
+                max-width: 230px
+                margin: 0 auto
+        .city_select
+            width: 200px
+            border-bottom: 1px solid $text
+        .country_tabs
+            flex: 1
+            justify-content: end
+            gap: 30px
+            li
+                font-size: 14px
+                padding-bottom: 5px
+                color: $black
+                font-weight: 500
+                cursor: pointer
+                position: relative
+                &.active
+                    color: $primary
+                    &::before
+                        width: 100%
+                &::before
+                    content: ""
+                    position: absolute
+                    bottom: 0
+                    left: 0
+                    height: 2px
+                    width: 0%
+                    background: var(--primary)
+                    transition: .5s ease
+    .city_slider_wrapper
+        margin-top: 40px
+        @include media(991)  
+            margin-top: 30px
+        @include media(540) 
+            margin-top: 25px
+        .tabs
+            .city_container
+                position: relative
+                .city_slider
+                    padding: 10px
+                .city-nav
+                    max-width: 102%
+                    width: 102%
+
+.home-secC
+    background: linear-gradient(0deg, #EDF4FF 25%, #D3E4FF 59%)
+    .heading
+        @include media(540)
+            max-width: 200px
+            margin: 0 auto
+    .industry_wrapper
+        .tab-nav
+            align-items: center
+            gap: 20px
+            margin: 30px 0 40px
+            position: relative
+            .swiper-nav
+                @include media(540)
+                    display: none
+            .industrytab_slider
+                max-width: 100%
+                width: 100%
+                margin: 0 
+                @include media(540)
+                    max-width: 100% 
+            li
+                display: flex
+                align-items: center  
+                justify-content: center
+                line-height: 1
+                gap: 5px
+                cursor: pointer
+                color: $black
+                padding: 5px 12px
+                border: 1px solid transparent
+                border-radius: 25px
+                transition: .3s ease
+                filter: grayscale(1)
+                @include media(540) 
+                    padding: 3px 12px
+                &.active
+                    border-color: $primary
+                    color: $primary
+                    filter: grayscale(0)
+                    .icon
+                        svg
+                            path
+                                fill: $primary
+                .icon
+                    flex: 0 1 auto
+                    width: 24px
+                    height: 24px
+                    img
+                        width: 24px
+                        height: 24px
+                        object-fit: contain
+                span
+                    font-size: 14px
+                    font-weight: 500
+                    overflow: hidden
+                    display: block
+                    text-overflow: ellipsis
+                    white-space: nowrap
+                    display: block
+                    line-height: 1.2
+        .tab-nav-content
+            .tabs
+                .industry_container
+                    .swiper-nav 
+                        width: 104%
+                        max-width: 104%
+        .view_all
+            margin-top: 30px
+            width: max-content
+            color: $primary
+            @include media(540)
+                margin: 20px auto 0
+@keyframes bganimate 
+    0% 
+        background-position: 0 100%
+    100%
+        background-position: 100vw 100%
+
+.home-secD
+    width: 100%
+    background: #003B95 url(/assets/images/vector/vector1.svg)
+    background-repeat: repeat-x
+    background-position: center bottom
+    animation: bganimate 30s linear infinite reverse
+    .container
+        .heading
+            text-align: center 
+            color: $white
+        .compare_wrapper
+            position: relative
+            margin-top: 50px
+            @include media(991)  
+                margin-top: 40px
+            .compare_slider
+                max-width: 98%
+            .compare_option
+                width: 100%
+                max-width: 100%
+                height: 100%
+                background: $white
+                border-radius: 5px
+                &:hover
+                    figure
+                        img
+                            transform: scale(1.2)
+                figure, .figure
+                    position: relative
+                    height: 200px
+                    @include before
+                    &::before
+                        z-index: 1
+                    &::before
+                        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, 0.3) 88%)
+                        border-radius: 5px
+                .img_wrap
+                    display: block
+                    overflow: hidden
+                    line-height: 0
+                    height: 100%
+                    border-top-left-radius: 5px
+                    border-top-right-radius: 5px
+                    img,video
+                        height: 100%
+                        width: 100%
+                        object-fit: cover
+                        transition: .5s ease   
+                .img_content
+                    position: absolute
+                    top: 0
+                    left: 0
+                    right: 0
+                    z-index: 2
+                    width: 100%
+                    padding: 15px 15px 20px
+                    justify-content: space-between
+                    p
+                        font-size: 14px
+                        font-weight: 600
+                        color: $white
+                figcaption
+                    background: $white
+                    padding: 25px 15px
+                    border-bottom-left-radius: 5px
+                    border-bottom-right-radius: 5px
+                    a
+                        display: block
+                        font-weight: 600
+                        font-size: 14px
+                        margin-bottom: 5px
+                        line-height: 1.2
+                        color: $black
+                        @include line-clamp($line: 2) 
+                    p
+                        font-size: 14px
+                        color: $text 
+                        font-weight: 400
+                    .distance
+                        display: flex
+                        // align-items: center
+                        gap: 10px
+                        padding: 20px 0 0
+                        .dis_col
+                            flex: 1
+                            span
+                                display: block
+                                font-size: 12px
+                                color: $text
+                                line-height: 1.2
+                                margin-top: 7px
+                            p
+                                font-size: 14px
+                                font-weight: 600
+                                color: $text
+
+        .btn_wrap
+            justify-content: center
+            margin-top: 40px
+
+.home-secE 
+    .upper_sec
+        align-items: center
+        justify-content: space-between
+        .view_all
+            color: $primary
+    .service_wrapper
+        display: grid
+        grid-template-columns: repeat(3, 1fr)
+        grid-gap: 10px 20px
+        margin-top: 30px
+        @include media(1140)    
+            grid-gap: 10px
+        @include media(991)  
+            grid-template-columns: repeat(2, 1fr)
+        @include media(540)
+            grid-template-columns: repeat(1, 1fr)
+            grid-gap: 15px
+
+.home-secF
+    background: var(--lightblue)
+    height: 80vh
+    @include media(991)  
+        height: 50vh
+    @include media(768)
+        height: 100%
+    .main-container
+        width: 100%
+        height: 100%
+    .main_wrapper
+        width: 100%
+        height: 100%
+        display: flex
+        align-items: center
+        @include media(768)
+            flex-direction: column
+        .video-icon
+            width: 100%
+            height: 100%
+            flex: 0 1 45%
+            // mask-image: url(/assets/images/vector/vector2.svg)
+            // mask-repeat: no-repeat
+            // mask-size: 100%
+            line-height: 0
+            video
+                width: 100%
+                height: 100%
+                object-fit: cover
+        .content
+            flex: 1
+            max-width: 600px
+            margin: 0 auto 
+            padding: 0 70px
+            @include media(991)  
+                padding: 0 50px
+            @include media(768)
+                padding: 40px 25px
+                text-align: center
+            @include media(540)
+                padding: 30px 15px
+            h2
+                font-size: 40px
+                color: $primary
+                line-height: 1.4
+                font-weight: 300
+                padding-bottom: 10px
+                @include media(991)  
+                    font-size: 34px
+                @include media(540)
+                    font-size: 30px
+                span
+                    font-weight: 600
+            p
+                color: $text
+                padding-bottom: 15px
+                font-weight: 400
+                line-height: 1.5
+                @include media(991)  
+                    font-size: 14px
+                @include media(540)
+                    padding-bottom: 10px
+            .counter-wrapper
+                display: flex
+                padding: 40px 0
+                gap: 50px
+                @include media(991)  
+                    padding: 20px 0
+                    gap: 20px
+                    justify-content: space-between
+                @include media(768)
+                    justify-content: center
+                @include media(540)
+                    padding: 10px 0 20px
+                .counter-info-wrap
+                    @include media(991)  
+                        text-align: center
+                    @include media(768) 
+                        flex: 1
+                    h5
+                        color: $primary
+                        font-size: 24px
+                        font-weight: 600
+                        line-height: 1.2
+                        @include media(540)
+                            font-size: 20px
+                    p
+                        font-weight: 500
+                        @include media(540)
+                            font-size: 14px
+                            padding-bottom: 0
+            .btn
+                @include media(768)
+                    display: flex
+                    margin: 0 auto 
+                    max-width: max-content
+.home-secG
+    .container
+        --container: 1100px
+    .flex
+        align-items: center
+        gap: 90px
+        @include media(991)  
+            gap: 50px
+        @include media(768)  
+            flex-direction: column
+            gap: 40px
+        @include media(540)
+            gap: 30px
+        .colA
+            flex: 0 1 50%  
+            @include media(768)  
+                flex: 1
+            h2
+                font-size: 36px
+                font-weight: 300
+                line-height: 1.2
+                max-width: 400px
+                @include media(991)  
+                    font-size: 30px
+                @include media(768)  
+                    font-size: 26px
+                @include media(540)
+                    font-size: 22px
+                span
+                    font-weight: 600
+            .quote_wrap
+                display: flex
+                align-items: center
+                gap: 30px
+                margin-top: 50px
+                @include media(991)  
+                    gap: 15px
+                    margin-top: 30px
+                @include media(540)
+                    margin-top: 20px
+                    gap: 10px
+                .quote
+                    flex: 1
+                    text-align: center
+                    svg, img
+                        width: 35px
+                        height: 35px
+                        @include media(991)  
+                            width: 25px
+                            height: 25px
+                    p
+                        padding-top: 5px
+                        font-size: 14px
+                        font-weight: 400
+                        @include media(540)
+                            font-size: 12px
+        .colB
+            flex: 1
+            @include media(768)  
+                width: 100%
+            p
+                &:not(.error)
+                    font-size: 18px
+                    font-weight: 600
+                    color: $black
+                    @include media(991)  
+                        font-size: 16px
+            .form
+                margin: 20px 0 30px    
+
+.home-secH
+    background: var(--lightblue)
+    .heading
+        text-align: center
+        @include media(540)
+            max-width: 210px
+            margin: 0 auto 30px
+    .testimonial_wrap
+        margin-top: 50px
+        position: relative
+        @include media(991)  
+            margin-top: 40px
+        @include media(768)
+            margin-top: 30px
+        @include media(540)
+            margin-top: 20px
+        .testimonial-nav
+            display: flex
+            align-items: center
+            gap: 20px
+            justify-content: center
+            margin-top: 30px
+            @include media(540)
+                display: none
+        .testimonial_slider
+            .testimonial_col
+                width: 100%
+                height: 100%
+                display: flex
+                flex-direction: column
+                justify-content: center
+                padding: 20px
+                background: $white
+                border-radius: 10px
+                .sml_des
+                    font-size: 14px
+                    line-height: 1.5
+                .bottom_sec
+                    margin-top: 15px
+                    display: flex
+                    align-items: end
+                    gap: 20px
+                    @include media(540)
+                        margin-top: 10px
+                        gap: 15px
+                    .testimony
+                        display: flex
+                        align-items: center
+                        gap: 10px
+                        img
+                            flex: 0 1 auto
+                            width: 50px
+                            height: 50px
+                            border-radius: 50%
+                            @include media(540)
+                                width: 40px
+                                height: 40px
+                        .desc
+                            flex: 1
+                            .name
+                                font-size: 14px
+                                font-weight: 600
+                                color: $primary
+                            .loc
+                                font-size: 12px
+                                color: $black
+                    .stars
+                        display: flex
+                        align-items: center
+                        gap: 2px
+
+                figcaption
+                    flex: 1
+                    max-width: 60%
+                    background: $white
+                    padding: 20px 15px
+                    border-radius: 25px
+                    position: relative
+                    --triangle: 45px
+                    @include media(768)  
+                        padding: 15px 10px
+                        --triangle: 25px
+                        max-width: 80%
+                    @include media(540) 
+                        max-width: 100%
+                        border-radius: 10px
+                    &::before
+                        content: ""
+                        position: absolute
+                        right: 10%
+                        top: 100%
+                        width: 0
+                        height: 0
+                        border-bottom: var(--triangle) solid transparent
+                        border-right: var(--triangle) solid transparent
+                        border-left: var(--triangle) solid $white
+                    img
+                        width: 50px 
+                        height: 50px 
+                        &.quote2
+                            display: flex
+                            margin-left: auto
+                            transform: rotate(180deg)
+                    p
+                        font-size: 14px
+                        line-height: 1.5
+                    .desc
+                        margin-top: 15px
+                        .name
+                            font-size: 16px 
+                            font-weight: 600
+                            color: $black
+
+.home-secI
+    .list_wrapper
+        display: flex
+        gap: 30px
+        width: 100%
+        @include media(768)  
+            gap: 20px
+            flex-wrap: wrap
+        .list
+            flex: 0 1 auto
+            width: 100%
+            @include media(768)  
+                width: 48%
+            @include media(540) 
+                width: 100%
+            h6
+                font-size: 16px
+                font-weight: 500
+                color: $black
+            ul
+                padding-top: 20px
+                @include media(991)  
+                    padding-top: 15px
+                @include media(540) 
+                    padding-top: 10px
+                li
+                    a
+                        display: block
+                        color: #00000080
+                        font-size: 14px
+                        font-weight: 400
+                        padding-bottom: 3px
+                        display: -webkit-box
+                        -webkit-line-clamp: 1
+                        -webkit-box-orient: vertical
+                        overflow: hidden
+                        text-overflow: ellipsis
+                        @include media(540) 
+                            -webkit-line-clamp: 3
+                        &:hover
+                            transform: translateX(3px)
+                            color: $black 
+                            
+.why-choose-us
+    position: relative
+    padding-bottom: 310px
+    @include media(1400) 
+        padding-bottom: 260px
+    @include media(1280)
+        padding-bottom: 150px
+    @include media(1024)
+        padding-bottom: 120px
+    @include media(540)
+        padding-bottom: 70px
+    &::before
+        content: ""
+        position: absolute
+        left: 0
+        bottom: 0
+        transform: translate(0, 0)
+        width: 100%
+        height: 70%
+        background: url(/assets/images/home/whychoose-bg.svg) no-repeat
+        background-size: 100%
+        background-position: 100% 0% 
+        z-index: -1
+        @include media(1400) 
+            height: 60%
+            background-position: 100% 60% 
+    .heading
+        text-align: center
+        margin-bottom: 50px
+        @include media(1024)
+            margin-bottom: 40px
+        @include media(540)
+            margin-bottom: 20px
+        h2
+            color: var(--primary)
+            font-weight: 300
+            font-size: 36px
+            @include media(768) 
+                font-size: 30px
+            @include media(540) 
+                font-size: 24px
+            span 
+                font-weight: 500
+    .choose_wrap
+        position: relative
+        .swiper
+            max-width: 92%
+            padding: 10px 20px
+            @include media(991)
+                max-width: 90%
+                padding: 10px
+            @include media(540)
+                max-width: 96%
+        .choose_col
+            width: 100%
+            height: 100%
+            display: flex
+            flex-direction: column
+            gap: 10px
+            padding: 20px
+            background: $white
+            border: 1px solid #003B9566
+            border-radius: 5px
+            overflow: hidden
+            cursor: pointer
+            transition: .3s ease
+            @include media(540)
+                padding: 15px 
+            &.expanded
+                background: $primary
+                .title
+                    .icon
+                        display: none
+                    p
+                        color: $white
+                .desc
+                    p
+                        opacity: 1
+                        transform: translateY(0px)
+                        pointer-events: auto
+                .plus
+                    opacity: 0
+                    pointer-events: none
+            .title
+                display: flex
+                align-items: center
+                gap: 10px
+                .icon
+                    flex: 0 1 41px
+                    width: 41px
+                    height: 41px
+                    transition: .3s ease
+                    @include media(540)
+                        flex: 0 1 31px
+                        width: 31px
+                        height: 31px
+                    img, svg
+                        width: 100%
+                        height: 100%
+                p
+                    flex: 1
+                    font-size: 16px
+                    font-weight: 500
+                    color: $black
+                    transition: .3s ease
+            .desc
+                margin-bottom: 20px
+                p
+                    font-size: 14px
+                    color: #FFFFFFB2
+                    pointer-events: none
+                    opacity: 0
+                    transform: translateY(10px)
+                    transition: .5s ease
+                    @include media(768)
+                        font-weight: 400
+            .plus
+                position: absolute
+                z-index: 2
+                bottom: 10px
+                right: 10px
+                width: 31px
+                height: 31px
+                opacity: 1
+                pointer-events: auto
+                svg
+                    width: 100%
+                    height: 100%
+
+.faqs-sec
+    .heading
+        text-align: center
+        margin-bottom: 2.5rem
+        h2
+            font-size: 40px
+            line-height: 1.2
+            font-weight: 500
+            color: var(--primary)
+        p
+            max-width: 400px
+            margin: 10px auto 0
+
+.timeline-section
+    background: hsl(216 95% 25% / 1)
+    .container
+        --container: 1000px
+    .heading
+        text-align: center
+        margin-bottom: 40px
+        @include media(768)  
+            margin-bottom: 30px
+        @include media(540) 
+            margin-bottom: 25px 
+        h2
+            font-size: 24px
+            color: $white
+            @include media(1024) 
+                font-size: 22px
+            @include media(768) 
+                font-size: 20px
+            @include media(540) 
+                font-size: 18px
+        p
+            color: $white
+            max-width: 430px
+            margin: 10px auto 0
+            line-height: 1.5
+            @include media(768) 
+                font-size: 14px
+                max-width: 350px
+    .how_wrapper
+        position: relative
+        .how_col
+            width: 100%
+            max-width: 535px
+            display: flex
+            align-items: center
+            gap: 20px
+            @include media(991)  
+                margin-bottom: 15px
+            @include media(768)     
+                gap: 15px
+            &:nth-child(even)
+                margin-left: auto
+                flex-direction: row-reverse
+                margin-right: 10%
+                @include media(1280)  
+                    margin-right: 8%
+                @include media(768)  
+                    margin-right: 0
+                .content_wrapper
+                    border-left: 1px dashed $white
+                    border-right: 0
+                    border-left-width: 2px
+                    @include media(540)  
+                        border-left: none
+                .dot
+                    margin-left: 0
+                    margin-right: -29px
+                    @include media(768)     
+                        margin-right: -24px
+            &:nth-child(odd)
+                margin-right: 0
+                margin-left: 10%
+                @include media(1280)  
+                    margin-left: 8%
+                @include media(768)  
+                    margin-left: 0
+            .content_wrapper
+                flex: 1
+                border-right: 1px dashed $white
+                border-radius: 90px
+                padding: 10px 20px
+                border-right-width: 2px
+                @include media(768)  
+                    padding: 15px
+                @include media(540) 
+                    border: none
+                    padding: 0
+                    border-radius: 0
+                .content
+                    background: #0D459A
+                    padding: 10px
+                    border-radius: 500px
+                    align-items: center
+                    gap: 10px
+                    @include media(540)  
+                        padding: 10px
+                        border-radius: 5px
+                        align-items: start
+                    .icon
+                        flex: 0 1 60px
+                        width: 60px
+                        height: 60px
+                        display: flex
+                        align-items: center
+                        justify-content: center
+                        border-radius: 50%
+                        background: var(--primary)
+                        @include media(768)  
+                            flex: 0 1 70px
+                            width: 70px
+                            height: 70px
+                        @include media(540)  
+                            flex: 0 1 50px
+                            width: 50px
+                            height: 50px
+                        img, svg
+                            width: 60%
+                            height: 60%
+                    .info
+                        flex: 1
+                        h6
+                            font-weight: 600
+                            font-size: 16px
+                            color: $white
+                            margin-bottom: 2px
+                            @include media(540)  
+                                font-size: 14px
+                                margin-bottom: 5px
+                        p
+                            font-size: 14px
+                            font-weight: 300
+                            color: rgb(255 255 255 / 80%)
+                            line-height: 1.2
+                            word-wrap: break-word
+            .dot
+                flex: 0 1 auto
+                width: 18px
+                height: 18px
+                border-radius: 50%
+                background: var(--primary)
+                border: 1px solid $white
+                margin-left: -31px
+                z-index: 1
+                @include media(768)     
+                    margin-left: -24px
+                @include media(540) 
+                    display: none
+            .step
+                text-align: center
+                flex: 0 1 auto
+                @include media(540) 
+                    display: none
+                p
+                    font-size: 16px
+                    font-weight: 600
+                    color: #FFFFFF66
+                    line-height: 1.2
+                    @include media(768) 
+                        font-size: 14px
+                span
+                    display: block
+                    font-weight: 600
+                    font-size: 32px
+                    color: #FFFFFF66
+                    line-height: 1.2
+                    @include media(991) 
+                        font-size: 28px
+                    @include media(768) 
+                        font-size: 24px
+
+
+.clearBtn
+    color: var(--primary)
+    font-weight: 500
+    font-size: 14px

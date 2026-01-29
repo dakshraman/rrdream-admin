@@ -1,0 +1,379 @@
+@import '../_var'
+
+.about-banner.banner
+    @include media(1024)
+        margin-top: calc( var(--headerheight) + 30px )
+    @include media(540)
+        margin-top: calc(var(--headerheight)  + 20px)
+    &::before 
+        background: linear-gradient(1deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .8) 100%), linear-gradient(rgba(0, 0, 0, 0) 14%, rgba(0, 0, 0, .6) 88%)
+    .bg
+        height: calc( 100vh - var(--headerheight) )
+        @include media(768)
+            height: 70vh
+        @include media(540)
+            height: 60vh
+        .banner-wrapper
+            top: unset
+            bottom: 20%
+            translate: 0 20%
+            text-align: center
+            h2
+                font-size: 48px
+                @include font(600)
+                line-height: 1.5
+                color: $white
+                @include media(991)
+                    font-size: 44px
+                @include media(768)
+                    font-size: 40px
+                @include media(540)
+                    font-size: 36px
+            p
+                color: $white
+                @include media(540)
+                    font-size: 14px
+
+.about-secA
+    background: var(--lightprime)
+    .about_wrap
+        display: flex
+        flex-wrap: wrap
+        gap: 70px
+        @include media(1336)
+            gap: 60px
+        @include media(991)
+            gap: 40px
+        @include media(768)
+            flex-direction: column
+            gap: 30px
+        @include media(540)
+            gap: 25px
+        .colA
+            flex: 0 1 auto
+            max-width: 400px
+            max-height: 406px
+            width: 100%
+            background: var(--primary)
+            border-radius: 10px
+            position: relative
+            @include media(991)
+                max-width: 250px
+                height: 320px
+            @include media(768)
+                max-width: 300px
+                margin: 0 auto
+                height: 270px
+            .hand_vector_wrapper
+                width: 180px
+                line-height: 1
+                position: absolute
+                bottom: 0%
+                left: 50%
+                translate: -50% 0%
+                z-index: 1
+                @include media(991)
+                    width: 160px
+                @include media(540)
+                    width: 140px
+            .hand_video
+                mask-image: url(/assets/images/home/hand-mask.svg)
+                mask-size: 100%
+                mask-repeat: no-repeat
+                line-height: 0
+                position: absolute
+                top: 9px
+                left: 11%
+                height: 89px
+                aspect-ratio: 0.7
+                width: 151px
+                height: 213px
+                @include media(991)
+                    width: 135px
+                @include media(540)
+                    width: 118px
+                video
+                    width: 100%
+                    height: 100%
+                    object-fit: cover
+        .colB
+            flex: 1
+            .heading
+                margin-bottom: 30px
+                @include media(991)
+                    margin-bottom: 20px
+                @include media(768)
+                    text-align: center
+                @include media(540)
+                    margin-bottom: 10px
+                h2
+                    font-size: 36px
+                    color: var(--primary)
+                    font-weight: 400
+                    @include media(540)
+                        font-size: 32px
+                    span
+                        font-weight: 600
+            .desc
+                @include media(768)
+                    text-align: center
+                p
+                    padding-bottom: 10px
+                    line-height: 1.5
+                    @include media(540)
+                        font-size: 14px
+                        line-height: 1.3
+            .counter-wrapper
+                display: flex
+                flex-wrap: wrap
+                padding: 40px 0
+                gap: 50px
+                @include media(1336)
+                    justify-content: space-between
+                @include media(991)
+                    padding: 30px 0 
+                    gap: 30px
+                @include media(768)
+                    text-align: center
+                    justify-content: space-around
+                @include media(540)
+                    padding: 20px 0
+                    justify-content: center
+                    gap: 15px
+                .counter-info-wrap
+                    h5
+                        color: $primary
+                        font-size: 24px
+                        font-weight: 600
+                        line-height: 1.2
+                        @include media(991)
+                            font-size: 22px
+                        @include media(540)
+                            font-size: 18px
+                    p
+                        font-weight: 500
+                        @include media(540)
+                            font-size: 14px
+
+.about-secB
+    .heading
+        max-width: 460px
+        margin: 0 auto 40px
+        h2
+            font-size: 36px
+            color: var(--primary)
+            @include font(600)
+            padding-bottom: 5px
+            @include media(768)
+                font-size: 32px
+            @include media(540)
+                font-size: 26px
+        p
+            line-height: 1.5
+            @include media(540)
+                font-size: 14px
+                line-height: 1.3
+                margin-top: 5px
+    .global-container
+        position: relative
+        max-width: 100%
+        text-align: center
+        @include media(991) 
+            margin-top: 50px 
+        @include media(768)
+            margin-top: 40px
+        .map-image
+            width: 100%
+            height: auto
+            object-fit: none
+            @include media(768) 
+                object-fit: contain
+        .pointer
+            position: absolute
+            width: 12px
+            height: 12px
+            background-color: var(--primary)
+            border-radius: 50%
+            border: 1px solid var(--primary)
+            cursor: pointer
+            transform: translate(-50%, -50%)
+            animation: blink 2s forwards .2s infinite
+            @include media(768) 
+                width: 8px
+                height: 8px
+            &:hover
+                span
+                    opacity: 1
+            &::before
+                content: ""
+                position: absolute
+                left: -12px
+                bottom: -11px
+                width: 21px
+                padding: 15px
+                height: 20px
+                border-radius: 50%
+                border: 2px solid var(--primary)
+                @include media(768) 
+                    left: -9px
+                    bottom: -9px
+                    width: 10px
+                    height: 10px
+                    padding: 10px
+            &.point1
+                right: 32%
+                top: 40%
+                @include media(991)                 
+                    right: 19%
+                    top: 35%
+                @include media(768) 
+                    right: 26%
+            &.point2
+                right: 22%
+                top: 27%
+                @include media(991)        
+                    right: 8%
+                    top: 10%
+                @include media(768) 
+                    right: 14%
+                    top: 18%
+            &.point3
+                right: 40%
+                top: 22%
+                @include media(991)        
+                    right: 26%
+                    top: 6%
+                @include media(768) 
+                    right: 37%
+                    top: 10%
+            &.point4
+                right: 45%
+                top: 40%
+                @include media(991)        
+                    right: 38%
+                    top: 31
+                @include media(768) 
+                    right: 44%
+                    top: 36%
+            &.point5
+                right: 42%
+                top: 60%
+                @include media(991)        
+                    right: 39%
+                    top: 60%
+            &.point6
+                bottom: 36%
+                left: 35%
+                @include media(991)        
+                    bottom: 29%
+                    left: 21%
+                @include media(768) 
+                    left: 29%
+            &.point7
+                top: 34%
+                left: 28%
+                @include media(991)   
+                    top: 16%
+                    left: 10%
+                @include media(768) 
+                    top: 28%
+                    left: 18%
+            span
+                background-color: var(--primary)
+                padding: 4px 20px
+                border-radius: 5px
+                color: $white
+                position: absolute
+                bottom: 100%
+                left: -100%
+                transform: translate(-30%, -80%)
+                opacity: 0
+                transition: .5s ease
+                --triangle: 10px
+                line-height: 1.2
+                @include media(768) 
+                    bottom: 60%
+                    transform: translate(-38%, -60%)
+                    font-size: 14px
+                &::before
+                    content: ""
+                    display: block
+                    position: absolute
+                    top: calc(100% - var(--triangle) / 3)
+                    left: 50%
+                    translate: -50% 0 
+                    width: var(--triangle)
+                    height: var(--triangle)
+                    background: var(--primary)
+                    transform: rotate(45deg) translateX(-50%)
+                    z-index: -1
+
+@keyframes blink
+    0% 
+        opacity: 0.5
+        transform: scale(0.8)
+    
+    50% 
+        opacity: 1
+        transform: scale(1)
+    
+    100% 
+        opacity: 0.5
+        transform: scale(0.8)
+      
+.about-secC
+    background: var(--lightprime) 
+    .heading
+        h2
+            font-size: 36px
+            color: var(--primary)
+            @include font(600)
+            padding-bottom: 5px
+            @include media(768)
+                font-size: 32px
+            @include media(540)
+                font-size: 28px
+    .why_wrapper
+        margin-top: 3rem 
+        display: grid
+        grid-template-columns: repeat(4, 1fr)
+        grid-gap: 15px
+        @include media(991)
+            grid-template-columns: repeat(2, 1fr)
+        @include media(768)
+            margin-top: 2rem
+        @include media(540)
+            margin-top: 1.5rem
+            grid-template-columns: repeat(1, 1fr)
+        .why_col
+            background: $white
+            border: 1px solid var(--primary)
+            border-radius: 10px
+            padding: 30px
+            text-align: center
+            @include media(768)
+                padding: 20px
+            .icon
+                width: 45px
+                height: 45px
+                margin: 0 auto 20px
+                @include media(768)
+                    width: 40px
+                    height: 40px
+                    margin: 0 auto 10px
+            h3
+                font-size: 20px
+                @include font(600)
+                padding-bottom: 10px
+                -webkit-text-fill-color: transparent
+                -webkit-background-clip: text
+                background-image: var(--gradient-a)
+                display: inline-block
+                @include media(768)
+                    font-size: 16px
+            p
+                font-size: 14px
+                line-height: 1.5
+                @include media(540)
+                    line-height: 1.3
+

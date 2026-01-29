@@ -1,0 +1,204 @@
+@use './_var' as * 
+  
+
+.form
+    --inputsize: 48px 
+    --labelbefore: var(--text)
+    --labelafter: var(--black) 
+    --borderbefore: var(--text)
+    --borderafter: var(--black)
+    --labelfontbefore: 16px
+    --labelfontafter: 14px
+    --font: 500
+    --inputsize: 42px
+    --color: var(--black)
+    --borderwidth: 1px
+    --labelbackground: none
+    --font: normal
+    --textareaheight: 86px
+    --paddingleftright: 0px
+    .form-group
+        position: relative
+        flex: 0 1 100%
+        max-width: 100%
+        width: 100%
+        --selectheight: var(--inputsize)
+        line-height: 0
+        .error
+            position: absolute
+            top: calc(100% + 3px)
+            left: 0
+            right: 0
+            color: red
+            line-height: normal
+            font-size: 12px
+            &.static
+                position: static
+                margin: 10px 0 
+        &.active
+            &::after
+                width: 100%
+        &::before,&::after
+            content: ''
+            position: absolute
+            bottom: 0
+            left: 0
+            right: 0
+            height: var(--borderwidth)
+            transition: .5s ease
+        &::before
+            background: var(--borderbefore)
+        &::after
+            width: 0
+            background: var(--borderafter)
+        &.border
+            &::before, &::after
+                display: none
+            --paddingleftright: 15px
+            input
+                border: 1px solid $text
+                border-radius: 5px
+            // label 
+            //     background: $white
+        label
+            font-weight: var(--font)
+            position: absolute
+            top: calc((var(--inputsize) / 2) - (var(--labelfontbefore) / 2))
+            left: var(--paddingleftright)
+            color: var(--labelbefore)
+            line-height: 1
+            font-size: var(--labelfontbefore)
+            background: none
+            transition: .3s ease
+            user-select: none
+            pointer-events: none
+        input,textarea
+            height: calc(var(--inputsize) - var(--borderwidth))
+            border: none
+            resize: none
+            border-radius: 0px
+            width: 100%
+            background: none
+            color: var(--color)
+            font-size: inherit
+            font-family: inherit
+            cursor: initial
+            padding: 0 var(--paddingleftright)
+            &:focus
+                outline: none
+            &.valid
+                outline: none  
+                & ~ label
+                    font-size: var(--labelfontafter)
+                    color: var(--labelafter)
+                    top: calc(var(--labelfontafter) / -2)
+                    // background: var(--labelbackground)
+            &:not(.no-focus)
+                &:focus
+                    outline: none
+                    & ~ label
+                        font-size: var(--labelfontafter)
+                        color: var(--labelafter)
+                        top: calc(var(--labelfontafter) / -2)
+            &.no-focus
+                ~ label
+                    font-size: var(--labelfontafter)
+                    color: var(--labelafter)
+                    top: calc(var(--labelfontafter) / -2)
+            &[readonly]
+                caret-color: transparent
+        textarea
+            height: var(--textareaheight)
+            border: none
+            resize: none
+            border-radius: 0px 
+            width: 100%
+            background: none
+            color: var(--color)
+            font-size: inherit 
+            font-family: inherit
+            line-height: 1.2
+            cursor: initial
+            @include scrollbar(2px,none,$black,15px)
+            padding: 0 var(--paddingleftright)
+            padding-right: 15px
+            &:focus,&.valid
+                outline: none
+                margin-top: 13px
+                height: calc(var(--textareaheight) - 13px)
+        select
+            &:focus
+                outline: none
+            & ~ label
+                position: absolute
+                top: calc(var(--labelfontafter) / -2)
+                left: var(--paddingleftright)
+                color: var(--labelafter)
+                translate: 0 0
+                font-size: var(--labelfontafter)
+                opacity: 0
+                transition: .6s ease
+                // background: var(--labelbackground)
+            &.valid
+                color: var(--color)
+                & ~ label
+                    opacity: 1
+        &.file-input
+            input[type="file"]
+                position: absolute 
+                top: 0
+                left: 0
+                right: 0
+                bottom: 0
+                width: 100%
+                height: 100%
+                opacity: 0
+                z-index: 4
+                cursor: pointer
+            .file-name
+                pointer-events: none
+                height: calc(var(--inputsize) - var(--borderwidth))
+                position: relative
+                --filename: 'Attach Resume*'
+                --filenameinitial: var(--filename)
+                --color: var(--text)
+                --background: none
+                --image: url(/assets/icon/clip-gray.svg) no-repeat
+                appearance: none
+                line-height: calc(var(--inputsize) - var(--borderwidth))
+                &::before,&::after
+                    position: absolute
+                    top: 0
+                    bottom: 0
+                    left: 3%
+                    right: 0
+                &::before
+                    content: var(--filenameinitial)
+                    z-index: 2
+                    font-family: inherit
+                    font-size: inherit
+                    line-height: calc(var(--inputsize) - var(--borderwidth))
+                    padding-left: var(--paddingleftright)
+                    color: var(--color)
+                    width: 80%
+                    overflow: hidden
+                    text-overflow: ellipsis
+                    background: none
+                &::after
+                    content: ''
+                    right: 0
+                    background: var(--image)
+                    background-repeat: no-repeat
+                    z-index: 1
+                    background-position: calc(100% - var(--paddingleftright,0)) 50%
+                    background-size: auto 50%
+    .submit-grp
+        &:not(.text-left)
+            text-align: center
+            margin-top: 23px
+
+.checkbox-full
+    @include checkbox-full
+
+.radio-full
+    @include radio-full

@@ -1,0 +1,129 @@
+@import '../_var'
+
+.contact-secA
+    @include media(1024)
+        margin-top: calc(var(--headerheight) + 40px)
+    @include media(768)
+        margin-top: calc(var(--headerheight)  + 30px)
+    .heading
+        max-width: 600px
+        margin: 0 auto 3rem
+        @include media(1024)
+            margin: 0 auto 2.5rem
+        @include media(768)
+            margin: 0 auto 2rem
+        @include media(540)
+            margin: 0 auto 1.5rem
+        h2
+            font-size: 36px
+            font-weight: 600
+            color: var(--primary)
+            @include media(1024)
+                font-size: 32px
+            @include media(768)
+                font-size: 28px
+            @include media(540)
+                font-size: 26px
+        p
+            @include font(500)
+            @include media(768)
+                margin-top: 5px
+            @include media(540)
+                font-size: 14px
+    .contact_wrapper
+        display: grid
+        grid-template-columns: repeat(3, 1fr)
+        grid-gap: 15px
+        @include media(1024)
+            grid-gap: 10px
+        @include media(768)
+            grid-template-columns: repeat(1, 1fr)
+            grid-gap: 15px
+        .contact-col
+            border: 1px solid #D1D0D0
+            border-radius: 15px
+            text-align: center
+            padding: 20px 10px
+            transition: .5s ease
+            @include media(1024)
+                padding: 15px 10px
+            &:hover
+                background: #D6E6FF
+                a
+                    color: $primary
+            .icon
+                width: 40px
+                height: 40px
+                margin: 0 auto 10px
+                @include media(540)
+                    margin: 0 auto 5px
+            h6
+                font-size: 18px
+                font-weight: 600
+                margin-bottom: 10px
+                transition: .5s ease
+            a
+                display: block
+                color: $text
+                @include font(400)
+                transition: .5s ease
+                line-height: 1.2
+                @include media(1024)
+                    font-size: 14px
+
+.contact-secB
+    background: var(--lightprime)
+    .heading
+        max-width: 590px
+        margin: 0 auto 50px
+        text-align: center
+        @include media(1024)
+            max-width: 550px
+            margin: 0 auto 40px
+        @include media(768)
+            max-width: 470px
+        @include media(540)
+            margin: 0 auto 30px
+        h2
+            font-size: 36px
+            @include font(600)
+            color: var(--primary)
+            @include media(1024)
+                font-size: 32px
+            @include media(768)
+                font-size: 28px
+            @include media(540)
+                font-size: 24px
+        p
+            color: $black
+            @include media(1024)
+                max-width: 340px
+                margin: 10px auto 0
+            @include media(540)
+                font-size: 14px
+    .contact_wrapper
+        max-width: 700px
+        margin: 0 auto 
+        .contact_form
+            --item: 2
+            @include media(540)
+                --item: 1
+            .btn-wrap
+                text-align: center
+            .contactBtn
+                max-width: fit-content
+
+.contact-secC
+    line-height: 1
+    iframe
+        filter: grayscale(1)
+        transition: .5s ease
+        height: 700px
+        @include media(1024)
+            height: 550px
+        @include media(768)
+            height: 500px
+        @include media(540)
+            height: 450px
+        &:hover
+            filter: grayscale(0)

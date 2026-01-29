@@ -1,0 +1,323 @@
+@use '../_var' as *  
+
+.service-secA
+    @include media(991)
+        margin-top: calc(var(--headerheight) + 30px)
+    @include media(540)
+        margin-top: calc(var(--headerheight) + 20px)
+    .heading
+        h2
+            font-size: 36px
+            color: var(--primary)
+            font-weight: 600
+            margin-bottom: 50px
+            @include media(1140)
+                margin-bottom: 40px
+            @include media(991)
+                font-size: 32px
+            @include media(768)
+                margin-bottom: 30px
+                font-size: 30px
+            @include media(540)
+                margin-bottom: 20px
+    .services_wrapper
+        display: grid
+        grid-template-columns: repeat(3, 1fr)
+        grid-gap: 20px
+        @include media(1024)
+            grid-template-columns: repeat(2, 1fr)
+        @include media(768)
+            grid-gap: 15px
+        @include media(540)
+            grid-template-columns: repeat(1, 1fr)
+
+.service-banner.banner
+    @include media(1024)
+        margin-top: calc(var(--headerheight) + 30px)
+    @include media(768)
+        margin-top: calc(var(--headerheight)  + 20px)
+        height: 100%
+    &::before
+        background: linear-gradient(347deg, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, .8) 100%)
+        @include media(768)
+            display: none
+    &.seo-banner
+        .bg
+            height: 460px
+            .banner-wrapper
+                bottom: 30%
+                translate: 0 30%
+                top: unset
+    .bg
+        height: 90vh
+        @include media(991)
+            height: 600px
+        @include media(768)
+            height: 100%
+        img
+            @include media(768)
+                height: 230px
+            @include media(540)
+                height: 200px
+    .banner-wrapper
+        bottom: 50%
+        translate: 0 50%
+        top: unset
+        @include media(768)
+            position: static
+            padding: 30px 0 
+            translate: 0
+        .container
+            display: flex
+            align-items: center
+            justify-content: space-between
+            @include media(768)
+                flex-direction: column
+            .heading
+                flex: 0 1 50%
+                @include media(768)
+                    flex: 0 1 100%
+                    margin-bottom: 30px
+                @include media(540)
+                    margin-bottom: 20px
+                h2
+                    color: $white
+                    font-weight: 600
+                    color: $white
+                    font-size: 36px
+                    @include media(991)
+                        font-size: 32px
+                    @include media(768)
+                        font-size: 30px
+                        color: $primary
+                    @include media(540)
+                        font-size: 24px
+                        line-height: 1.2
+                p
+                    font-size: 16px
+                    color: #FFFFFFF6
+                    @include media(768)
+                        margin-top: 5px
+                        color: $text 
+                    @include media(540)
+                        font-size: 14px
+            .form_wrapper
+                flex: 0 1 40%
+                background-color: var(--white)
+                padding: 30px 20px
+                border-radius: 6px
+                @include media(991) 
+                    flex: 0 1 45%
+                @include media(768)
+                    flex: 1
+                    width: 100%
+                    border: 1px solid #cecece
+                @include media(540)
+                    padding: 25px 15px
+                .title
+                    text-align: center
+                    margin-bottom: 20px
+                    @include media(540)
+                        margin-bottom: 15px
+                    h6
+                        font-size: 20px 
+                        line-height: 1.2
+                        font-weight: 600 
+                        @include media(540)
+                            font-size: 18px
+                .form.form-grid
+                    --item: 2
+                    --gaplr: 20px
+                    --gaptb: 20px
+                    --textareaheight: 60px
+                    @include media(991)
+                        --item: 1
+
+.service-detailA
+    @include media(540) 
+        padding-bottom: 0
+    &.seo-detailA
+        .colB
+            .form_wrapper
+                position: sticky
+                top: var(--headerheight)
+                background-color: var(--lightblue)
+                padding: 30px 20px
+                border-radius: 6px
+                @include media(991) 
+                    flex: 0 1 45%
+                @include media(768)
+                    flex: 1
+                    width: 100%
+                    border: 1px solid #cecece
+                @include media(540)
+                    padding: 25px 15px
+                .title
+                    text-align: center
+                    margin-bottom: 20px
+                    @include media(540)
+                        margin-bottom: 15px
+                    h6
+                        font-size: 20px 
+                        line-height: 1.2
+                        font-weight: 600 
+                        @include media(540)
+                            font-size: 18px
+                .form.form-grid
+                    --gaplr: 20px
+                    --gaptb: 20px
+                    --textareaheight: 60px
+                    @include media(991)
+                        --item: 1
+    >.flex
+        --gap: 50px
+        gap: var(--gap)
+        @include media(1280)
+            --gap: 40px
+        @include media(991) 
+            flex-direction: column
+        .colA
+            flex: 0 1 65%
+            @include media(991)
+                flex: 0 1 100%
+            p
+                padding-bottom: 15px
+                text-align: justify
+                color: $text
+            ul
+                padding-left: 25px
+                li
+                    position: relative
+                    padding-bottom: 5px
+                    color: $text
+                    &::before
+                        content: ""
+                        position: absolute
+                        left: -20px
+                        bottom: 12px
+                        width: 10px
+                        height: 10px
+                        background-color: var(--primary)
+                        border-radius: 50%
+            h1
+                font-size: 28px
+                font-weight: 600
+                margin: 10px 0 
+            h2
+                font-size: 24px
+                font-weight: 600
+                margin: 10px 0 
+            h3
+                font-size: 22px
+                font-weight: 600
+                margin: 10px 0 
+            h4
+                font-size: 20px
+                font-weight: 500
+                margin: 8px 0
+            h5
+                font-size: 18px
+                font-weight: 500
+                margin: 8px 0
+            h6
+                font-size: 16px
+                font-weight: 500
+                margin: 6px 0
+            p
+                font-size: 14px
+                padding-bottom: 10px
+                line-height: 1.5
+            strong
+                font-weight: 600
+                color: $text
+            ul
+                margin-bottom: 10px
+            p, li
+                text-align: start
+                hyphens: none
+                font-size: 14px
+        .colB
+            flex: 0 1 calc( 35% - var(--gap) )
+            @include media(991)
+                flex: 0 1 100%
+            .industrial_sec
+                padding: 15px 0
+                border: 1px solid #00000038
+                border-radius: 5px
+                @include media(1024)
+                    position: sticky
+                    top: calc( var(--headerheight) + 50px )
+                .title
+                    padding: 0 20px 10px
+                    border-bottom: 1px solid #0000002B
+                    justify-content: space-between
+                    h5
+                        font-size: 20px
+                        font-weight: 600
+                        @include media(1280)
+                            font-size: 18px
+                        @include media(540)
+                            font-size: 16px
+                .indus_pro
+                    .indus_col
+                        display: flex
+                        gap: 20px
+                        padding: 15px 20px
+                        &:not(:last-child)
+                            border-bottom: 1px solid #00000014
+                        @include media(1280)
+                            gap: 15px
+                        @include media(540)
+                            padding: 10px 15px
+                        figure
+                            flex: 0 1 40%
+                            max-width: 40%
+                            border-radius: 5px
+                            @include media(1280)
+                                width: 90px
+                                height: 90px
+                            @include media(540)
+                                width: 80px
+                                height: 80px
+                            img
+                                border-radius: 5px
+                        figcaption
+                            flex: 1
+                            max-width: 100%
+                            .indus_name
+                                color: $black
+                                font-size: 16px
+                                line-height: 1.2
+                                padding-bottom: 5px
+                                @include media(540)
+                                    font-size: 14px
+                                    font-weight: 500
+                            .indus_loc
+                                font-size: 14px
+                                @include media(540)
+                                    font-weight: 400
+                            .cta
+                                margin-top: 15px
+                                @include media(1280)
+                                    margin-top: 10px
+
+.service-detailB
+    .heading
+        margin-bottom: 40px
+        @include media(991)
+            margin-bottom: 30px
+        @include media(540)
+            margin-bottom: 20px
+    .more_services
+        position: relative
+        .swiper-nav
+            @include media(540)
+                display: none
+        .more_slider
+            padding: 10px
+            .swiper-slide
+                box-shadow: 0 2px 8px rgba(99, 99, 99, .2)
+                background: $white
+                border-radius: 5px
+                .service_col
+                    box-shadow: none

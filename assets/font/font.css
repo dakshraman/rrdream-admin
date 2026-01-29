@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'Le Jeune Deck';
+    src: url('LeJeuneDeck-Regular.woff2') format('woff2'),
+        url('LeJeuneDeck-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
