@@ -21,7 +21,7 @@ export const apiAPISlice = createApi({
     "Banners",
     "Admin",
     "WithdrawRequest",
-    "FundRequest",
+    "FundRequests",
     "BiddingHistory",
     "BiddingHistoryStarline",
     "DeclaredResultsStarline",
@@ -86,7 +86,23 @@ export const apiAPISlice = createApi({
         url: "getfundrequests",
         method: "GET",
       }),
-      providesTags: ["FundRequest"],
+      providesTags: ["FundRequests"],
+    }),
+    approveFundRequest: builder.mutation({
+      query: (data) => ({
+        url: "admin-addfunds",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FundRequests", "Users"],
+    }),
+    rejectFundRequest: builder.mutation({
+      query: (data) => ({
+        url: "deleteuser",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["FundRequests"],
     }),
     getBiddingHistory: builder.query({
       query: ({
@@ -219,6 +235,14 @@ export const apiAPISlice = createApi({
       }),
       providesTags: (result, error, id) => [{ type: "User", id }],
     }),
+    toggleUser: builder.mutation({
+      query: (user_id) => ({
+        url: "toggleuser",
+        method: "POST",
+        body: { user_id },
+      }),
+      invalidatesTags: ["Users", "InactiveUsers"],
+    }),
   }),
 });
 
@@ -231,10 +255,13 @@ export const {
   useGetAdminQuery,
   useGetWithdrawRequestsQuery,
   useGetFundRequestsQuery,
+  useApproveFundRequestMutation,
+  useRejectFundRequestMutation,
   useGetBiddingHistoryQuery,
   useGetBiddingHistoryStarlineQuery,
   useGetDeclaredResultsStarlineQuery,
   useGetBiddingHistoryGaliQuery,
   useGetProfitQuery,
   useGetUserByIdQuery,
+  useToggleUserMutation,
 } = apiAPISlice;

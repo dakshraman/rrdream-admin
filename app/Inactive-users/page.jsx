@@ -3,8 +3,9 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetInactiveUsersQuery } from "@/store/backendSlice/apiAPISlice";
-import UserViewModal from "../UserViewModal"; 
+import { useGetInactiveUsersQuery, useToggleUserMutation } from "@/store/backendSlice/apiAPISlice";
+import UserViewModal from "../UserViewModal";
+import { toast } from "react-hot-toast"; // or your preferred toast library
 
 // Skeleton component for loading state
 const UserSkeleton = () => (
@@ -27,18 +28,20 @@ const UserSkeleton = () => (
     </div>
 );
 
-
 export default function ManageInactiveUsersData() {
     const [filterText, setFilterText] = useState("");
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    
+    const [activatingUserId, setActivatingUserId] = useState(null);
+
     const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery();
+    const [toggleUser] = useToggleUserMutation();
+
     const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if(!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -59,8 +62,30 @@ export default function ManageInactiveUsersData() {
         setSelectedUserId(null);
     };
 
-    const handleActivate = (row) => {
-        console.log("Activate user:", row);
+    const handleActivate = async (row) => {
+        // Confirm before activating
+        const confirmActivate = window.confirm(
+            `Are you sure you want to activate user "${row.name || row.phone}"?`
+        );
+
+        if(!confirmActivate) return;
+
+        setActivatingUserId(row.id);
+
+        try {
+            const response = await toggleUser(row.id).unwrap();
+
+            // Success
+            toast.success(response?.message || `User "${row.name || row.phone}" activated successfully!`);
+
+        } catch(err) {
+            // Error handling
+            const errorMessage = err?.data?.message || err?.message || "Failed to activate user";
+            toast.error(errorMessage);
+            console.error("Activate user error:", err);
+        } finally {
+            setActivatingUserId(null);
+        }
     };
 
     const columns = [
@@ -162,44 +187,72 @@ export default function ManageInactiveUsersData() {
         },
         {
             name: "Actions",
-            cell: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={() => handleView(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                        }}
-                    >
-                        View
-                    </button>
-                    <button
-                        onClick={() => handleActivate(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#22c55e",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                        }}
-                    >
-                        Activate
-                    </button>
-                </div>
-            ),
-            width: "180px",
+            cell: (row) => {
+                const isActivating = activatingUserId === row.id;
+
+                return (
+                    <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => handleView(row)}
+                            disabled={isActivating}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#3b82f6",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isActivating ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                opacity: isActivating ? 0.6 : 1,
+                            }}
+                        >
+                            View
+                        </button>
+                        <button
+                            onClick={() => handleActivate(row)}
+                            disabled={isActivating}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isActivating ? "#86efac" : "#22c55e",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isActivating ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px",
+                                minWidth: "80px",
+                                justifyContent: "center",
+                            }}
+                        >
+                            {isActivating ? (
+                                <>
+                                    <span
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            border: "2px solid #fff",
+                                            borderTopColor: "transparent",
+                                            borderRadius: "50%",
+                                            animation: "spin 1s linear infinite",
+                                        }}
+                                    />
+                                    Activating...
+                                </>
+                            ) : (
+                                "Activate"
+                            )}
+                        </button>
+                    </div>
+                );
+            },
+            width: "200px",
         },
     ];
 
     const filteredData = users.filter((item) => {
-        if (filterText) {
+        if(filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const phone = (item.phone || "").toString().toLowerCase();
@@ -307,7 +360,7 @@ export default function ManageInactiveUsersData() {
         },
     };
 
-    if (isError) {
+    if(isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -339,80 +392,90 @@ export default function ManageInactiveUsersData() {
     }
 
     return (
-        <main style={{ padding: "0px 9px" }}>
-            <div style={{
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                overflow: "hidden",
-            }}>
-                <DataTable
-                    title={
-                        <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "10px 0"
-                        }}>
-                            <span style={{ fontSize: "18px", fontWeight: "600" }}>
-                                Inactive Users
-                            </span>
-                        </div>
-                    }
-                    columns={columns}
-                    data={filteredData}
-                    striped
-                    pagination
-                    highlightOnHover
-                    subHeader
-                    subHeaderComponent={subHeaderComponent}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    paginationPerPage={rowsPerPage}
-                    onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
-                    progressPending={isLoading}
-                    progressComponent={<SkeletonLoader />}
-                    responsive
-                    customStyles={customStyles}
-                    noDataComponent={
-                        <div style={{
-                            padding: "40px",
-                            textAlign: "center",
-                            color: "#6b7280"
-                        }}>
-                            <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>✅</span>
-                            <p style={{ fontSize: "16px", fontWeight: "500", color: "#22c55e" }}>
-                                Great! No inactive users found
-                            </p>
-                            <p style={{ fontSize: "14px", marginTop: "5px" }}>
-                                All users are currently active
-                            </p>
-                            {filterText && (
-                                <button
-                                    onClick={() => setFilterText("")}
-                                    style={{
-                                        marginTop: "15px",
-                                        padding: "8px 16px",
-                                        backgroundColor: "#4f46e5",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: "8px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Clear Search
-                                </button>
-                            )}
-                        </div>
-                    }
-                />
-            </div>
-            {showModal && selectedUserId && (
-                <UserViewModal 
-                    userId={selectedUserId} 
-                    onClose={handleCloseModal}
-                    variant="inactive"
-                />
-            )}
-        </main>
+        <>
+            {/* CSS for spinner animation */}
+            <style jsx>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
+
+            <main style={{ padding: "0px 9px" }}>
+                <div style={{
+                    backgroundColor: "#fff",
+                    borderRadius: "12px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    overflow: "hidden",
+                }}>
+                    <DataTable
+                        title={
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "10px 0"
+                            }}>
+                                <span style={{ fontSize: "18px", fontWeight: "600" }}>
+                                    Inactive Users
+                                </span>
+                            </div>
+                        }
+                        columns={columns}
+                        data={filteredData}
+                        striped
+                        pagination
+                        highlightOnHover
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                        paginationPerPage={rowsPerPage}
+                        onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+                        progressPending={isLoading}
+                        progressComponent={<SkeletonLoader />}
+                        responsive
+                        customStyles={customStyles}
+                        noDataComponent={
+                            <div style={{
+                                padding: "40px",
+                                textAlign: "center",
+                                color: "#6b7280"
+                            }}>
+                                <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>✅</span>
+                                <p style={{ fontSize: "16px", fontWeight: "500", color: "#22c55e" }}>
+                                    Great! No inactive users found
+                                </p>
+                                <p style={{ fontSize: "14px", marginTop: "5px" }}>
+                                    All users are currently active
+                                </p>
+                                {filterText && (
+                                    <button
+                                        onClick={() => setFilterText("")}
+                                        style={{
+                                            marginTop: "15px",
+                                            padding: "8px 16px",
+                                            backgroundColor: "#4f46e5",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        Clear Search
+                                    </button>
+                                )}
+                            </div>
+                        }
+                    />
+                </div>
+                {showModal && selectedUserId && (
+                    <UserViewModal
+                        userId={selectedUserId}
+                        onClose={handleCloseModal}
+                        variant="inactive"
+                    />
+                )}
+            </main>
+        </>
     );
 }

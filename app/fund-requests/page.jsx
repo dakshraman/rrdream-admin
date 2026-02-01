@@ -3,7 +3,12 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetFundRequestsQuery } from "@/store/backendSlice/apiAPISlice";
+import {
+    useGetFundRequestsQuery,
+    useApproveFundRequestMutation,
+    useRejectFundRequestMutation
+} from "@/store/backendSlice/apiAPISlice";
+import { toast } from "react-hot-toast";
 
 const FundSkeleton = () => (
     <div style={{
@@ -29,21 +34,101 @@ const FundSkeleton = () => (
 export default function FundRequests() {
     const [filterText, setFilterText] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const { data: fundData, isLoading, isError, error, refetch } = useGetFundRequestsQuery();
-
-    const fundRequests = fundData?.data?.fund_requests || fundData?.data?.fundrequests || fundData?.data || [];
+    const [dateFilter, setDateFilter] = useState(new Date().toISOString().split('T')[0]);
+    const [processingId, setProcessingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const { data: fundData, isLoading, isError, error, refetch } = useGetFundRequestsQuery();
+    const [approveFundRequest] = useApproveFundRequestMutation();
+    const [rejectFundRequest] = useRejectFundRequestMutation();
+
+    const fundRequests = fundData?.fund_requests || fundData?.data?.fund_requests || fundData?.data || [];
+
+    console.log("Fund Requests Data:", fundRequests);
 
     const formatDate = (dateString) => {
         if(!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
-            month: 'short',
+            month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const handleApprove = async (row) => {
+        console.log("Approving row:", row);
+
+        const userName = row.user_name || "User";
+        const confirmApprove = window.confirm(
+            `Are you sure you want to approve ₹${row.amount} for ${userName}?`
+        );
+
+        if(!confirmApprove) return;
+
+        setProcessingId(row.fund_request_id);
+
+        try {
+            const payload = {
+                fund_request_id: row.fund_request_id,
+                amount: parseFloat(row.amount)
+            };
+
+            console.log("Sending approve payload:", payload);
+
+            const response = await approveFundRequest(payload).unwrap();
+            toast.success(response?.message || "Fund request approved successfully!");
+            refetch();
+        } catch(err) {
+            console.error("Approve error:", err);
+            const errorMessage =
+                err?.data?.errors?.fund_request_id?.[0] ||
+                err?.data?.errors?.amount?.[0] ||
+                err?.data?.errors?.user_id?.[0] ||
+                err?.data?.message ||
+                err?.message ||
+                "Failed to approve fund request";
+            toast.error(errorMessage);
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const handleReject = async (row) => {
+        console.log("Rejecting row:", row);
+
+        const userName = row.user_name || "User";
+        const confirmReject = window.confirm(
+            `Are you sure you want to reject ₹${row.amount} request from ${userName}?`
+        );
+
+        if(!confirmReject) return;
+
+        setProcessingId(row.fund_request_id);
+
+        try {
+            const payload = {
+                id: row.fund_request_id
+            };
+
+            console.log("Sending reject payload:", payload);
+
+            const response = await rejectFundRequest(payload).unwrap();
+            toast.success(response?.message || "Fund request rejected successfully!");
+            refetch();
+        } catch(err) {
+            console.error("Reject error:", err);
+            const errorMessage =
+                err?.data?.errors?.id?.[0] ||
+                err?.data?.message ||
+                err?.message ||
+                "Failed to reject fund request";
+            toast.error(errorMessage);
+        } finally {
+            setProcessingId(null);
+        }
     };
 
     const getStatusBadge = (status) => {
@@ -74,52 +159,32 @@ export default function FundRequests() {
 
     const columns = [
         {
-            name: "S.No",
+            name: "#",
             selector: (row, index) => index + 1,
             sortable: false,
-            width: "70px",
+            width: "60px",
         },
         {
-            name: "ID",
-            selector: (row) => row.id,
+            name: "User Name",
+            selector: (row) => row.user_name || "N/A",
             sortable: true,
-            width: "80px",
             cell: (row) => (
-                <span style={{ fontWeight: "600", color: "#4f46e5" }}>#{row.id}</span>
+                <span style={{ fontWeight: "500" }}>
+                    {row.user_name || "N/A"}
+                </span>
             ),
+            width: "180px",
         },
         {
-            name: "User",
-            selector: (row) => row.user?.name || row.name || "N/A",
+            name: "Mobile",
+            selector: (row) => row.user_phone || "N/A",
             sortable: true,
             cell: (row) => (
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div
-                        style={{
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            backgroundColor: "#4f46e5",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#fff",
-                            fontWeight: "bold",
-                            fontSize: "14px",
-                            flexShrink: 0,
-                        }}
-                    >
-                        {(row.user?.name || row.name || "U").charAt(0).toUpperCase()}
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span style={{ fontWeight: "500" }}>{row.user?.name || row.name || "N/A"}</span>
-                        <span style={{ fontSize: "12px", color: "#6b7280" }}>
-                            {row.user?.phone || row.phone || "N/A"}
-                        </span>
-                    </div>
-                </div>
+                <span style={{ fontFamily: "monospace", fontSize: "14px" }}>
+                    {row.user_phone || "N/A"}
+                </span>
             ),
-            width: "200px",
+            width: "130px",
         },
         {
             name: "Amount",
@@ -131,289 +196,165 @@ export default function FundRequests() {
                     color: "#059669",
                     fontSize: "15px"
                 }}>
-                    ₹{parseFloat(row.amount || 0).toLocaleString('en-IN')}
+                    {parseFloat(row.amount || 0).toLocaleString('en-IN')}
                 </span>
             ),
-            width: "120px",
+            width: "100px",
         },
         {
-            name: "UTR/Transaction ID",
-            selector: (row) => row.utr || row.transaction_id || row.txn_id,
+            name: "Request No.",
+            selector: (row) => row.fund_request_id,
             sortable: true,
             cell: (row) => (
-                <span style={{ fontSize: "13px", fontFamily: "monospace", fontWeight: "500" }}>
-                    {row.utr || row.transaction_id || row.txn_id || "N/A"}
+                <span style={{ fontFamily: "monospace", color: "#6b7280" }}>
+                    {row.fund_request_id}
                 </span>
             ),
-            width: "180px",
-        },
-        {
-            name: "Payment Mode",
-            selector: (row) => row.payment_mode || row.mode || row.type,
-            sortable: true,
-            cell: (row) => (
-                <span style={{
-                    fontSize: "13px",
-                    backgroundColor: "#e0e7ff",
-                    color: "#4338ca",
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    fontWeight: "500"
-                }}>
-                    {row.payment_mode || row.mode || row.type || "N/A"}
-                </span>
-            ),
-            width: "140px",
-        },
-        {
-            name: "Status",
-            selector: (row) => row.status,
-            sortable: true,
-            cell: (row) => getStatusBadge(row.status),
-            width: "120px",
+            width: "110px",
         },
         {
             name: "Date",
             selector: (row) => row.created_at,
             sortable: true,
             cell: (row) => (
-                <span style={{ fontSize: "13px", color: "#6b7280" }}>
+                <span style={{ fontSize: "12px", color: "#6b7280" }}>
                     {formatDate(row.created_at)}
                 </span>
             ),
-            width: "180px",
+            width: "150px",
         },
         {
-            name: "Actions",
-            cell: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={() => handleView(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
+            name: "Status",
+            selector: (row) => row.status,
+            sortable: true,
+            cell: (row) => getStatusBadge(row.status),
+            width: "110px",
+        },
+        {
+            name: "Action",
+            cell: (row) => {
+                const isProcessing = processingId === row.fund_request_id;
+                const isPending = (row.status || "").toLowerCase() === "pending";
+
+                if(!isPending) {
+                    return (
+                        <span style={{
+                            color: "#9ca3af",
                             fontSize: "12px",
-                        }}
-                    >
-                        View
-                    </button>
-                </div>
-            ),
-            width: "100px",
+                            fontStyle: "italic"
+                        }}>
+                            {(row.status || "").toLowerCase() === "approved" ? "✓ Approved" : "✗ Rejected"}
+                        </span>
+                    );
+                }
+
+                return (
+                    <div style={{ display: "flex", gap: "6px" }}>
+                        <button
+                            onClick={() => handleApprove(row)}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isProcessing ? "#9ca3af" : "#8b5cf6",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isProcessing ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "4px",
+                                minWidth: "70px",
+                            }}
+                        >
+                            {isProcessing ? (
+                                <span style={{
+                                    width: "12px",
+                                    height: "12px",
+                                    border: "2px solid #fff",
+                                    borderTopColor: "transparent",
+                                    borderRadius: "50%",
+                                    animation: "spin 1s linear infinite",
+                                }} />
+                            ) : "Approve"}
+                        </button>
+                        <button
+                            onClick={() => handleReject(row)}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isProcessing ? "#9ca3af" : "#ef4444",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isProcessing ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                minWidth: "60px",
+                            }}
+                        >
+                            Reject
+                        </button>
+                    </div>
+                );
+            },
+            width: "180px",
         },
     ];
 
-    const handleView = (row) => {
-        console.log("View fund request:", row);
-    };
+    const requestsArray = Array.isArray(fundRequests) ? fundRequests : [];
 
-    const filteredData = (Array.isArray(fundRequests) ? fundRequests : []).filter((item) => {
+    const filteredData = requestsArray.filter((item) => {
         const itemStatus = (item.status || "").toLowerCase();
         if(statusFilter !== "all" && itemStatus !== statusFilter) {
             return false;
         }
+
+        if(dateFilter) {
+            const itemDate = item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : "";
+            if(itemDate !== dateFilter) {
+                return false;
+            }
+        }
+
         if(filterText) {
             const searchText = filterText.toLowerCase();
-            const name = (item.user?.name || item.name || "").toLowerCase();
-            const phone = (item.user?.phone || item.phone || "").toString().toLowerCase();
-            const id = (item.id || "").toString().toLowerCase();
-            const utr = (item.utr || item.transaction_id || item.txn_id || "").toString().toLowerCase();
+            const name = (item.user_name || "").toLowerCase();
+            const phone = (item.user_phone || "").toString().toLowerCase();
+            const id = (item.fund_request_id || "").toString();
+            const transactionId = (item.transaction_id || "").toString().toLowerCase();
             return (
                 name.includes(searchText) ||
                 phone.includes(searchText) ||
                 id.includes(searchText) ||
-                utr.includes(searchText)
+                transactionId.includes(searchText)
             );
         }
         return true;
     });
 
-    const requestsArray = Array.isArray(fundRequests) ? fundRequests : [];
-    const pendingCount = requestsArray.filter(r => (r.status || "").toLowerCase() === "pending").length;
-    const approvedCount = requestsArray.filter(r => (r.status || "").toLowerCase() === "approved" || (r.status || "").toLowerCase() === "completed").length;
-    const rejectedCount = requestsArray.filter(r => (r.status || "").toLowerCase() === "rejected").length;
-    const totalAmount = requestsArray.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
-    const pendingAmount = requestsArray
-        .filter(r => (r.status || "").toLowerCase() === "pending")
-        .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
+    const dateFilteredRequests = requestsArray.filter(item => {
+        if(dateFilter) {
+            const itemDate = item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : "";
+            return itemDate === dateFilter;
+        }
+        return true;
+    });
 
-    const subHeaderComponent = (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            gap: "15px"
-        }}>
-            <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                gap: "12px",
-                padding: "10px 0"
-            }}>
-                <div style={{
-                    backgroundColor: "#eff6ff",
-                    padding: "12px 16px",
-                    borderRadius: "10px",
-                    borderLeft: "4px solid #3b82f6"
-                }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Total</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#1f2937", margin: "4px 0 0" }}>
-                        {requestsArray.length}
-                    </p>
-                    <p style={{ fontSize: "11px", color: "#6b7280", margin: 0 }}>
-                        ₹{totalAmount.toLocaleString('en-IN')}
-                    </p>
-                </div>
-                <div style={{
-                    backgroundColor: "#fefce8",
-                    padding: "12px 16px",
-                    borderRadius: "10px",
-                    borderLeft: "4px solid #f59e0b"
-                }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Pending</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#f59e0b", margin: "4px 0 0" }}>
-                        {pendingCount}
-                    </p>
-                    <p style={{ fontSize: "11px", color: "#6b7280", margin: 0 }}>
-                        ₹{pendingAmount.toLocaleString('en-IN')}
-                    </p>
-                </div>
-                <div style={{
-                    backgroundColor: "#f0fdf4",
-                    padding: "12px 16px",
-                    borderRadius: "10px",
-                    borderLeft: "4px solid #22c55e"
-                }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Approved</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#22c55e", margin: "4px 0 0" }}>
-                        {approvedCount}
-                    </p>
-                </div>
-                <div style={{
-                    backgroundColor: "#fef2f2",
-                    padding: "12px 16px",
-                    borderRadius: "10px",
-                    borderLeft: "4px solid #ef4444"
-                }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Rejected</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#ef4444", margin: "4px 0 0" }}>
-                        {rejectedCount}
-                    </p>
-                </div>
-            </div>
-
-            <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                flexWrap: "wrap",
-                gap: "15px"
-            }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #d1d5db",
-                            fontSize: "14px",
-                            outline: "none",
-                            cursor: "pointer",
-                            backgroundColor: "#fff"
-                        }}
-                    >
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-
-                    <input
-                        type="text"
-                        placeholder="Search by name, phone, ID, UTR..."
-                        value={filterText}
-                        onChange={(e) => setFilterText(e.target.value)}
-                        style={{
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            border: "1px solid #d1d5db",
-                            minWidth: "250px",
-                            fontSize: "14px",
-                            outline: "none",
-                        }}
-                    />
-
-                    {(filterText || statusFilter !== "all") && (
-                        <button
-                            onClick={() => {
-                                setFilterText("");
-                                setStatusFilter("all");
-                            }}
-                            style={{
-                                padding: "10px 14px",
-                                backgroundColor: "#ef4444",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                            }}
-                        >
-                            ✕ Clear
-                        </button>
-                    )}
-                </div>
-
-                <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "15px",
-                    fontSize: "14px",
-                    color: "#6b7280"
-                }}>
-                    <span>
-                        Showing: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> of {requestsArray.length}
-                    </span>
-                    <button
-                        onClick={refetch}
-                        style={{
-                            padding: "10px 14px",
-                            backgroundColor: "#4f46e5",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                        }}
-                    >
-                        🔄 Refresh
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const SkeletonLoader = () => (
-        <div style={{ width: "100%" }}>
-            {[...Array(10)].map((_, i) => (
-                <FundSkeleton key={i} />
-            ))}
-        </div>
-    );
+    const stats = {
+        total: dateFilteredRequests.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0),
+        approved: dateFilteredRequests
+            .filter(r => (r.status || "").toLowerCase() === "approved")
+            .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0),
+        rejected: dateFilteredRequests
+            .filter(r => (r.status || "").toLowerCase() === "rejected")
+            .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0),
+        pending: dateFilteredRequests
+            .filter(r => (r.status || "").toLowerCase() === "pending")
+            .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0),
+    };
 
     const customStyles = {
         headRow: {
@@ -425,17 +366,25 @@ export default function FundRequests() {
         headCells: {
             style: {
                 fontWeight: "600",
-                fontSize: "14px",
+                fontSize: "13px",
                 color: "#374151",
+                paddingLeft: "10px",
+                paddingRight: "10px",
             },
         },
         rows: {
             style: {
                 fontSize: "14px",
-                minHeight: "65px",
+                minHeight: "56px",
             },
             highlightOnHoverStyle: {
                 backgroundColor: "#f3f4f6",
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: "10px",
+                paddingRight: "10px",
             },
         },
         pagination: {
@@ -444,6 +393,14 @@ export default function FundRequests() {
             },
         },
     };
+
+    const SkeletonLoader = () => (
+        <div style={{ width: "100%" }}>
+            {[...Array(10)].map((_, i) => (
+                <FundSkeleton key={i} />
+            ))}
+        </div>
+    );
 
     if(isError) {
         return (
@@ -478,56 +435,251 @@ export default function FundRequests() {
     }
 
     return (
-        <main style={{ padding: "9px" }}>
-            <div style={{
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                overflow: "hidden"
-            }}>
-                <DataTable
-                    title={
+        <>
+            <style jsx>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                @media (max-width: 768px) {
+                    .stats-grid {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                    }
+                    .filter-row {
+                        flex-direction: column !important;
+                    }
+                    .filter-row input {
+                        width: 100% !important;
+                        min-width: unset !important;
+                    }
+                }
+                @media (max-width: 480px) {
+                    .stats-grid {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+            `}</style>
+
+            <main style={{ padding: "10px" }}>
+                <div style={{
+                    backgroundColor: "#fff",
+                    borderRadius: "12px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    overflow: "hidden"
+                }}>
+
+                    <div style={{ padding: "20px" }}>
                         <div style={{
                             display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "10px 0"
-                        }}>
-                            <span style={{ fontSize: "20px" }}>💰</span>
-                            <span style={{ fontSize: "18px", fontWeight: "600" }}>Fund Requests</span>
+                            gap: "15px",
+                            marginBottom: "20px",
+                            flexWrap: "wrap"
+                        }} className="filter-row">
+                            <div style={{ flex: "0 0 200px" }}>
+                                <label style={{
+                                    display: "block",
+                                    fontSize: "12px",
+                                    color: "#6b7280",
+                                    marginBottom: "4px"
+                                }}>Date</label>
+                                <input
+                                    type="date"
+                                    value={dateFilter}
+                                    onChange={(e) => setDateFilter(e.target.value)}
+                                    style={{
+                                        width: "100%",
+                                        padding: "10px 14px",
+                                        borderRadius: "8px",
+                                        border: "2px solid #8b5cf6",
+                                        fontSize: "14px",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
+                            <div style={{ flex: 1, minWidth: "200px" }}>
+                                <label style={{
+                                    display: "block",
+                                    fontSize: "12px",
+                                    color: "#6b7280",
+                                    marginBottom: "4px"
+                                }}>Search</label>
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={filterText}
+                                    onChange={(e) => setFilterText(e.target.value)}
+                                    style={{
+                                        width: "100%",
+                                        padding: "10px 14px",
+                                        borderRadius: "8px",
+                                        border: "1px solid #d1d5db",
+                                        fontSize: "14px",
+                                        outline: "none",
+                                    }}
+                                />
+                            </div>
                         </div>
-                    }
-                    columns={columns}
-                    data={filteredData}
-                    striped
-                    pagination
-                    highlightOnHover
-                    subHeader
-                    subHeaderComponent={subHeaderComponent}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    paginationPerPage={rowsPerPage}
-                    onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
-                    progressPending={isLoading}
-                    progressComponent={<SkeletonLoader />}
-                    responsive
-                    customStyles={customStyles}
-                    noDataComponent={
+
                         <div style={{
-                            padding: "40px",
-                            textAlign: "center",
-                            color: "#6b7280"
+                            display: "grid",
+                            gridTemplateColumns: "repeat(4, 1fr)",
+                            gap: "15px",
+                            marginBottom: "20px"
+                        }} className="stats-grid">
+                            <div style={{
+                                padding: "15px 20px",
+                                backgroundColor: "#faf5ff",
+                                borderRadius: "8px",
+                                borderLeft: "4px solid #8b5cf6"
+                            }}>
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
+                                    Total Amount
+                                </div>
+                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#8b5cf6" }}>
+                                    ₹ {stats.total.toLocaleString('en-IN')}
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: "15px 20px",
+                                backgroundColor: "#f0fdf4",
+                                borderRadius: "8px",
+                                borderLeft: "4px solid #22c55e"
+                            }}>
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
+                                    Approved
+                                </div>
+                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#22c55e" }}>
+                                    ₹ {stats.approved.toLocaleString('en-IN')}
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: "15px 20px",
+                                backgroundColor: "#fef2f2",
+                                borderRadius: "8px",
+                                borderLeft: "4px solid #ef4444"
+                            }}>
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
+                                    Rejected
+                                </div>
+                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#ef4444" }}>
+                                    ₹ {stats.rejected.toLocaleString('en-IN')}
+                                </div>
+                            </div>
+                            <div style={{
+                                padding: "15px 20px",
+                                backgroundColor: "#fffbeb",
+                                borderRadius: "8px",
+                                borderLeft: "4px solid #f59e0b"
+                            }}>
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
+                                    Pending
+                                </div>
+                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#f59e0b" }}>
+                                    ₹ {stats.pending.toLocaleString('en-IN')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "10px",
+                            marginBottom: "10px"
                         }}>
-                            <p>No fund requests found</p>
-                            {(filterText || statusFilter !== "all") && (
+                            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                                {["all", "pending", "approved", "rejected"].map((status) => (
+                                    <button
+                                        key={status}
+                                        onClick={() => setStatusFilter(status)}
+                                        style={{
+                                            padding: "8px 16px",
+                                            backgroundColor: statusFilter === status ? "#8b5cf6" : "#f3f4f6",
+                                            color: statusFilter === status ? "#fff" : "#374151",
+                                            border: "none",
+                                            borderRadius: "20px",
+                                            cursor: "pointer",
+                                            fontSize: "13px",
+                                            fontWeight: "500",
+                                            textTransform: "capitalize",
+                                        }}
+                                    >
+                                        {status === "all" ? "All" : status}
+                                    </button>
+                                ))}
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                                    Showing: <strong>{filteredData.length}</strong>
+                                </span>
                                 <button
                                     onClick={() => {
                                         setFilterText("");
                                         setStatusFilter("all");
+                                        setDateFilter("");
+                                    }}
+                                    style={{
+                                        padding: "8px 12px",
+                                        backgroundColor: "#f3f4f6",
+                                        color: "#374151",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        fontSize: "12px",
+                                    }}
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    onClick={refetch}
+                                    style={{
+                                        padding: "8px 12px",
+                                        backgroundColor: "#4f46e5",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        fontSize: "12px",
+                                    }}
+                                >
+                                    🔄 Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <DataTable
+                        columns={columns}
+                        data={filteredData}
+                        pagination
+                        highlightOnHover
+                        striped
+                        paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                        paginationPerPage={rowsPerPage}
+                        onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+                        progressPending={isLoading}
+                        progressComponent={<SkeletonLoader />}
+                        responsive
+                        customStyles={customStyles}
+                        noDataComponent={
+                            <div style={{
+                                padding: "40px",
+                                textAlign: "center",
+                                color: "#6b7280"
+                            }}>
+                                <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>📋</span>
+                                <p>No fund requests found</p>
+                                <button
+                                    onClick={() => {
+                                        setFilterText("");
+                                        setStatusFilter("all");
+                                        setDateFilter("");
                                     }}
                                     style={{
                                         marginTop: "10px",
                                         padding: "8px 16px",
-                                        backgroundColor: "#4f46e5",
+                                        backgroundColor: "#8b5cf6",
                                         color: "#fff",
                                         border: "none",
                                         borderRadius: "8px",
@@ -536,11 +688,11 @@ export default function FundRequests() {
                                 >
                                     Clear Filters
                                 </button>
-                            )}
-                        </div>
-                    }
-                />
-            </div>
-        </main>
+                            </div>
+                        }
+                    />
+                </div>
+            </main>
+        </>
     );
 }

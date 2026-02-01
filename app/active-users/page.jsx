@@ -3,8 +3,9 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetUsersQuery } from "@/store/backendSlice/apiAPISlice";
+import { useGetUsersQuery, useToggleUserMutation } from "@/store/backendSlice/apiAPISlice";
 import UserViewModal from "../UserViewModal";
+import { toast } from "react-hot-toast";
 
 // Skeleton component for loading state
 const UserSkeleton = () => (
@@ -32,12 +33,14 @@ export default function ManageUsersData() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [togglingUserId, setTogglingUserId] = useState(null);
 
     const { data: userData, isLoading, isError, error } = useGetUsersQuery();
-    console.log(" the userData", userData)
+    const [toggleUser] = useToggleUserMutation();
 
+    console.log("the userData", userData);
 
-    const users = userData?.data?.users || [];
+    const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
@@ -62,8 +65,32 @@ export default function ManageUsersData() {
         setSelectedUserId(null);
     };
 
-    const handleEdit = (row) => {
-        console.log("Edit user:", row);
+    const handleToggleStatus = async (row) => {
+        const isActive = row.status === true || row.status === 1;
+        const action = isActive ? "deactivate" : "activate";
+        const userName = row.name || row.phone || `User #${row.id}`;
+
+        const confirmToggle = window.confirm(
+            `Are you sure you want to ${action} "${userName}"?`
+        );
+
+        if (!confirmToggle) return;
+
+        setTogglingUserId(row.id);
+
+        try {
+            const response = await toggleUser(row.id).unwrap();
+
+            toast.success(
+                response?.message || `User "${userName}" ${action}d successfully!`
+            );
+        } catch (err) {
+            const errorMessage = err?.data?.message || err?.message || `Failed to ${action} user`;
+            toast.error(errorMessage);
+            console.error("Toggle user error:", err);
+        } finally {
+            setTogglingUserId(null);
+        }
     };
 
     const columns = [
@@ -90,7 +117,7 @@ export default function ManageUsersData() {
                             width: "40px",
                             height: "40px",
                             borderRadius: "50%",
-                            backgroundColor: row.status ? "#4f46e5" : "#9ca3af",
+                            backgroundColor: (row.status === true || row.status === 1) ? "#4f46e5" : "#9ca3af",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -138,6 +165,7 @@ export default function ManageUsersData() {
             sortable: true,
             cell: (row) => {
                 const isActive = row.status === true || row.status === 1;
+
                 return (
                     <span
                         style={{
@@ -168,46 +196,87 @@ export default function ManageUsersData() {
         },
         {
             name: "Actions",
-            cell: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={() => handleView(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                        }}
-                    >
-                        View
-                    </button>
-                    <button
-                        onClick={() => handleEdit(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#f59e0b",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                        }}
-                    >
-                        Edit
-                    </button>
-                </div>
-            ),
-            width: "150px",
+            cell: (row) => {
+                const isToggling = togglingUserId === row.id;
+                const isActive = row.status === true || row.status === 1;
+
+                return (
+                    <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                            onClick={() => handleView(row)}
+                            disabled={isToggling}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: "#3b82f6",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isToggling ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                opacity: isToggling ? 0.6 : 1,
+                            }}
+                        >
+                            View
+                        </button>
+                        <button
+                            onClick={() => handleToggleStatus(row)}
+                            disabled={isToggling}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isToggling 
+                                    ? "#9ca3af" 
+                                    : isActive 
+                                        ? "#ef4444" 
+                                        : "#22c55e",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isToggling ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "5px",
+                                minWidth: "90px",
+                                transition: "all 0.2s ease",
+                            }}
+                            title={isActive ? "Click to deactivate user" : "Click to activate user"}
+                        >
+                            {isToggling ? (
+                                <>
+                                    <span
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            border: "2px solid #fff",
+                                            borderTopColor: "transparent",
+                                            borderRadius: "50%",
+                                            animation: "spin 1s linear infinite",
+                                        }}
+                                    />
+                                    <span>Wait...</span>
+                                </>
+                            ) : (
+                                isActive ? "Deactivate" : "Activate"
+                            )}
+                        </button>
+                    </div>
+                );
+            },
+            width: "200px",
         },
     ];
 
     const filteredData = users.filter((item) => {
+        // Status filter
         if (statusFilter === "active" && !(item.status === true || item.status === 1)) {
             return false;
         }
+        if (statusFilter === "inactive" && (item.status === true || item.status === 1)) {
+            return false;
+        }
+
+        // Text filter
         if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
@@ -243,6 +312,23 @@ export default function ManageUsersData() {
                         outline: "none",
                     }}
                 />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "14px",
+                        outline: "none",
+                        backgroundColor: "#fff",
+                        cursor: "pointer",
+                    }}
+                >
+                    <option value="all">All Status</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                </select>
                 {(filterText || statusFilter !== "all") && (
                     <button
                         onClick={() => {
@@ -352,78 +438,88 @@ export default function ManageUsersData() {
     }
 
     return (
-        <main style={{ padding: "9px" }}>
-            <div style={{
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                overflow: "hidden"
-            }}>
-                <DataTable
-                    title={
-                        <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "10px 0"
-                        }}>
-                            <span style={{ fontSize: "18px", fontWeight: "600" }}>Manage Users</span>
-                        </div>
-                    }
-                    columns={columns}
-                    data={filteredData}
-                    striped
-                    pagination
-                    highlightOnHover
-                    subHeader
-                    subHeaderComponent={subHeaderComponent}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    paginationPerPage={rowsPerPage}
-                    onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
-                    progressPending={isLoading}
-                    progressComponent={<SkeletonLoader />}
-                    responsive
-                    customStyles={customStyles}
-                    noDataComponent={
-                        <div style={{
-                            padding: "40px",
-                            textAlign: "center",
-                            color: "#6b7280"
-                        }}>
-                            <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>🔍</span>
-                            <p>No users found</p>
-                            {(filterText || statusFilter !== "all") && (
-                                <button
-                                    onClick={() => {
-                                        setFilterText("");
-                                        setStatusFilter("all");
-                                    }}
-                                    style={{
-                                        marginTop: "10px",
-                                        padding: "8px 16px",
-                                        backgroundColor: "#4f46e5",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: "8px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Clear Filters
-                                </button>
-                            )}
-                        </div>
-                    }
-                />
-            </div>
+        <>
+            {/* CSS for spinner animation */}
+            <style jsx>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
 
-            {/* User View Modal */}
-            {showModal && selectedUserId && (
-                <UserViewModal
-                    userId={selectedUserId}
-                    onClose={handleCloseModal}
-                    variant="default"
-                />
-            )}
-        </main>
+            <main style={{ padding: "9px" }}>
+                <div style={{
+                    backgroundColor: "#fff",
+                    borderRadius: "12px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    overflow: "hidden"
+                }}>
+                    <DataTable
+                        title={
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "10px 0"
+                            }}>
+                                <span style={{ fontSize: "18px", fontWeight: "600" }}>Manage Users</span>
+                            </div>
+                        }
+                        columns={columns}
+                        data={filteredData}
+                        striped
+                        pagination
+                        highlightOnHover
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                        paginationPerPage={rowsPerPage}
+                        onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+                        progressPending={isLoading}
+                        progressComponent={<SkeletonLoader />}
+                        responsive
+                        customStyles={customStyles}
+                        noDataComponent={
+                            <div style={{
+                                padding: "40px",
+                                textAlign: "center",
+                                color: "#6b7280"
+                            }}>
+                                <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>🔍</span>
+                                <p>No users found</p>
+                                {(filterText || statusFilter !== "all") && (
+                                    <button
+                                        onClick={() => {
+                                            setFilterText("");
+                                            setStatusFilter("all");
+                                        }}
+                                        style={{
+                                            marginTop: "10px",
+                                            padding: "8px 16px",
+                                            backgroundColor: "#4f46e5",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        Clear Filters
+                                    </button>
+                                )}
+                            </div>
+                        }
+                    />
+                </div>
+
+                {/* User View Modal */}
+                {showModal && selectedUserId && (
+                    <UserViewModal
+                        userId={selectedUserId}
+                        onClose={handleCloseModal}
+                        variant="default"
+                    />
+                )}
+            </main>
+        </>
     );
 }
