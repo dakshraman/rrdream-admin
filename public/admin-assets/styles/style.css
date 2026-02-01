@@ -13939,6 +13939,9 @@ aside .aside-wrap .aside-col .Header_nav_Active li .aside-dropdown li a:hover {
 aside .aside-wrap .aside-col .Header_nav_Active li .aside-dropdown li a.active {
   background: var(--primary-g);
 }
+aside .aside-wrap .aside-col .Header_nav_Active li .aside-dropdown li a.active span {
+  color: var(--white);
+}
 aside .aside-wrap ul li {
   padding: 0 12px;
 }
@@ -13965,6 +13968,9 @@ aside .aside-wrap ul li a [data-icon] {
 }
 aside .aside-wrap ul li a.active {
   background: var(--primary-a);
+  color: var(--white);
+}
+aside .aside-wrap ul li a.active span {
   color: var(--white);
 }
 aside .aside-wrap ul li a.active:hover {
@@ -16211,7 +16217,8 @@ main .user-image-none {
   margin: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-.form-box h1 {
+
+h1 {
   font-size: 20px;
   margin-bottom: 20px;
   font-weight: 600;
@@ -16222,17 +16229,20 @@ main .user-image-none {
   display: flex;
   flex-direction: column;
 }
-.form-group label {
+
+label {
   font-weight: 500;
   margin-bottom: 6px;
 }
-.form-group input, .form-group select {
+
+input, select {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
 }
-.form-group textarea {
+
+textarea {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -16248,7 +16258,8 @@ main .user-image-none {
 .form-group-row.update-form {
   margin-top: 20px;
 }
-.form-group-row .form-group {
+
+.form-group {
   flex: 1;
   min-width: 250px;
 }
@@ -16286,11 +16297,8 @@ main .user-image-none {
   cursor: pointer;
   transition: background-color 0.2s ease;
   margin: 0 0 0 20px;
-}
-.back-btn:hover {
   background-color: #333;
 }
-
 h2 {
   margin: 20px 0 0 0;
   font-weight: 600;
@@ -16301,16 +16309,6 @@ h2 {
 
 hr {
   margin: 6px 0 20px 0;
-}
-
-.btnDeleteFaq {
-  --height: 38px;
-  margin-top: 10px;
-}
-
-.btnAddFaq {
-  margin-left: auto;
-  --height: 38px;
 }
 
 .metatitle {
@@ -16345,17 +16343,17 @@ hr {
   display: none !important;
 }
 
-input:focus-visible {
+input {
   box-shadow: rgba(0, 41, 255, 0.18) 1.95px 1.95px 2.6px;
 }
-
 .statusac {
   align-items: center;
   gap: 10px;
 }
-.statusac input {
+
+input {
   width: 20px;
-  height: 20px;
+  height: 40px;
 }
 
 .file-uploade-sec {

@@ -34,7 +34,6 @@ export default function ManageInactiveUsersData() {
     const [showModal, setShowModal] = useState(false);
     
     const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery();
-    console.log("Inactive Users Data:", userData);
     const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 

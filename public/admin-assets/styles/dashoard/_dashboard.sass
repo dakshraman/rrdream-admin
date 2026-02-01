@@ -144,14 +144,14 @@ aside
                                 &.active
                                     background: url(/assets/icon/arrow-down-white.svg) #000 no-repeat
                                     background-position: 95% 50%
-                                    background-size: 13px 
+                                    background-size: 13px
                     &:hover .aside-dropdown
                         // opacity: 1
                         // transform: translate(-50%) rotateX(0deg)
                     .aside-dropdown
                         width: 100%
                         color: #fff
-                        padding:  10px 0 10px 15px
+                        padding: 10px 0 10px 15px
                         border-radius: 10px
                         transition: 0.2s all ease-in-out
                         height: 100%
@@ -169,8 +169,8 @@ aside
                         //     left: -19px
                         //     top: 22px
                         //     transform: rotate(90deg)
-                            
-                        li 
+
+                        li
                             padding: 0 !important
                             &:hover
                                 background: var(--primary-g)
@@ -184,7 +184,8 @@ aside
                                     background: none
                                 &.active
                                     background: var(--primary-g)
-                                
+                                    span
+                                        color: var(--white)
 
         ul
             li
@@ -197,7 +198,7 @@ aside
                     line-height: 44px
                     @include font(500)
                     padding: 0 8px
-                    border-radius: 3px 
+                    border-radius: 3px
                     color: var(--general-c)
                     transition: 0s
                     @include media(1366)
@@ -208,6 +209,8 @@ aside
                     &.active
                         background: var(--primary-a)
                         color: var(--white)
+                        span
+                            color: var(--white)
                         &:hover
                             background: var(--primary-a)
                         .iconify
@@ -351,7 +354,7 @@ main
 .dashboard-secA
     &.subHeader_wrapper
         width: 100%
-        text-align: left   
+        text-align: left
         .col
             padding: 15px 10px
             .inf
@@ -472,7 +475,7 @@ main
                             color: var(--black)
                             @include font(700)
 .flr_wrapper
-    .colB 
+    .colB
         .card-body
             padding: 0
             .top_banner
@@ -494,7 +497,7 @@ main
                         font-size: 14px
             .btm_banner
                 padding: 0 20px
-                margin: 20px 0 
+                margin: 20px 0
                 max-height: 350px
                 overflow-y: auto
                 .team_col
@@ -760,7 +763,7 @@ main
                     padding: 20px
                     border-bottom: 1px solid var(--general-g)
                 .enquiry_list
-                    margin: 20px 0 
+                    margin: 20px 0
                     padding: 0 20px
                     max-height: 300px
                     overflow-y: auto
@@ -911,7 +914,7 @@ main
 .edit-leads-sec
     padding-bottom: 15px
 .team-lead-table-wrap
-    background: var(--white) 
+    background: var(--white)
     border-radius: 6px
     overflow-x: auto
     table
@@ -949,8 +952,8 @@ main
             .inf
                 display: inline-block
                 margin-left: 12px
-                p 
-                    white-space: pre-wrap  
+                p
+                    white-space: pre-wrap
                     &.wrap-text
                         white-space: nowrap
             .noti-dupli
@@ -1583,7 +1586,6 @@ main
                 flex: 0 1 100%
                 padding: 0
 
-
 .wdrfldb
     @include media(767)
         white-space: nowrap
@@ -1721,12 +1723,12 @@ main
             .colA
                 h6
                     font-size: 14px
-                .dzvxr 
+                .dzvxr
                     .col:first-child
                         flex: 0 1 100%
                     .col
                         flex: 0 1 50%
- 
+
 // Keshav Sharma Sass============================================>>>>>>>>
 // For Manage Static Page
 main
@@ -1738,17 +1740,17 @@ main
         background: #fff
         color: #000
     .sc-gGKoUb
-        font-size: 16px 
+        font-size: 16px
         color: black
     .xYhiB
         // justify-content: flex-start !important
-        padding: 0 
+        padding: 0
         min-height: fit-content
         max-height: fit-content
     .sc-dYwGCk
         padding: 10px 0 !important
     .kMgreK, .kfvzdq
-        min-height: 40px          
+        min-height: 40px
     .searchinput
         border: 1px solid #ccc
         border-radius: 5px
@@ -1766,7 +1768,7 @@ main
             align-items: center
             width: 100%
             gap: 10px
-            .dropdown 
+            .dropdown
                 padding: 8px
                 border: 1px solid #ccc
                 border-radius: 4px
@@ -1788,19 +1790,19 @@ main
                 border: none
                 border-radius: 4px
                 cursor: pointer
-                &:hover 
+                &:hover
                     background-color: var(--primary-f)
-            .addnew-btn 
+            .addnew-btn
                 padding: 8px 16px
                 background-color: var(--primary-a)
-                color: white    
+                color: white
                 border: none
                 border-radius: 4px
                 cursor: pointer
                 display: flex
                 align-items: center
                 gap: 5px
-                &:hover 
+                &:hover
                     background-color: var(--primary-f)
     .edit-icon
         color: #666666
@@ -1836,39 +1838,39 @@ main
         margin: auto
         padding: 30px
         // box-shadow: 0 2px 6px 0 rgba(67, 89, 113, 0.12)
-        border-radius: 15px 
+        border-radius: 15px
         overflow: hidden
 
 // Keshav Sharma Sass============================================>>>>>>>>
 // Add Update Static Page
-      
-.form-box   
-  background: #fff
-  padding: 30px
-  border-radius: 6px
-  margin: auto
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
-  h1
+
+.form-box
+    background: #fff
+    padding: 30px
+    border-radius: 6px
+    margin: auto
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+h1
     font-size: 20px
     margin-bottom: 20px
     font-weight: 600
 
 .form-group
-  margin-bottom: 15px
-  display: flex
-  flex-direction: column
+    margin-bottom: 15px
+    display: flex
+    flex-direction: column
 
-  label
+label
     font-weight: 500
     margin-bottom: 6px
 
-  input, select
+input, select
     padding: 8px 12px
     border: 1px solid #ccc
     border-radius: 4px
     font-size: 14px
 
-  textarea
+textarea
     padding: 8px 12px
     border: 1px solid #ccc
     border-radius: 4px
@@ -1876,97 +1878,89 @@ main
     resize: vertical
 
 .form-group-row
-  display: flex
-  flex-wrap: wrap
-  gap: 20px
-  &.update-form 
-    margin-top: 20px
-  .form-group
+    display: flex
+    flex-wrap: wrap
+    gap: 20px
+    &.update-form
+        margin-top: 20px
+.form-group
     flex: 1
     min-width: 250px
 
 .hint-text
-  font-size: 12px
-  color: red
-  margin-top: 4px
+    font-size: 12px
+    color: red
+    margin-top: 4px
 
 .submit-btn
-  margin-top: 20px
-  padding: 10px 20px
-  background-color: var(--primary-a)
-  color: white
-  border: none
-  border-radius: 4px
-  font-weight: 500
-  cursor: pointer
-  transition: background-color 0.2s ease
-  &:hover
-    background-color: var(--primary-e)
-    color: #fff
+    margin-top: 20px
+    padding: 10px 20px
+    background-color: var(--primary-a)
+    color: white
+    border: none
+    border-radius: 4px
+    font-weight: 500
+    cursor: pointer
+    transition: background-color 0.2s ease
+    &:hover
+        background-color: var(--primary-e)
+        color: #fff
 
 .back-btn
-  margin-top: 20px
-  padding: 10px 20px
-  background-color: #333333ce
-  color: white
-  border: none
-  border-radius: 4px
-  font-weight: 500
-  cursor: pointer
-  transition: background-color 0.2s ease
-  margin: 0 0 0 20px
-  &:hover
+    margin-top: 20px
+    padding: 10px 20px
+    background-color: #333333ce
+    color: white
+    border: none
+    border-radius: 4px
+    font-weight: 500
+    cursor: pointer
+    transition: background-color 0.2s ease
+    margin: 0 0 0 20px
+    &:hover
     background-color: #333
 
-
-
 h2
-  margin: 20px 0 0 0
-  font-weight: 600
-  line-height: 1.1
-  color: #566a7f
-  font-size: 16px
+    margin: 20px 0 0 0
+    font-weight: 600
+    line-height: 1.1
+    color: #566a7f
+    font-size: 16px
 
 hr
-  margin: 6px 0 20px 0
+    margin: 6px 0 20px 0
 
 
-.btnDeleteFaq
-  --height: 38px
-  margin-top: 10px
-.btnAddFaq
-  margin-left: auto
-  --height: 38px
 
 .metatitle
     flex: 0.9 !important
 .metatitle-file
-  flex: 0.9 !important
-.displayorder 
-  flex: 0 !important
+    flex: 0.9 !important
+.displayorder
+    flex: 0 !important
 
 .faq
-  gap: 0
+    gap: 0
 .group-one
-  display: flex
-  justify-content: space-between
-  gap: 30px
-  align-items: center
-  width: 100%
+    display: flex
+    justify-content: space-between
+    gap: 30px
+    align-items: center
+    width: 100%
 
 .ck-content
-  height: 300px
+    height: 300px
 .ck-powered-by-balloon
-  display: none !important
+    display: none !important
 input
-  &:focus-visible
+    &:focus-visible
     box-shadow: rgb(0 41 255 / 18%) 1.95px 1.95px 2.6px
 .statusac
-  align-items: center
-  gap: 10px
-  input
+    align-items: center
+    gap: 10px
+input
     width: 20px
-    height: 20px
+    height: 40px
 .file-uploade-sec
     flex: 0
     .colA,.colB
@@ -2010,11 +2004,11 @@ input
         .popup-box
             max-width: max-content
             height: 600px
-            overflow-y: auto   
-            .close-btn 
+            overflow-y: auto
+            .close-btn
                 top: 10px
                 right: 10px
-    .popup-box 
+    .popup-box
         background: #fff
         padding: 20px 25px
         border-radius: 10px
@@ -2023,7 +2017,7 @@ input
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2)
         position: relative
         transition: 0.3s all linear
-        .close-btn 
+        .close-btn
             position: absolute
             top: -12px
             right: -12px
@@ -2129,7 +2123,7 @@ input
                     color: #666
                     font-size: 14px
                 .id
-                    font-weight: 700 
+                    font-weight: 700
                     line-height: 1.2
                     font-size: 16px
                     color: #000
@@ -2237,7 +2231,7 @@ input
                     &:hover
                         .tooltip_cnt
                             opacity: 1
-                            transform: scale(1) 
+                            transform: scale(1)
                     .tooltip_cnt
                         background: var(--black)
                         color: var(--white) !important
@@ -2346,7 +2340,7 @@ input
                     .pro_price, .quantity, .embrod_price, .total_price
                         font-size: 14px
                         color: #666
-                        min-width: 80px  
+                        min-width: 80px
                         text-align: center
                         @include media(991)
                             width: 100%
@@ -2356,7 +2350,7 @@ input
                         color: #000
         .address_details
             display: flex
-            align-items: center  
+            align-items: center
             border-bottom: 1px solid #DFDFDF
             @include media(540)
                 flex-direction: column
@@ -2374,11 +2368,11 @@ input
                     &:not(.title)
                         padding-top: 5px
                         font-size: 14px
-                        color: #666 
+                        color: #666
                     a
                         color: #000
                 p.user_name
-                    color: #000 
+                    color: #000
                 .address
                     font-size: 14px
                     color: #666
@@ -2433,11 +2427,11 @@ input
                 @include media(540)
                     width: 100%
                     justify-content: space-between
-                li  
+                li
                     display: flex
                     align-items: center
                     gap: 5px
-                    color: #666 
+                    color: #666
                     font-size: 14px
             p
                 display: flex
@@ -2474,7 +2468,7 @@ input
                     color: #fff
         .tab-nav-content
             position: relative
-            .tabs 
+            .tabs
                 display: none
                 &.active
                     display: block
@@ -2520,11 +2514,11 @@ input
                                         line-height: 1.3
                                         font-size: 14px
                     .colB
-                        flex: 1 
+                        flex: 1
                         padding: 20px
                         border-left: 1px solid #ccc
                         .edit
-                            margin-bottom: 10px 
+                            margin-bottom: 10px
                             button
                                 display: flex
                                 align-items: center
@@ -2541,7 +2535,7 @@ input
                                 margin-bottom: 10px
                                 label
                                     margin-bottom: 4px
-                                    padding: 0 12px 
+                                    padding: 0 12px
                                     color: $black
                                 input
                                     border: none
@@ -2552,7 +2546,7 @@ input
                             text-align: right
                 .address_wrap
                     width: 100%
-                    height: 100% 
+                    height: 100%
                     display: grid
                     grid-template-columns: repeat(2, 1fr)
                     grid-gap: 20px
@@ -2568,7 +2562,7 @@ input
                             padding-bottom: 10px
                             button
                                 text-transform: uppercase
-                                font-size: 14px   
+                                font-size: 14px
                             .user_name
                                 font-size: 16px
                                 line-height: 1
@@ -2581,7 +2575,7 @@ input
                         .contact
                             display: flex
                             flex-wrap: wrap
-                            align-items: center 
+                            align-items: center
                             justify-content: space-between
                             padding-top: 20px
                         .mob
@@ -2598,8 +2592,8 @@ input
     bottom: 5%
     display: flex
     align-items: center
-    gap: 7px 
-    justify-content: end   
+    gap: 7px
+    justify-content: end
     background-color: #fff
     padding: 10px 8px
     border-radius: 10px
@@ -2625,8 +2619,8 @@ input
             &:focus
                 box-shadow: none
     .dropdown__wrap
-        width: 100%   
-        position: absolute  
+        width: 100%
+        position: absolute
         background-color: var(--white)
         top: 100%
         height: 280px
@@ -2638,9 +2632,9 @@ input
         opacity: 0
         transition: 0.4s ease
         &::-webkit-scrollbar
-           width: 4px 
+            width: 4px
         &::-webkit-scrollbar-thumb
-           background-color: #ccc  
+            background-color: #ccc
         &.active
             opacity: 1
             transform: scale3d(1, 1, 1)
@@ -2739,7 +2733,7 @@ input
                                     background-color: #000
                                     &::before
                                         opacity: 1
-    
+
 .file_wrap
     .file-input.form-group
         margin-bottom: 0
@@ -2762,9 +2756,9 @@ input
     width: 100%
     height: 100%
     border-collapse: collapse
-    margin: 10px 0 
+    margin: 10px 0
     text-align: left
-    border: 1px solid var(--general-c)  
+    border: 1px solid var(--general-c)
     border-radius: 10px
     th, td
         padding: 6px 10px
@@ -2772,7 +2766,7 @@ input
     th
         background: var(--general-j)
     td
-        padding: 10px 
+        padding: 10px
         input
             width: 100%
 
@@ -2792,12 +2786,12 @@ input
             min-width: fit-content
             padding: 3px 5px
             border-radius: 3px
-            border: 1px solid #666  
+            border: 1px solid #666
             display: flex
             gap: 5px
             p
                 font-size: 12px
-            .remove-btn 
+            .remove-btn
                 font-size: 10px
                 color: #000
                 cursor: pointer
@@ -2813,7 +2807,7 @@ input
     left: 50%
     transform: translate(-50%, 100%)
     transition: .5s ease
-    @include media(540) 
+    @include media(540)
         height: 100%
     &.is-open
         bottom: 50%
@@ -2826,7 +2820,7 @@ input
             height: 20px
     .model-body
         padding: 20px 25px
-        @include media(540) 
+        @include media(540)
             padding: 60px 25px
         h3
             font-size: 20px
@@ -2836,7 +2830,7 @@ input
             --item: 1
             --gaptb: 10px
             --inputsize: 38px
-            padding: 20px 20px 0 0 
+            padding: 20px 20px 0 0
             --labelfontbefore: 14px
             --labelafter: #000
             --labelfontafter: 12px
@@ -2845,14 +2839,14 @@ input
             height: 400px
             overflow-y: auto
             &::-webkit-scrollbar
-               width: 4px
-               height: 4px
+                width: 4px
+                height: 4px
             &::-webkit-scrollbar-thumb
                 background: #000
-            @include media(540) 
+            @include media(540)
                 height: 100%
                 overflow-y: visible
-            .form-group 
+            .form-group
                 display: block
                 --selectheight: var(--inputsize)
                 flex: 0 100%
@@ -2903,10 +2897,10 @@ input
                     top: 0
                     opacity: 0
                     z-index: 1
-                    &:checked 
+                    &:checked
                         ~ .in-bx
                             &::before
                                 opacity: 1
             p
-                font-size: 14px  
-                color: $text 
+                font-size: 14px
+                color: $text

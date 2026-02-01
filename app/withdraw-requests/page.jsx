@@ -32,11 +32,12 @@ export default function WithdrawRequests() {
     const [statusFilter, setStatusFilter] = useState("all");
     const { data: withdrawData, isLoading, isError, error, refetch } = useGetWithdrawRequestsQuery();
 
+
     const withdrawRequests = withdrawData?.data?.withdraw_requests || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -201,11 +202,11 @@ export default function WithdrawRequests() {
 
     const filteredData = withdrawRequests.filter((item) => {
         // Status filter
-        if(statusFilter !== "all" && item.status !== statusFilter) {
+        if (statusFilter !== "all" && item.status !== statusFilter) {
             return false;
         }
         // Text filter
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.user?.name || "").toLowerCase();
             const phone = (item.user?.phone || "").toString().toLowerCase();
@@ -442,7 +443,7 @@ export default function WithdrawRequests() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

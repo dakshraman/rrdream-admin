@@ -34,13 +34,14 @@ export default function ManageUsersData() {
     const [showModal, setShowModal] = useState(false);
 
     const { data: userData, isLoading, isError, error } = useGetUsersQuery();
+    console.log(" the userData", userData)
 
 
     const users = userData?.data?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -204,10 +205,10 @@ export default function ManageUsersData() {
     ];
 
     const filteredData = users.filter((item) => {
-        if(statusFilter === "active" && !(item.status === true || item.status === 1)) {
+        if (statusFilter === "active" && !(item.status === true || item.status === 1)) {
             return false;
         }
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const phone = (item.phone || "").toString().toLowerCase();
@@ -318,7 +319,7 @@ export default function ManageUsersData() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

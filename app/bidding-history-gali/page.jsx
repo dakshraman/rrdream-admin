@@ -6,10 +6,10 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useGetBiddingHistoryGaliQuery } from "@/store/backendSlice/apiAPISlice";
 
 const BidSkeleton = () => (
-    <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        padding: "12px 16px", 
+    <div style={{
+        display: "flex",
+        alignItems: "center",
+        padding: "12px 16px",
         gap: "20px",
         borderBottom: "1px solid #f0f0f0"
     }}>
@@ -25,7 +25,7 @@ const BidSkeleton = () => (
 
 export default function BiddingHistoryGali() {
     const today = new Date().toISOString().split('T')[0];
-    
+
     const [filters, setFilters] = useState({
         page: 1,
         date: today,
@@ -44,7 +44,6 @@ export default function BiddingHistoryGali() {
     }, [debouncedSearch]);
 
     const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryGaliQuery(filters);
-
     const biddingHistory = responseData?.data?.data || [];
     const pagination = responseData?.data?.pagination || {};
     const totalRows = pagination.total || 0;
@@ -99,12 +98,12 @@ export default function BiddingHistoryGali() {
         const isWin = status?.toLowerCase() === "win";
         const isLoss = status?.toLowerCase() === "loss";
         const isPending = status?.toLowerCase() === "pending";
-        
+
         let style = { bg: "#f3f4f6", color: "#374151" };
         if (isWin) style = { bg: "#dcfce7", color: "#166534" };
         if (isLoss) style = { bg: "#fef2f2", color: "#dc2626" };
         if (isPending) style = { bg: "#fef3c7", color: "#b45309" };
-        
+
         return (
             <span style={{
                 backgroundColor: style.bg,
@@ -161,8 +160,8 @@ export default function BiddingHistoryGali() {
             cell: (row) => (
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ fontSize: "16px" }}>🌙</span>
-                    <span style={{ 
-                        fontWeight: "600", 
+                    <span style={{
+                        fontWeight: "600",
                         color: "#111827",
                         fontSize: "14px"
                     }}>
@@ -184,8 +183,8 @@ export default function BiddingHistoryGali() {
             selector: (row) => row.number || row.bid_number,
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "700", 
+                <span style={{
+                    fontWeight: "700",
                     color: "#4f46e5",
                     fontSize: "16px",
                     fontFamily: "monospace",
@@ -203,8 +202,8 @@ export default function BiddingHistoryGali() {
             selector: (row) => row.amount || row.bid_amount,
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "700", 
+                <span style={{
+                    fontWeight: "700",
                     color: "#059669",
                     fontSize: "14px"
                 }}>
@@ -218,8 +217,8 @@ export default function BiddingHistoryGali() {
             selector: (row) => row.winning_amount,
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "700", 
+                <span style={{
+                    fontWeight: "700",
                     color: row.winning_amount > 0 ? "#16a34a" : "#9ca3af",
                     fontSize: "14px"
                 }}>
@@ -289,22 +288,22 @@ export default function BiddingHistoryGali() {
     const totalWinning = biddingHistory.reduce((sum, bid) => sum + (parseFloat(bid.winning_amount) || 0), 0);
 
     const subHeaderComponent = (
-        <div style={{ 
-            display: "flex", 
+        <div style={{
+            display: "flex",
             flexDirection: "column",
             width: "100%",
             gap: "15px",
-            margin:"12px 0px"
+            margin: "12px 0px"
         }}>
-            <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", 
+            <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
                 gap: "12px",
                 padding: "10px 0"
             }}>
-                <div style={{ 
-                    backgroundColor: "#eef2ff", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#eef2ff",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #6366f1"
                 }}>
@@ -313,9 +312,9 @@ export default function BiddingHistoryGali() {
                         {totalRows}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#fef3c7", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#fef3c7",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #f59e0b"
                 }}>
@@ -324,9 +323,9 @@ export default function BiddingHistoryGali() {
                         {formatCurrency(totalBidAmount)}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#dcfce7", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#dcfce7",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #22c55e"
                 }}>
@@ -335,9 +334,9 @@ export default function BiddingHistoryGali() {
                         {formatCurrency(totalWinning)}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#f3e8ff", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#f3e8ff",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #9333ea"
                 }}>
@@ -348,8 +347,8 @@ export default function BiddingHistoryGali() {
                 </div>
             </div>
 
-            <div style={{ 
-                display: "flex", 
+            <div style={{
+                display: "flex",
                 flexWrap: "wrap",
                 gap: "12px",
                 alignItems: "center"
@@ -389,10 +388,10 @@ export default function BiddingHistoryGali() {
                     placeholder="Search user, number..."
                     value={debouncedSearch}
                     onChange={(e) => setDebouncedSearch(e.target.value)}
-                    style={{ 
-                        padding: "10px 14px", 
-                        borderRadius: "8px", 
-                        border: "1px solid #d1d5db", 
+                    style={{
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #d1d5db",
                         minWidth: "180px",
                         fontSize: "14px",
                         outline: "none",
@@ -484,9 +483,9 @@ export default function BiddingHistoryGali() {
     if (isError) {
         return (
             <main style={{ padding: "20px" }}>
-                <div style={{ 
-                    color: "#dc2626", 
-                    padding: "40px", 
+                <div style={{
+                    color: "#dc2626",
+                    padding: "40px",
                     textAlign: "center",
                     backgroundColor: "#fef2f2",
                     borderRadius: "12px",
@@ -515,24 +514,24 @@ export default function BiddingHistoryGali() {
 
     return (
         <main style={{ padding: "9px" }}>
-            <div style={{ 
-                backgroundColor: "#fff", 
-                borderRadius: "12px", 
+            <div style={{
+                backgroundColor: "#fff",
+                borderRadius: "12px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                 overflow: "hidden"
             }}>
                 <DataTable
                     title={
-                        <div style={{ 
-                            display: "flex", 
-                            alignItems: "center", 
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
                             gap: "10px",
                             padding: "10px 0"
                         }}>
                             <span style={{ fontSize: "18px", fontWeight: "600" }}>Gali Bidding History</span>
                             {totalRows > 0 && (
-                                <span style={{ 
-                                    fontSize: "12px", 
+                                <span style={{
+                                    fontSize: "12px",
                                     color: "#6b7280",
                                     backgroundColor: "#eef2ff",
                                     padding: "4px 10px",
@@ -562,8 +561,8 @@ export default function BiddingHistoryGali() {
                     responsive
                     customStyles={customStyles}
                     noDataComponent={
-                        <div style={{ 
-                            padding: "40px", 
+                        <div style={{
+                            padding: "40px",
                             textAlign: "center",
                             color: "#6b7280"
                         }}>

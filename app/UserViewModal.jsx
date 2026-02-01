@@ -12,14 +12,14 @@ const InfoRow = ({ label, value, isSensitive = false }) => (
         padding: "12px 0",
         borderBottom: "1px solid #f3f4f6"
     }}>
-        <span style={{ 
-            color: "#6b7280", 
+        <span style={{
+            color: "#6b7280",
             fontSize: "14px"
         }}>
             {label}
         </span>
-        <span style={{ 
-            fontWeight: "600", 
+        <span style={{
+            fontWeight: "600",
             color: isSensitive ? "#9ca3af" : "#111827",
             fontSize: "14px",
             textAlign: "right",
@@ -87,18 +87,28 @@ const EmptyState = ({ message }) => (
 
 export default function UserViewModal({ userId, onClose, variant = "default" }) {
     const [activeTab, setActiveTab] = useState("info");
-    
+
     const { data: userData, isLoading, isError } = useGetUserByIdQuery(userId, {
         skip: !userId,
     });
 
-    const responseData = userData?.data?.user || {};
+    console.log("Full userData:", userData);
+
+    // Fixed data extraction based on actual API structure
+    const responseData = userData?.user || {};
     const user = responseData?.user || {};
     const transactions = responseData?.transactions || [];
     const fundRequests = responseData?.fund_requests || [];
     const withdrawals = responseData?.withdrawal || [];
     const bets = responseData?.bets || [];
     const winningHistory = responseData?.winning_history || [];
+
+    console.log("Extracted user:", user);
+    console.log("Transactions:", transactions);
+    console.log("Fund Requests:", fundRequests);
+    console.log("Withdrawals:", withdrawals);
+    console.log("Bets:", bets);
+    console.log("Winning History:", winningHistory);
 
     const formatDate = (dateString) => {
         if (!dateString) return "N/A";
@@ -116,13 +126,13 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
         return `₹${parseFloat(amount || 0).toLocaleString('en-IN')}`;
     };
 
-    const isInactive = variant === "inactive";
+    const isInactive = variant === "inactive" || user.status === 0;
     const headerBgColor = isInactive ? "#fef2f2" : "#f9fafb";
     const avatarBgColor = user.status ? "#4f46e5" : "#9ca3af";
     const statusBgColor = user.status ? "#dcfce7" : "#fef2f2";
     const statusTextColor = user.status ? "#166534" : "#dc2626";
     const actionButtonBg = isInactive ? "#22c55e" : "#4f46e5";
-    const actionButtonText = isInactive ? "Activate User" : "Edit User";
+    const actionButtonText = isInactive ? " User" : "Edit User";
 
     const renderInfoTab = () => (
         <>
@@ -173,7 +183,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 <span style={{ fontWeight: "600", color: "#111827" }}>
                                     {txn.type || "Transaction"}
                                 </span>
-                                <span style={{ 
+                                <span style={{
                                     fontWeight: "700",
                                     color: txn.type === "credit" ? "#22c55e" : "#ef4444"
                                 }}>
@@ -183,6 +193,11 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                             <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 {formatDate(txn.created_at)}
                             </div>
+                            {txn.description && (
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                                    {txn.description}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -222,6 +237,11 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                             <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 {formatDate(req.created_at)}
                             </div>
+                            {req.payment_method && (
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                                    Method: {req.payment_method}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -261,6 +281,11 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                             <div style={{ fontSize: "12px", color: "#6b7280" }}>
                                 {formatDate(wd.created_at)}
                             </div>
+                            {wd.payment_method && (
+                                <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px" }}>
+                                    Method: {wd.payment_method}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -333,6 +358,18 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
         </>
     );
 
+    const handleAction = () => {
+        if (isInactive) {
+            // Activate user logic
+            console.log("Activating user:", userId);
+            // Add your activation API call here
+        } else {
+            // Edit user logic
+            console.log("Editing user:", userId);
+            // Add your edit logic here
+        }
+    };
+
     return (
         <div style={{
             position: "fixed",
@@ -388,8 +425,8 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                 </div>
 
                 {/* Content */}
-                <div style={{ 
-                    padding: "24px", 
+                <div style={{
+                    padding: "24px",
                     overflowY: "auto",
                     flex: 1
                 }}>
@@ -405,8 +442,8 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                             </div>
                         </div>
                     ) : isError ? (
-                        <div style={{ 
-                            textAlign: "center", 
+                        <div style={{
+                            textAlign: "center",
                             padding: "40px",
                             color: "#dc2626"
                         }}>
@@ -415,11 +452,19 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 Please try again later
                             </p>
                         </div>
+                    ) : !user || !user.id ? (
+                        <div style={{
+                            textAlign: "center",
+                            padding: "40px",
+                            color: "#6b7280"
+                        }}>
+                            <p style={{ margin: 0, fontWeight: "500" }}>No user data available</p>
+                        </div>
                     ) : (
                         <>
                             {/* User Avatar & Name */}
-                            <div style={{ 
-                                textAlign: "center", 
+                            <div style={{
+                                textAlign: "center",
                                 marginBottom: "20px",
                                 paddingBottom: "20px",
                                 borderBottom: "1px solid #e5e7eb"
@@ -485,42 +530,42 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 overflowX: "auto",
                                 paddingBottom: "8px"
                             }}>
-                                <TabButton 
-                                    active={activeTab === "info"} 
+                                <TabButton
+                                    active={activeTab === "info"}
                                     onClick={() => setActiveTab("info")}
                                 >
                                     Info
                                 </TabButton>
-                                <TabButton 
-                                    active={activeTab === "transactions"} 
+                                <TabButton
+                                    active={activeTab === "transactions"}
                                     onClick={() => setActiveTab("transactions")}
                                     count={transactions.length}
                                 >
                                     Transactions
                                 </TabButton>
-                                <TabButton 
-                                    active={activeTab === "funds"} 
+                                <TabButton
+                                    active={activeTab === "funds"}
                                     onClick={() => setActiveTab("funds")}
                                     count={fundRequests.length}
                                 >
                                     Funds
                                 </TabButton>
-                                <TabButton 
-                                    active={activeTab === "withdrawals"} 
+                                <TabButton
+                                    active={activeTab === "withdrawals"}
                                     onClick={() => setActiveTab("withdrawals")}
                                     count={withdrawals.length}
                                 >
                                     Withdrawals
                                 </TabButton>
-                                <TabButton 
-                                    active={activeTab === "bets"} 
+                                <TabButton
+                                    active={activeTab === "bets"}
                                     onClick={() => setActiveTab("bets")}
                                     count={bets.length}
                                 >
                                     Bets
                                 </TabButton>
-                                <TabButton 
-                                    active={activeTab === "winning"} 
+                                <TabButton
+                                    active={activeTab === "winning"}
                                     onClick={() => setActiveTab("winning")}
                                     count={winningHistory.length}
                                 >
@@ -542,7 +587,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                 </div>
 
                 {/* Footer Actions */}
-                {!isLoading && !isError && (
+                {!isLoading && !isError && user && user.id && (
                     <div style={{
                         display: "flex",
                         gap: "12px",
@@ -568,6 +613,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                             Close
                         </button>
                         <button
+                            onClick={handleAction}
                             style={{
                                 flex: 1,
                                 padding: "12px",

@@ -135,15 +135,15 @@ export default function Dashboard() {
 
     const totalProfit = Array.isArray(profits)
       ? profits.reduce(
-          (sum, p) => sum + parseFloat(p.profit || p.total_profit || 0),
-          0
-        )
+        (sum, p) => sum + parseFloat(p.profit || p.total_profit || 0),
+        0
+      )
       : 0;
     const totalBets = Array.isArray(profits)
       ? profits.reduce(
-          (sum, p) => sum + parseFloat(p.total_bets || p.amount || 0),
-          0
-        )
+        (sum, p) => sum + parseFloat(p.total_bets || p.amount || 0),
+        0
+      )
       : 0;
 
     return { dailyData, totalProfit, totalBets };
@@ -174,8 +174,8 @@ export default function Dashboard() {
         timeDiff < 1
           ? "Just now"
           : timeDiff < 60
-          ? `${timeDiff} min ago`
-          : `${Math.floor(timeDiff / 60)}h ago`;
+            ? `${timeDiff} min ago`
+            : `${Math.floor(timeDiff / 60)}h ago`;
 
       return {
         user: userName,
@@ -185,8 +185,8 @@ export default function Dashboard() {
           bid.status === 1 || bid.status === "win"
             ? "Win"
             : bid.status === 0 || bid.status === "loss"
-            ? "Loss"
-            : "Pending",
+              ? "Loss"
+              : "Pending",
         time: timeAgo,
         avatar: initials || "??",
       };
@@ -381,12 +381,12 @@ export default function Dashboard() {
           marginRight: "auto",
         }}
       >
-        {/* Title */}
-        <div style={{ marginBottom: isMobile ? "16px" : "20px" }}>
+        <div style={{ marginBottom: isMobile ? "16px" : "20px", marginTop: "14px", }}>
           <h2
             style={{
               fontSize: isMobile ? "20px" : "24px",
               marginBottom: "4px",
+
               color: textDark,
               fontWeight: 700,
               marginTop: 0,
@@ -416,79 +416,79 @@ export default function Dashboard() {
           {isLoading
             ? [...Array(5)].map((_, i) => <SkeletonCard key={i} />)
             : dashboardStats.map((item, i) => (
+              <div
+                key={i}
+                style={getCardStyle(hoveredCard === i)}
+                onMouseEnter={() => !isMobile && setHoveredCard(i)}
+                onMouseLeave={() => !isMobile && setHoveredCard(null)}
+                onClick={() =>
+                  isMobile && setHoveredCard(hoveredCard === i ? null : i)
+                }
+              >
                 <div
-                  key={i}
-                  style={getCardStyle(hoveredCard === i)}
-                  onMouseEnter={() => !isMobile && setHoveredCard(i)}
-                  onMouseLeave={() => !isMobile && setHoveredCard(null)}
-                  onClick={() =>
-                    isMobile && setHoveredCard(hoveredCard === i ? null : i)
-                  }
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: isMobile ? "8px" : "12px",
+                  }}
                 >
                   <div
                     style={{
+                      width: isMobile ? "32px" : "40px",
+                      height: isMobile ? "32px" : "40px",
+                      background: `linear-gradient(135deg, ${lighterRed} 0%, ${softRed} 100%)`,
+                      borderRadius: isMobile ? "8px" : "10px",
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: isMobile ? "8px" : "12px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: isMobile ? "32px" : "40px",
-                        height: isMobile ? "32px" : "40px",
-                        background: `linear-gradient(135deg, ${lighterRed} 0%, ${softRed} 100%)`,
-                        borderRadius: isMobile ? "8px" : "10px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: isMobile ? "13px" : "16px",
-                        fontWeight: "700",
-                        color: primaryRed,
-                        transition: "transform 0.3s ease",
-                        transform:
-                          hoveredCard === i ? "scale(1.05)" : "scale(1)",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                    <span
-                      style={{
-                        fontSize: isMobile ? "9px" : "11px",
-                        fontWeight: "600",
-                        padding: isMobile ? "2px 6px" : "3px 8px",
-                        borderRadius: "12px",
-                        background: item.positive ? successBg : dangerBg,
-                        color: item.positive ? success : danger,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {item.change}
-                    </span>
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: isMobile ? "16px" : "20px",
-                      color: textDark,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: isMobile ? "13px" : "16px",
                       fontWeight: "700",
-                      margin: "0 0 4px 0",
-                      wordBreak: "break-word",
+                      color: primaryRed,
+                      transition: "transform 0.3s ease",
+                      transform:
+                        hoveredCard === i ? "scale(1.05)" : "scale(1)",
+                      flexShrink: 0,
                     }}
                   >
-                    {item.value}
-                  </h3>
-                  <p
+                    {i + 1}
+                  </div>
+                  <span
                     style={{
-                      color: textMuted,
-                      margin: 0,
-                      fontSize: isMobile ? "10px" : "12px",
+                      fontSize: isMobile ? "9px" : "11px",
+                      fontWeight: "600",
+                      padding: isMobile ? "2px 6px" : "3px 8px",
+                      borderRadius: "12px",
+                      background: item.positive ? successBg : dangerBg,
+                      color: item.positive ? success : danger,
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    {item.label}
-                  </p>
+                    {item.change}
+                  </span>
                 </div>
-              ))}
+                <h3
+                  style={{
+                    fontSize: isMobile ? "16px" : "20px",
+                    color: textDark,
+                    fontWeight: "700",
+                    margin: "0 0 4px 0",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {item.value}
+                </h3>
+                <p
+                  style={{
+                    color: textMuted,
+                    margin: 0,
+                    fontSize: isMobile ? "10px" : "12px",
+                  }}
+                >
+                  {item.label}
+                </p>
+              </div>
+            ))}
         </div>
 
         {/* Chart + Recent Bets */}
@@ -897,14 +897,14 @@ export default function Dashboard() {
                           bet.status === "Win"
                             ? successBg
                             : bet.status === "Loss"
-                            ? dangerBg
-                            : warningBg,
+                              ? dangerBg
+                              : warningBg,
                         color:
                           bet.status === "Win"
                             ? success
                             : bet.status === "Loss"
-                            ? danger
-                            : warning,
+                              ? danger
+                              : warning,
                       }}
                     >
                       {bet.status}
