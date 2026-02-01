@@ -28,6 +28,9 @@ export const apiAPISlice = createApi({
     "BiddingHistoryGali",
     "Profit",
     "User",
+    "Games",
+    "DeclaredResults",
+    "Config"
   ],
   endpoints: (builder) => ({
     getUsers: builder.query({
@@ -243,6 +246,42 @@ export const apiAPISlice = createApi({
       }),
       invalidatesTags: ["Users", "InactiveUsers"],
     }),
+    getGames: builder.query({
+      query: () => ({
+        url: "games",
+        method: "GET",
+      }),
+      providesTags: ["Games"],
+    }),
+    declareResult: builder.mutation({
+      query: ({ result_date, game_id, session, pana, digit }) => ({
+        url: `declareresult?result_date=${result_date}&game_id=${game_id}&session=${session}&pana=${pana}&digit=${digit}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["BiddingHistory", "DeclaredResults"],
+    }),
+    getConfig: builder.query({
+      query: () => ({
+        url: "get-config",
+        method: "GET",
+      }),
+      providesTags: ["Config"],
+    }),
+    updateConfig: builder.mutation({
+      query: (params) => {
+        const searchParams = new URLSearchParams();
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+            searchParams.append(key, params[key]);
+          }
+        });
+        return {
+          url: `config?${searchParams.toString()}`,
+          method: "PUT",
+        };
+      },
+      invalidatesTags: ["Config"],
+    }),
   }),
 });
 
@@ -264,4 +303,8 @@ export const {
   useGetProfitQuery,
   useGetUserByIdQuery,
   useToggleUserMutation,
+  useGetGamesQuery,
+  useDeclareResultMutation,
+    useGetConfigQuery,
+  useUpdateConfigMutation,
 } = apiAPISlice;
