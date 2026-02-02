@@ -3,7 +3,11 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetWithdrawRequestsQuery } from "@/store/backendSlice/apiAPISlice";
+import { 
+    useGetWithdrawRequestsQuery,
+    useUpdateWithdrawStatusMutation 
+} from "@/store/backendSlice/apiAPISlice";
+import { toast } from "react-hot-toast";
 
 // Skeleton component for loading state
 const WithdrawSkeleton = () => (
@@ -30,14 +34,18 @@ const WithdrawSkeleton = () => (
 export default function WithdrawRequests() {
     const [filterText, setFilterText] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const { data: withdrawData, isLoading, isError, error, refetch } = useGetWithdrawRequestsQuery();
-
-
-    const withdrawRequests = withdrawData?.data?.withdraw_requests || [];
+    const [processingId, setProcessingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    
+    const { data: withdrawData, isLoading, isError, error, refetch } = useGetWithdrawRequestsQuery();
+    const [updateWithdrawStatus] = useUpdateWithdrawStatusMutation();
+    
+    console.log("the v", withdrawData);
+
+    const withdrawRequests = withdrawData?.withdraw_requests || [];
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if(!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -48,13 +56,80 @@ export default function WithdrawRequests() {
         });
     };
 
+    const handleApprove = async (row) => {
+        const userName = row.user?.name || "User";
+        const confirmApprove = window.confirm(
+            `Are you sure you want to approve ₹${row.amount} withdrawal for ${userName}?`
+        );
+
+        if (!confirmApprove) return;
+
+        setProcessingId(row.id);
+
+        try {
+            console.log("Approving withdraw ID:", row.id);
+            
+            const response = await updateWithdrawStatus({
+                id: row.id,
+                status: "approved"
+            }).unwrap();
+            
+            console.log("Approve response:", response);
+            toast.success(response?.message || "Withdrawal approved successfully!");
+            refetch();
+        } catch (err) {
+            console.error("Approve error:", err);
+            const errorMessage = 
+                err?.data?.message || 
+                err?.message || 
+                "Failed to approve withdrawal";
+            toast.error(errorMessage);
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const handleReject = async (row) => {
+        const userName = row.user?.name || "User";
+        const confirmReject = window.confirm(
+            `Are you sure you want to reject ₹${row.amount} withdrawal request from ${userName}?`
+        );
+
+        if (!confirmReject) return;
+
+        setProcessingId(row.id);
+
+        try {
+            console.log("Rejecting withdraw ID:", row.id);
+            
+            const response = await updateWithdrawStatus({
+                id: row.id,
+                status: "rejected"
+            }).unwrap();
+            
+            console.log("Reject response:", response);
+            toast.success(response?.message || "Withdrawal rejected successfully!");
+            refetch();
+        } catch (err) {
+            console.error("Reject error:", err);
+            const errorMessage = 
+                err?.data?.message || 
+                err?.message || 
+                "Failed to reject withdrawal";
+            toast.error(errorMessage);
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
     const getStatusBadge = (status) => {
+        const statusLower = (status || "").toLowerCase();
         const statusStyles = {
             pending: { backgroundColor: "#f59e0b", color: "#fff" },
             approved: { backgroundColor: "#22c55e", color: "#fff" },
             rejected: { backgroundColor: "#ef4444", color: "#fff" },
         };
-        const style = statusStyles[status] || { backgroundColor: "#6b7280", color: "#fff" };
+        const style = statusStyles[statusLower] || { backgroundColor: "#6b7280", color: "#fff" };
         return (
             <span
                 style={{
@@ -66,7 +141,7 @@ export default function WithdrawRequests() {
                     textTransform: "capitalize"
                 }}
             >
-                {status}
+                {status || "N/A"}
             </span>
         );
     };
@@ -173,40 +248,86 @@ export default function WithdrawRequests() {
         },
         {
             name: "Actions",
-            cell: (row) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={() => handleView(row)}
-                        style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#3b82f6",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
+            cell: (row) => {
+                const isProcessing = processingId === row.id;
+                const isPending = (row.status || "").toLowerCase() === "pending";
+
+                if (!isPending) {
+                    return (
+                        <span style={{
+                            color: "#9ca3af",
                             fontSize: "12px",
-                        }}
-                    >
-                        View
-                    </button>
-                </div>
-            ),
-            width: "100px",
+                            fontStyle: "italic"
+                        }}>
+                            {(row.status || "").toLowerCase() === "approved" ? "✓ Approved" : "✗ Rejected"}
+                        </span>
+                    );
+                }
+
+                return (
+                    <div style={{ display: "flex", gap: "6px" }}>
+                        <button
+                            onClick={() => handleApprove(row)}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isProcessing ? "#9ca3af" : "#22c55e",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isProcessing ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "4px",
+                                minWidth: "70px",
+                            }}
+                        >
+                            {isProcessing ? (
+                                <span style={{
+                                    width: "12px",
+                                    height: "12px",
+                                    border: "2px solid #fff",
+                                    borderTopColor: "transparent",
+                                    borderRadius: "50%",
+                                    animation: "spin 1s linear infinite",
+                                }} />
+                            ) : "Approve"}
+                        </button>
+                        <button
+                            onClick={() => handleReject(row)}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "6px 12px",
+                                backgroundColor: isProcessing ? "#9ca3af" : "#ef4444",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isProcessing ? "not-allowed" : "pointer",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                minWidth: "60px",
+                            }}
+                        >
+                            Reject
+                        </button>
+                    </div>
+                );
+            },
+            width: "180px",
         },
     ];
 
-    const handleView = (row) => {
-        console.log("View withdraw request:", row);
-        // You can add modal or navigation logic here
-    };
-
     const filteredData = withdrawRequests.filter((item) => {
         // Status filter
-        if (statusFilter !== "all" && item.status !== statusFilter) {
+        const itemStatus = (item.status || "").toLowerCase();
+        if(statusFilter !== "all" && itemStatus !== statusFilter) {
             return false;
         }
         // Text filter
-        if (filterText) {
+        if(filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.user?.name || "").toLowerCase();
             const phone = (item.user?.phone || "").toString().toLowerCase();
@@ -223,12 +344,12 @@ export default function WithdrawRequests() {
     });
 
     // Stats calculations
-    const pendingCount = withdrawRequests.filter(r => r.status === "pending").length;
-    const approvedCount = withdrawRequests.filter(r => r.status === "approved").length;
-    const rejectedCount = withdrawRequests.filter(r => r.status === "rejected").length;
+    const pendingCount = withdrawRequests.filter(r => (r.status || "").toLowerCase() === "pending").length;
+    const approvedCount = withdrawRequests.filter(r => (r.status || "").toLowerCase() === "approved").length;
+    const rejectedCount = withdrawRequests.filter(r => (r.status || "").toLowerCase() === "rejected").length;
     const totalAmount = withdrawRequests.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
     const pendingAmount = withdrawRequests
-        .filter(r => r.status === "pending")
+        .filter(r => (r.status || "").toLowerCase() === "pending")
         .reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
 
     // Sub header component with dropdown and search
@@ -244,57 +365,57 @@ export default function WithdrawRequests() {
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
                 gap: "12px",
-                padding: "10px 0"
+                marginBottom: "10px"
             }}>
                 <div style={{
-                    backgroundColor: "#eff6ff",
                     padding: "12px 16px",
-                    borderRadius: "10px",
-                    borderLeft: "4px solid #3b82f6"
+                    backgroundColor: "#faf5ff",
+                    borderRadius: "8px",
+                    borderLeft: "4px solid #8b5cf6"
                 }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Total</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#1f2937", margin: "4px 0 0" }}>
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Total</div>
+                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#8b5cf6" }}>
                         {withdrawRequests.length}
-                    </p>
-                    <p style={{ fontSize: "11px", color: "#6b7280", margin: 0 }}>
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
                         ₹{totalAmount.toLocaleString('en-IN')}
-                    </p>
+                    </div>
                 </div>
                 <div style={{
-                    backgroundColor: "#fefce8",
                     padding: "12px 16px",
-                    borderRadius: "10px",
+                    backgroundColor: "#fffbeb",
+                    borderRadius: "8px",
                     borderLeft: "4px solid #f59e0b"
                 }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Pending</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#f59e0b", margin: "4px 0 0" }}>
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Pending</div>
+                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#f59e0b" }}>
                         {pendingCount}
-                    </p>
-                    <p style={{ fontSize: "11px", color: "#6b7280", margin: 0 }}>
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
                         ₹{pendingAmount.toLocaleString('en-IN')}
-                    </p>
+                    </div>
                 </div>
                 <div style={{
-                    backgroundColor: "#f0fdf4",
                     padding: "12px 16px",
-                    borderRadius: "10px",
+                    backgroundColor: "#f0fdf4",
+                    borderRadius: "8px",
                     borderLeft: "4px solid #22c55e"
                 }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Approved</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#22c55e", margin: "4px 0 0" }}>
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Approved</div>
+                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#22c55e" }}>
                         {approvedCount}
-                    </p>
+                    </div>
                 </div>
                 <div style={{
-                    backgroundColor: "#fef2f2",
                     padding: "12px 16px",
-                    borderRadius: "10px",
+                    backgroundColor: "#fef2f2",
+                    borderRadius: "8px",
                     borderLeft: "4px solid #ef4444"
                 }}>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Rejected</p>
-                    <p style={{ fontSize: "20px", fontWeight: "700", color: "#ef4444", margin: "4px 0 0" }}>
+                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Rejected</div>
+                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#ef4444" }}>
                         {rejectedCount}
-                    </p>
+                    </div>
                 </div>
             </div>
 
@@ -443,7 +564,7 @@ export default function WithdrawRequests() {
         },
     };
 
-    if (isError) {
+    if(isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -476,69 +597,78 @@ export default function WithdrawRequests() {
     }
 
     return (
-        <main style={{ padding: "9px" }}>
-            <div style={{
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                overflow: "hidden"
-            }}>
-                <DataTable
-                    title={
-                        <div style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "10px 0"
-                        }}>
-                            <span style={{ fontSize: "18px", fontWeight: "600" }}>Withdraw Requests</span>
-                        </div>
-                    }
-                    columns={columns}
-                    data={filteredData}
-                    striped
-                    pagination
-                    highlightOnHover
-                    subHeader
-                    subHeaderComponent={subHeaderComponent}
-                    paginationRowsPerPageOptions={[10, 30, 50, 100]}
-                    paginationPerPage={rowsPerPage}
-                    onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
-                    progressPending={isLoading}
-                    progressComponent={<SkeletonLoader />}
-                    responsive
-                    customStyles={customStyles}
-                    noDataComponent={
-                        <div style={{
-                            padding: "40px",
-                            textAlign: "center",
-                            color: "#6b7280"
-                        }}>
-                            <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>🔍</span>
-                            <p>No withdraw requests found</p>
-                            {(filterText || statusFilter !== "all") && (
-                                <button
-                                    onClick={() => {
-                                        setFilterText("");
-                                        setStatusFilter("all");
-                                    }}
-                                    style={{
-                                        marginTop: "10px",
-                                        padding: "8px 16px",
-                                        backgroundColor: "#4f46e5",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: "8px",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    Clear Filters
-                                </button>
-                            )}
-                        </div>
-                    }
-                />
-            </div>
-        </main>
+        <>
+            <style jsx>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
+            
+            <main style={{ padding: "9px" }}>
+                <div style={{
+                    backgroundColor: "#fff",
+                    borderRadius: "12px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    overflow: "hidden"
+                }}>
+                    <DataTable
+                        title={
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "10px 0"
+                            }}>
+                                <span style={{ fontSize: "18px", fontWeight: "600" }}>Withdraw Requests</span>
+                            </div>
+                        }
+                        columns={columns}
+                        data={filteredData}
+                        striped
+                        pagination
+                        highlightOnHover
+                        subHeader
+                        subHeaderComponent={subHeaderComponent}
+                        paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                        paginationPerPage={rowsPerPage}
+                        onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+                        progressPending={isLoading}
+                        progressComponent={<SkeletonLoader />}
+                        responsive
+                        customStyles={customStyles}
+                        noDataComponent={
+                            <div style={{
+                                padding: "40px",
+                                textAlign: "center",
+                                color: "#6b7280"
+                            }}>
+                                <span style={{ fontSize: "48px", display: "block", marginBottom: "10px" }}>🔍</span>
+                                <p>No withdraw requests found</p>
+                                {(filterText || statusFilter !== "all") && (
+                                    <button
+                                        onClick={() => {
+                                            setFilterText("");
+                                            setStatusFilter("all");
+                                        }}
+                                        style={{
+                                            marginTop: "10px",
+                                            padding: "8px 16px",
+                                            backgroundColor: "#4f46e5",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        Clear Filters
+                                    </button>
+                                )}
+                            </div>
+                        }
+                    />
+                </div>
+            </main>
+        </>
     );
 }

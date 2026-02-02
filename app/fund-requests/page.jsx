@@ -68,17 +68,16 @@ export default function FundRequests() {
 
         if(!confirmApprove) return;
 
-        setProcessingId(row.fund_request_id);
+        const requestId = row.fund_request_id || row.id;
+        setProcessingId(requestId);
 
         try {
-            const payload = {
-                fund_request_id: row.fund_request_id,
-                amount: parseFloat(row.amount)
-            };
+            console.log("Sending approve request for ID:", requestId);
 
-            console.log("Sending approve payload:", payload);
+            // Pass only the ID - API: POST /api/approvefund/{id}
+            const response = await approveFundRequest(requestId).unwrap();
 
-            const response = await approveFundRequest(payload).unwrap();
+            console.log("Approve response:", response);
             toast.success(response?.message || "Fund request approved successfully!");
             refetch();
         } catch(err) {
@@ -106,16 +105,16 @@ export default function FundRequests() {
 
         if(!confirmReject) return;
 
-        setProcessingId(row.fund_request_id);
+        const requestId = row.fund_request_id || row.id;
+        setProcessingId(requestId);
 
         try {
-            const payload = {
-                id: row.fund_request_id
-            };
+            console.log("Sending reject request for ID:", requestId);
 
-            console.log("Sending reject payload:", payload);
+            // Pass only the ID - API: POST /api/rejectfund/{id}
+            const response = await rejectFundRequest(requestId).unwrap();
 
-            const response = await rejectFundRequest(payload).unwrap();
+            console.log("Reject response:", response);
             toast.success(response?.message || "Fund request rejected successfully!");
             refetch();
         } catch(err) {
@@ -203,11 +202,11 @@ export default function FundRequests() {
         },
         {
             name: "Request No.",
-            selector: (row) => row.fund_request_id,
+            selector: (row) => row.fund_request_id || row.id,
             sortable: true,
             cell: (row) => (
                 <span style={{ fontFamily: "monospace", color: "#6b7280" }}>
-                    {row.fund_request_id}
+                    {row.fund_request_id || row.id}
                 </span>
             ),
             width: "110px",
@@ -233,7 +232,8 @@ export default function FundRequests() {
         {
             name: "Action",
             cell: (row) => {
-                const isProcessing = processingId === row.fund_request_id;
+                const requestId = row.fund_request_id || row.id;
+                const isProcessing = processingId === requestId;
                 const isPending = (row.status || "").toLowerCase() === "pending";
 
                 if(!isPending) {
@@ -323,7 +323,7 @@ export default function FundRequests() {
             const searchText = filterText.toLowerCase();
             const name = (item.user_name || "").toLowerCase();
             const phone = (item.user_phone || "").toString().toLowerCase();
-            const id = (item.fund_request_id || "").toString();
+            const id = (item.fund_request_id || item.id || "").toString();
             const transactionId = (item.transaction_id || "").toString().toLowerCase();
             return (
                 name.includes(searchText) ||
@@ -520,65 +520,7 @@ export default function FundRequests() {
                             </div>
                         </div>
 
-                        <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(4, 1fr)",
-                            gap: "15px",
-                            marginBottom: "20px"
-                        }} className="stats-grid">
-                            <div style={{
-                                padding: "15px 20px",
-                                backgroundColor: "#faf5ff",
-                                borderRadius: "8px",
-                                borderLeft: "4px solid #8b5cf6"
-                            }}>
-                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
-                                    Total Amount
-                                </div>
-                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#8b5cf6" }}>
-                                    ₹ {stats.total.toLocaleString('en-IN')}
-                                </div>
-                            </div>
-                            <div style={{
-                                padding: "15px 20px",
-                                backgroundColor: "#f0fdf4",
-                                borderRadius: "8px",
-                                borderLeft: "4px solid #22c55e"
-                            }}>
-                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
-                                    Approved
-                                </div>
-                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#22c55e" }}>
-                                    ₹ {stats.approved.toLocaleString('en-IN')}
-                                </div>
-                            </div>
-                            <div style={{
-                                padding: "15px 20px",
-                                backgroundColor: "#fef2f2",
-                                borderRadius: "8px",
-                                borderLeft: "4px solid #ef4444"
-                            }}>
-                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
-                                    Rejected
-                                </div>
-                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#ef4444" }}>
-                                    ₹ {stats.rejected.toLocaleString('en-IN')}
-                                </div>
-                            </div>
-                            <div style={{
-                                padding: "15px 20px",
-                                backgroundColor: "#fffbeb",
-                                borderRadius: "8px",
-                                borderLeft: "4px solid #f59e0b"
-                            }}>
-                                <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>
-                                    Pending
-                                </div>
-                                <div style={{ fontSize: "20px", fontWeight: "700", color: "#f59e0b" }}>
-                                    ₹ {stats.pending.toLocaleString('en-IN')}
-                                </div>
-                            </div>
-                        </div>
+                     
 
                         <div style={{
                             display: "flex",
@@ -588,27 +530,6 @@ export default function FundRequests() {
                             gap: "10px",
                             marginBottom: "10px"
                         }}>
-                            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                                {["all", "pending", "approved", "rejected"].map((status) => (
-                                    <button
-                                        key={status}
-                                        onClick={() => setStatusFilter(status)}
-                                        style={{
-                                            padding: "8px 16px",
-                                            backgroundColor: statusFilter === status ? "#8b5cf6" : "#f3f4f6",
-                                            color: statusFilter === status ? "#fff" : "#374151",
-                                            border: "none",
-                                            borderRadius: "20px",
-                                            cursor: "pointer",
-                                            fontSize: "13px",
-                                            fontWeight: "500",
-                                            textTransform: "capitalize",
-                                        }}
-                                    >
-                                        {status === "all" ? "All" : status}
-                                    </button>
-                                ))}
-                            </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <span style={{ fontSize: "14px", color: "#6b7280" }}>
                                     Showing: <strong>{filteredData.length}</strong>

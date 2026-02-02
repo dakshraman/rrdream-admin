@@ -11,7 +11,7 @@ export const apiAPISlice = createApi({
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
-      headers.set("Content-Type", "application/json");
+      // Don't set Content-Type for FormData - browser will set it automatically
       return headers;
     },
   }),
@@ -30,7 +30,8 @@ export const apiAPISlice = createApi({
     "User",
     "Games",
     "DeclaredResults",
-    "Config"
+    "Config",
+    "WithdrawRequests",
   ],
   endpoints: (builder) => ({
     getUsers: builder.query({
@@ -91,22 +92,35 @@ export const apiAPISlice = createApi({
       }),
       providesTags: ["FundRequests"],
     }),
+
+    // APPROVE FUND - POST /api/approvefund/{id} with form-data
     approveFundRequest: builder.mutation({
-      query: (data) => ({
-        url: "admin-addfunds",
-        method: "POST",
-        body: data,
-      }),
+      query: (id) => {
+        const formData = new FormData();
+        // Add empty form data or any required fields
+        return {
+          url: `approvefund/${id}`,
+          method: "POST",
+          body: formData,
+        };
+      },
       invalidatesTags: ["FundRequests", "Users"],
     }),
+
+    // REJECT FUND - POST /api/rejectfund/{id} with form-data
     rejectFundRequest: builder.mutation({
-      query: (data) => ({
-        url: "deleteuser",
-        method: "POST",
-        body: data,
-      }),
+      query: (id) => {
+        const formData = new FormData();
+        // Add empty form data or any required fields
+        return {
+          url: `rejectfund/${id}`,
+          method: "POST",
+          body: formData,
+        };
+      },
       invalidatesTags: ["FundRequests"],
     }),
+
     getBiddingHistory: builder.query({
       query: ({
         page = 1,
@@ -270,8 +284,12 @@ export const apiAPISlice = createApi({
     updateConfig: builder.mutation({
       query: (params) => {
         const searchParams = new URLSearchParams();
-        Object.keys(params).forEach(key => {
-          if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        Object.keys(params).forEach((key) => {
+          if (
+            params[key] !== undefined &&
+            params[key] !== null &&
+            params[key] !== ""
+          ) {
             searchParams.append(key, params[key]);
           }
         });
@@ -281,6 +299,32 @@ export const apiAPISlice = createApi({
         };
       },
       invalidatesTags: ["Config"],
+    }),
+    updateWithdrawStatus: builder.mutation({
+      query: ({ id, status }) => {
+        const formData = new FormData();
+        formData.append("status", status);
+        return {
+          url: `withdraw-update/${id}`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["WithdrawRequests"],
+    }),
+    // TRANSACTIONS - POST /api/transactions (form-data)
+    getTransactions: builder.mutation({
+      query: ({ start_date, end_date }) => {
+        const formData = new FormData();
+        formData.append("start_date", start_date);
+        formData.append("end_date", end_date);
+
+        return {
+          url: "transactions",
+          method: "POST",
+          body: formData,
+        };
+      },
     }),
   }),
 });
@@ -305,6 +349,8 @@ export const {
   useToggleUserMutation,
   useGetGamesQuery,
   useDeclareResultMutation,
-    useGetConfigQuery,
+  useGetConfigQuery,
   useUpdateConfigMutation,
+  useUpdateWithdrawStatusMutation,
+  useGetTransactionsMutation,
 } = apiAPISlice;
