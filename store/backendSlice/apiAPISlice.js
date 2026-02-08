@@ -32,6 +32,7 @@ export const apiAPISlice = createApi({
     "DeclaredResults",
     "Config",
     "WithdrawRequests",
+    "Inquiries"
   ],
   endpoints: (builder) => ({
     getUsers: builder.query({
@@ -326,6 +327,22 @@ export const apiAPISlice = createApi({
         };
       },
     }),
+    getInquiryUsers: builder.query({
+      query: () => ({
+        url: "inquiry",
+        method: "GET",
+      }),
+      providesTags: ["Inquiries"],
+    }),
+    getUserInquiries: builder.query({
+      query: (userId) => ({
+        url: `inquiry/message/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, userId) => [
+        { type: "Inquiries", id: userId },
+      ],
+    }),
   }),
 });
 
@@ -353,4 +370,6 @@ export const {
   useUpdateConfigMutation,
   useUpdateWithdrawStatusMutation,
   useGetTransactionsMutation,
+  useGetInquiryUsersQuery,
+  useGetUserInquiriesQuery,
 } = apiAPISlice;
