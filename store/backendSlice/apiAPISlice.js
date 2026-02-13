@@ -343,6 +343,21 @@ export const apiAPISlice = createApi({
         { type: "Inquiries", id: userId },
       ],
     }),
+    checkWinner: builder.mutation({
+      query: ({ result_date, game_id, session, pana, digit }) => {
+        const params = new URLSearchParams();
+        params.append('result_date', result_date);
+        params.append('game_id', game_id);
+        params.append('session', session);
+        params.append('pana', pana);
+        params.append('digit', digit);
+
+        return {
+          url: `checkwinner?${params.toString()}`,
+          method: "POST",
+        };
+      },
+    }),
   }),
 });
 
@@ -372,4 +387,5 @@ export const {
   useGetTransactionsMutation,
   useGetInquiryUsersQuery,
   useGetUserInquiriesQuery,
+  useCheckWinnerMutation
 } = apiAPISlice;

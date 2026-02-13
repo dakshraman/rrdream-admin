@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useGetGamesQuery, useDeclareResultMutation } from "@/store/backendSlice/apiAPISlice";
+import { useGetGamesQuery, useDeclareResultMutation, useCheckWinnerMutation } from "@/store/backendSlice/apiAPISlice";
 
 export default function DeclareResult() {
     const today = new Date().toISOString().split('T')[0];
@@ -16,10 +16,13 @@ export default function DeclareResult() {
     const [selectedGame, setSelectedGame] = useState(null);
     const [showGameDropdown, setShowGameDropdown] = useState(false);
     const [showSessionDropdown, setShowSessionDropdown] = useState(false);
+    const [showWinnersModal, setShowWinnersModal] = useState(false);
+    const [winnersData, setWinnersData] = useState(null);
 
     // API hooks
     const { data: gamesResponse, isLoading: gamesLoading } = useGetGamesQuery();
     const [declareResult, { isLoading: declaring, isSuccess, isError, error }] = useDeclareResultMutation();
+    const [checkWinner, { isLoading: checkingWinners }] = useCheckWinnerMutation();
 
     // Get games list - handle API structure: { games: Array(20) }
     const gamesList = gamesResponse?.games || gamesResponse?.data || [];
@@ -77,18 +80,34 @@ export default function DeclareResult() {
         if (!formData.result_date) { alert("Please select a date"); return; }
         if (!formData.game_id) { alert("Please select a game"); return; }
         if (!formData.session) { alert("Please select a session"); return; }
-        if (!formData.pana) { alert("Please enter Pana"); return; }
-        if (!formData.digit) { alert("Please enter Digit"); return; }
+        if (!formData.pana) { alert("Please enter Pana (3 digits)"); return; }
+        if (formData.pana.length !== 3) { alert("Pana must be exactly 3 digits"); return; }
+        if (!formData.digit) { alert("Please enter Digit (0-9)"); return; }
+        if (!/^[0-9]$/.test(formData.digit)) { alert("Digit must be a single number from 0 to 9"); return; }
 
         try {
             await declareResult(formData).unwrap();
         } catch (err) {
-            console.error("Error declaring result:", err);
         }
     };
 
-    const handleCheckWinners = () => {
-        alert("Check Winners functionality coming soon!");
+    const handleCheckWinners = async () => {
+        if (!formData.result_date) { alert("Please select a date"); return; }
+        if (!formData.game_id) { alert("Please select a game"); return; }
+        if (!formData.session) { alert("Please select a session"); return; }
+        if (!formData.pana) { alert("Please enter Pana (3 digits)"); return; }
+        if (formData.pana.length !== 3) { alert("Pana must be exactly 3 digits"); return; }
+        if (!formData.digit) { alert("Please enter Digit (0-9)"); return; }
+        if (!/^[0-9]$/.test(formData.digit)) { alert("Digit must be a single number from 0 to 9"); return; }
+
+        try {
+            const response = await checkWinner(formData).unwrap();
+            console.log("Winners Response:", response);
+            setWinnersData(response);
+            setShowWinnersModal(true);
+        } catch (err) {
+            alert(err?.data?.message || "Failed to fetch winners");
+        }
     };
 
     // Format time from "10:30:00" to "10:30"
@@ -99,14 +118,14 @@ export default function DeclareResult() {
 
     // Theme colors from Withdraw Requests
     const theme = {
-        primary: "#6366f1",      // Indigo/purple from left border
-        primaryLight: "#eef2ff", // Light indigo background
-        text: "#1f2937",         // Dark text
-        textMuted: "#6b7280",    // Gray text
-        border: "#e5e7eb",       // Border color
-        success: "#22c55e",      // Green
-        warning: "#f59e0b",      // Orange/Yellow
-        danger: "#ef4444",       // Red
+        primary: "#6366f1",
+        primaryLight: "#eef2ff",
+        text: "#1f2937",
+        textMuted: "#6b7280",
+        border: "#e5e7eb",
+        success: "#22c55e",
+        warning: "#f59e0b",
+        danger: "#ef4444",
     };
 
     return (
@@ -189,7 +208,7 @@ export default function DeclareResult() {
                                 color: selectedGame ? theme.primary : theme.textMuted,
                                 fontSize: "14px"
                             }}>
-                                {selectedGame 
+                                {selectedGame
                                     ? `${selectedGame.product_name} (${formatTime(selectedGame.open_time)}-${formatTime(selectedGame.close_time)})`
                                     : "Select Game"
                                 }
@@ -413,9 +432,16 @@ export default function DeclareResult() {
                     <div style={{ display: "flex", gap: "14px" }}>
                         <input
                             type="text"
-                            placeholder="Pana"
+                            placeholder="Pana (3 digits)"
                             value={formData.pana}
-                            onChange={(e) => handleInputChange('pana', e.target.value)}
+                            maxLength={3}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Only allow numbers
+                                if (value === '' || /^\d+$/.test(value)) {
+                                    handleInputChange('pana', value);
+                                }
+                            }}
                             style={{
                                 flex: 1,
                                 border: `1px solid ${theme.border}`,
@@ -436,9 +462,16 @@ export default function DeclareResult() {
                         />
                         <input
                             type="text"
-                            placeholder="Digit"
+                            placeholder="Digit (0-9)"
                             value={formData.digit}
-                            onChange={(e) => handleInputChange('digit', e.target.value)}
+                            maxLength={1}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Only allow single digit 0-9
+                                if (value === '' || /^[0-9]$/.test(value)) {
+                                    handleInputChange('digit', value);
+                                }
+                            }}
                             style={{
                                 flex: 1,
                                 border: `1px solid ${theme.border}`,
@@ -500,6 +533,7 @@ export default function DeclareResult() {
 
                         <button
                             onClick={handleCheckWinners}
+                            disabled={checkingWinners}
                             style={{
                                 flex: 1,
                                 backgroundColor: "#fff",
@@ -509,15 +543,204 @@ export default function DeclareResult() {
                                 padding: "12px 18px",
                                 fontSize: "14px",
                                 fontWeight: "600",
-                                cursor: "pointer",
-                                transition: "all 0.2s"
+                                cursor: checkingWinners ? "not-allowed" : "pointer",
+                                transition: "all 0.2s",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "8px"
                             }}
                         >
-                            Check Winners
+                            {checkingWinners ? (
+                                <>
+                                    <span style={{
+                                        width: "14px",
+                                        height: "14px",
+                                        border: "2px solid currentColor",
+                                        borderTopColor: "transparent",
+                                        borderRadius: "50%",
+                                        animation: "spin 1s linear infinite"
+                                    }}></span>
+                                    Checking...
+                                </>
+                            ) : (
+                                "Check Winners"
+                            )}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Winners Modal */}
+            {showWinnersModal && (
+                <div
+                    onClick={() => setShowWinnersModal(false)}
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 9999,
+                        padding: "16px"
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            backgroundColor: "#fff",
+                            borderRadius: "12px",
+                            maxWidth: "600px",
+                            width: "100%",
+                            maxHeight: "80vh",
+                            display: "flex",
+                            flexDirection: "column",
+                            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+                        }}
+                    >
+                        {/* Modal Header */}
+                        <div style={{
+                            padding: "20px",
+                            borderBottom: `1px solid ${theme.border}`,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                        }}>
+                            <h2 style={{
+                                margin: 0,
+                                fontSize: "18px",
+                                fontWeight: "600",
+                                color: theme.text
+                            }}>
+                                🏆 Winners List
+                            </h2>
+                            <button
+                                onClick={() => setShowWinnersModal(false)}
+                                style={{
+                                    backgroundColor: "transparent",
+                                    border: "none",
+                                    fontSize: "24px",
+                                    cursor: "pointer",
+                                    color: theme.textMuted,
+                                    padding: "0",
+                                    width: "32px",
+                                    height: "32px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    borderRadius: "6px",
+                                    transition: "background-color 0.2s"
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div style={{
+                            padding: "20px",
+                            overflowY: "auto",
+                            flex: 1
+                        }}>
+                            {winnersData?.data && winnersData.data.length > 0 ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                                    {winnersData.data.map((winner, index) => (
+                                        <div
+                                            key={winner.id || index}
+                                            style={{
+                                                backgroundColor: "#f9fafb",
+                                                border: `1px solid ${theme.border}`,
+                                                borderLeft: `4px solid ${theme.success}`,
+                                                borderRadius: "8px",
+                                                padding: "14px",
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center"
+                                            }}
+                                        >
+                                            <div>
+                                                <div style={{
+                                                    fontSize: "14px",
+                                                    fontWeight: "600",
+                                                    color: theme.text,
+                                                    marginBottom: "4px"
+                                                }}>
+                                                    {winner.user_name || winner.username || `User #${winner.user_id}`}
+                                                </div>
+                                                <div style={{
+                                                    fontSize: "12px",
+                                                    color: theme.textMuted
+                                                }}>
+                                                    {winner.game_type || 'N/A'} • Digit: {winner.digit || winner.number || 'N/A'}
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                fontSize: "16px",
+                                                fontWeight: "700",
+                                                color: theme.success
+                                            }}>
+                                                ₹{winner.winning_amount || winner.amount || '0'}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{
+                                    textAlign: "center",
+                                    padding: "40px 20px",
+                                    color: theme.textMuted
+                                }}>
+                                    <div style={{ fontSize: "48px", marginBottom: "12px" }}>🎯</div>
+                                    <div style={{ fontSize: "16px", fontWeight: "500", marginBottom: "6px" }}>
+                                        No Winners Found
+                                    </div>
+                                    <div style={{ fontSize: "14px" }}>
+                                        {winnersData?.message || "No winning bids for this result"}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        {winnersData?.data && winnersData.data.length > 0 && (
+                            <div style={{
+                                padding: "16px 20px",
+                                borderTop: `1px solid ${theme.border}`,
+                                backgroundColor: "#f9fafb",
+                                borderBottomLeftRadius: "12px",
+                                borderBottomRightRadius: "12px"
+                            }}>
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center"
+                                }}>
+                                    <span style={{
+                                        fontSize: "14px",
+                                        fontWeight: "600",
+                                        color: theme.text
+                                    }}>
+                                        Total Winners: {winnersData.data.length}
+                                    </span>
+                                    <span style={{
+                                        fontSize: "14px",
+                                        fontWeight: "600",
+                                        color: theme.success
+                                    }}>
+                                        Total Payout: ₹{winnersData.data.reduce((sum, w) => sum + parseFloat(w.winning_amount || w.amount || 0), 0).toLocaleString('en-IN')}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* CSS for spinner animation */}
             <style jsx>{`
