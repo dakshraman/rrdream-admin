@@ -32,7 +32,7 @@ export default function Header() {
                 <div className="header-wrapper">
                     <div className="colA">
                         <a href="/dashboard" className="logo">
-                            <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px" }} />
+                            <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px",marginLeft:"39px" }} />
                         </a>
                     </div>
                     <div className="colB">

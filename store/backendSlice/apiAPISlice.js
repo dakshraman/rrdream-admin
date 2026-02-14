@@ -7,7 +7,6 @@ export const apiAPISlice = createApi({
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth?.token;
-      console.log("Token being sent:", token);
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -22,7 +21,7 @@ export const apiAPISlice = createApi({
     "Admin",
     "WithdrawRequest",
     "FundRequests",
-    "BiddingHistory",
+    "BiddingHistory", 
     "BiddingHistoryStarline",
     "DeclaredResultsStarline",
     "BiddingHistoryGali",

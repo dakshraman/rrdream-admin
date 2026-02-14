@@ -21,7 +21,7 @@ const FundSkeleton = () => (
         <Skeleton width={40} height={20} />
         <Skeleton width={80} height={20} />
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Skeleton circle width={40} height={40} />
+            <Skeleton circle={true} width={40} height={40} />
             <Skeleton width={120} height={16} />
         </div>
         <Skeleton width={100} height={16} />
@@ -74,7 +74,6 @@ export default function FundRequests() {
         try {
             console.log("Sending approve request for ID:", requestId);
 
-            // Pass only the ID - API: POST /api/approvefund/{id}
             const response = await approveFundRequest(requestId).unwrap();
 
             console.log("Approve response:", response);
@@ -111,7 +110,6 @@ export default function FundRequests() {
         try {
             console.log("Sending reject request for ID:", requestId);
 
-            // Pass only the ID - API: POST /api/rejectfund/{id}
             const response = await rejectFundRequest(requestId).unwrap();
 
             console.log("Reject response:", response);
@@ -145,9 +143,9 @@ export default function FundRequests() {
                 style={{
                     ...style,
                     fontWeight: "500",
-                    padding: "4px 12px",
+                    padding: "3px 10px",
                     borderRadius: "20px",
-                    fontSize: "12px",
+                    fontSize: "11px",
                     textTransform: "capitalize"
                 }}
             >
@@ -161,29 +159,29 @@ export default function FundRequests() {
             name: "#",
             selector: (row, index) => index + 1,
             sortable: false,
-            width: "60px",
+            width: "30px",
         },
         {
             name: "User Name",
             selector: (row) => row.user_name || "N/A",
             sortable: true,
             cell: (row) => (
-                <span style={{ fontWeight: "500" }}>
+                <span style={{ fontWeight: "500", fontSize: "13px" }}>
                     {row.user_name || "N/A"}
                 </span>
             ),
-            width: "180px",
+            width: "110px",
         },
         {
             name: "Mobile",
             selector: (row) => row.user_phone || "N/A",
             sortable: true,
             cell: (row) => (
-                <span style={{ fontFamily: "monospace", fontSize: "14px" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "13px" }}>
                     {row.user_phone || "N/A"}
                 </span>
             ),
-            width: "130px",
+            width: "110px",
         },
         {
             name: "Amount",
@@ -193,19 +191,19 @@ export default function FundRequests() {
                 <span style={{
                     fontWeight: "700",
                     color: "#059669",
-                    fontSize: "15px"
+                    fontSize: "14px"
                 }}>
                     {parseFloat(row.amount || 0).toLocaleString('en-IN')}
                 </span>
             ),
-            width: "100px",
+            width: "90px",
         },
         {
             name: "Request No.",
             selector: (row) => row.fund_request_id || row.id,
             sortable: true,
             cell: (row) => (
-                <span style={{ fontFamily: "monospace", color: "#6b7280" }}>
+                <span style={{ fontFamily: "monospace", color: "#6b7280", fontSize: "12px" }}>
                     {row.fund_request_id || row.id}
                 </span>
             ),
@@ -220,14 +218,14 @@ export default function FundRequests() {
                     {formatDate(row.created_at)}
                 </span>
             ),
-            width: "150px",
+            width: "140px",
         },
         {
             name: "Status",
             selector: (row) => row.status,
             sortable: true,
             cell: (row) => getStatusBadge(row.status),
-            width: "110px",
+            width: "100px",
         },
         {
             name: "Action",
@@ -240,7 +238,7 @@ export default function FundRequests() {
                     return (
                         <span style={{
                             color: "#9ca3af",
-                            fontSize: "12px",
+                            fontSize: "11px",
                             fontStyle: "italic"
                         }}>
                             {(row.status || "").toLowerCase() === "approved" ? "✓ Approved" : "✗ Rejected"}
@@ -254,25 +252,25 @@ export default function FundRequests() {
                             onClick={() => handleApprove(row)}
                             disabled={isProcessing}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isProcessing ? "#9ca3af" : "#8b5cf6",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isProcessing ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 fontWeight: "500",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 gap: "4px",
-                                minWidth: "70px",
+                                minWidth: "65px",
                             }}
                         >
                             {isProcessing ? (
                                 <span style={{
-                                    width: "12px",
-                                    height: "12px",
+                                    width: "10px",
+                                    height: "10px",
                                     border: "2px solid #fff",
                                     borderTopColor: "transparent",
                                     borderRadius: "50%",
@@ -284,15 +282,15 @@ export default function FundRequests() {
                             onClick={() => handleReject(row)}
                             disabled={isProcessing}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isProcessing ? "#9ca3af" : "#ef4444",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isProcessing ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 fontWeight: "500",
-                                minWidth: "60px",
+                                minWidth: "55px",
                             }}
                         >
                             Reject
@@ -300,7 +298,7 @@ export default function FundRequests() {
                     </div>
                 );
             },
-            width: "180px",
+            width: "160px",
         },
     ];
 
@@ -361,6 +359,7 @@ export default function FundRequests() {
             style: {
                 backgroundColor: "#f9fafb",
                 borderBottom: "2px solid #e5e7eb",
+                minHeight: "45px"
             },
         },
         headCells: {
@@ -368,14 +367,14 @@ export default function FundRequests() {
                 fontWeight: "600",
                 fontSize: "13px",
                 color: "#374151",
-                paddingLeft: "10px",
-                paddingRight: "10px",
+                paddingLeft: "8px",
+                paddingRight: "8px",
             },
         },
         rows: {
             style: {
-                fontSize: "14px",
-                minHeight: "56px",
+                fontSize: "13px",
+                minHeight: "55px",
             },
             highlightOnHoverStyle: {
                 backgroundColor: "#f3f4f6",
@@ -383,13 +382,14 @@ export default function FundRequests() {
         },
         cells: {
             style: {
-                paddingLeft: "10px",
-                paddingRight: "10px",
+                paddingLeft: "8px",
+                paddingRight: "8px",
             },
         },
         pagination: {
             style: {
                 borderTop: "1px solid #e5e7eb",
+                minHeight: "50px"
             },
         },
     };
@@ -441,44 +441,32 @@ export default function FundRequests() {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-                @media (max-width: 768px) {
-                    .stats-grid {
-                        grid-template-columns: repeat(2, 1fr) !important;
-                    }
-                    .filter-row {
-                        flex-direction: column !important;
-                    }
-                    .filter-row input {
-                        width: 100% !important;
-                        min-width: unset !important;
-                    }
-                }
-                @media (max-width: 480px) {
-                    .stats-grid {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
             `}</style>
 
-            <main style={{ padding: "10px" }}>
+            <main style={{ padding: "9px", height: "100vh", overflow: "auto" }}>
                 <div style={{
                     backgroundColor: "#fff",
                     borderRadius: "12px",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    overflow: "hidden"
+                    overflow: "visible"
                 }}>
+                    {/* Title */}
+                    <div style={{ padding: "12px 16px", borderBottom: "1px solid #e5e7eb" }}>
+                        <h2 style={{ fontSize: "17px", fontWeight: "600", margin: 0 }}>Fund Requests</h2>
+                    </div>
 
-                    <div style={{ padding: "20px" }}>
+                    {/* Filters */}
+                    <div style={{ padding: "12px 16px" }}>
                         <div style={{
                             display: "flex",
-                            gap: "15px",
-                            marginBottom: "20px",
+                            gap: "10px",
+                            marginBottom: "12px",
                             flexWrap: "wrap"
-                        }} className="filter-row">
-                            <div style={{ flex: "0 0 200px" }}>
+                        }}>
+                            <div style={{ flex: "0 0 auto", minWidth: "160px" }}>
                                 <label style={{
                                     display: "block",
-                                    fontSize: "12px",
+                                    fontSize: "11px",
                                     color: "#6b7280",
                                     marginBottom: "4px"
                                 }}>Date</label>
@@ -488,18 +476,18 @@ export default function FundRequests() {
                                     onChange={(e) => setDateFilter(e.target.value)}
                                     style={{
                                         width: "100%",
-                                        padding: "10px 14px",
-                                        borderRadius: "8px",
+                                        padding: "8px 10px",
+                                        borderRadius: "6px",
                                         border: "2px solid #8b5cf6",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         outline: "none",
                                     }}
                                 />
                             </div>
-                            <div style={{ flex: 1, minWidth: "200px" }}>
+                            <div style={{ flex: 1, minWidth: "180px" }}>
                                 <label style={{
                                     display: "block",
-                                    fontSize: "12px",
+                                    fontSize: "11px",
                                     color: "#6b7280",
                                     marginBottom: "4px"
                                 }}>Search</label>
@@ -510,28 +498,25 @@ export default function FundRequests() {
                                     onChange={(e) => setFilterText(e.target.value)}
                                     style={{
                                         width: "100%",
-                                        padding: "10px 14px",
-                                        borderRadius: "8px",
+                                        padding: "8px 10px",
+                                        borderRadius: "6px",
                                         border: "1px solid #d1d5db",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
                                         outline: "none",
                                     }}
                                 />
                             </div>
                         </div>
 
-                     
-
                         <div style={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                             flexWrap: "wrap",
-                            gap: "10px",
-                            marginBottom: "10px"
+                            gap: "8px"
                         }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                <span style={{ fontSize: "14px", color: "#6b7280" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                <span style={{ fontSize: "13px", color: "#6b7280" }}>
                                     Showing: <strong>{filteredData.length}</strong>
                                 </span>
                                 <button
@@ -541,7 +526,7 @@ export default function FundRequests() {
                                         setDateFilter("");
                                     }}
                                     style={{
-                                        padding: "8px 12px",
+                                        padding: "6px 10px",
                                         backgroundColor: "#f3f4f6",
                                         color: "#374151",
                                         border: "none",
@@ -555,7 +540,7 @@ export default function FundRequests() {
                                 <button
                                     onClick={refetch}
                                     style={{
-                                        padding: "8px 12px",
+                                        padding: "6px 10px",
                                         backgroundColor: "#4f46e5",
                                         color: "#fff",
                                         border: "none",

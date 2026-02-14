@@ -21,7 +21,7 @@ const WithdrawSkeleton = () => (
         <Skeleton width={40} height={20} />
         <Skeleton width={80} height={20} />
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Skeleton circle width={40} height={40} />
+            <Skeleton circle={true} width={40} height={40} />
             <Skeleton width={120} height={16} />
         </div>
         <Skeleton width={100} height={16} />
@@ -135,9 +135,9 @@ export default function WithdrawRequests() {
                 style={{
                     ...style,
                     fontWeight: "500",
-                    padding: "4px 12px",
+                    padding: "3px 10px",
                     borderRadius: "20px",
-                    fontSize: "12px",
+                    fontSize: "11px",
                     textTransform: "capitalize"
                 }}
             >
@@ -151,27 +151,18 @@ export default function WithdrawRequests() {
             name: "S.No",
             selector: (row, index) => index + 1,
             sortable: false,
-            width: "70px",
-        },
-        {
-            name: "ID",
-            selector: (row) => row.id,
-            sortable: true,
-            width: "80px",
-            cell: (row) => (
-                <span style={{ fontWeight: "600", color: "#4f46e5" }}>#{row.id}</span>
-            ),
+            width: "40px",
         },
         {
             name: "User",
             selector: (row) => row.user?.name || "N/A",
             sortable: true,
             cell: (row) => (
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <div
                         style={{
-                            width: "40px",
-                            height: "40px",
+                            width: "35px",
+                            height: "35px",
                             borderRadius: "50%",
                             backgroundColor: "#4f46e5",
                             display: "flex",
@@ -179,21 +170,21 @@ export default function WithdrawRequests() {
                             justifyContent: "center",
                             color: "#fff",
                             fontWeight: "bold",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             flexShrink: 0,
                         }}
                     >
                         {(row.user?.name || "U").charAt(0).toUpperCase()}
                     </div>
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span style={{ fontWeight: "500" }}>{row.user?.name || "N/A"}</span>
-                        <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                        <span style={{ fontWeight: "500", fontSize: "13px" }}>{row.user?.name || "N/A"}</span>
+                        <span style={{ fontSize: "11px", color: "#6b7280" }}>
                             {row.user?.phone || "N/A"}
                         </span>
                     </div>
                 </div>
             ),
-            width: "200px",
+            width: "150px",
         },
         {
             name: "Amount",
@@ -203,12 +194,12 @@ export default function WithdrawRequests() {
                 <span style={{
                     fontWeight: "700",
                     color: "#059669",
-                    fontSize: "15px"
+                    fontSize: "14px"
                 }}>
                     ₹{parseFloat(row.amount || 0).toLocaleString('en-IN')}
                 </span>
             ),
-            width: "120px",
+            width: "90px",
         },
         {
             name: "Transfer To",
@@ -216,35 +207,24 @@ export default function WithdrawRequests() {
             sortable: true,
             cell: (row) => (
                 <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                    <span style={{ fontSize: "12px", fontWeight: "500" }}>
                         {row.transfer_to || "N/A"}
                     </span>
                     {row.user?.bank_name && (
-                        <span style={{ fontSize: "11px", color: "#6b7280" }}>
+                        <span style={{ fontSize: "10px", color: "#6b7280" }}>
                             {row.user.bank_name}
                         </span>
                     )}
                 </div>
             ),
-            width: "220px",
+            width: "110px",
         },
         {
             name: "Status",
             selector: (row) => row.status,
             sortable: true,
             cell: (row) => getStatusBadge(row.status),
-            width: "120px",
-        },
-        {
-            name: "Date",
-            selector: (row) => row.created_at,
-            sortable: true,
-            cell: (row) => (
-                <span style={{ fontSize: "13px", color: "#6b7280" }}>
-                    {formatDate(row.created_at)}
-                </span>
-            ),
-            width: "180px",
+            width: "100px",
         },
         {
             name: "Actions",
@@ -256,7 +236,7 @@ export default function WithdrawRequests() {
                     return (
                         <span style={{
                             color: "#9ca3af",
-                            fontSize: "12px",
+                            fontSize: "11px",
                             fontStyle: "italic"
                         }}>
                             {(row.status || "").toLowerCase() === "approved" ? "✓ Approved" : "✗ Rejected"}
@@ -270,25 +250,25 @@ export default function WithdrawRequests() {
                             onClick={() => handleApprove(row)}
                             disabled={isProcessing}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isProcessing ? "#9ca3af" : "#22c55e",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isProcessing ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 fontWeight: "500",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 gap: "4px",
-                                minWidth: "70px",
+                                minWidth: "65px",
                             }}
                         >
                             {isProcessing ? (
                                 <span style={{
-                                    width: "12px",
-                                    height: "12px",
+                                    width: "10px",
+                                    height: "10px",
                                     border: "2px solid #fff",
                                     borderTopColor: "transparent",
                                     borderRadius: "50%",
@@ -300,15 +280,15 @@ export default function WithdrawRequests() {
                             onClick={() => handleReject(row)}
                             disabled={isProcessing}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isProcessing ? "#9ca3af" : "#ef4444",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isProcessing ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 fontWeight: "500",
-                                minWidth: "60px",
+                                minWidth: "55px",
                             }}
                         >
                             Reject
@@ -316,7 +296,7 @@ export default function WithdrawRequests() {
                     </div>
                 );
             },
-            width: "180px",
+            width: "160px",
         },
     ];
 
@@ -358,62 +338,62 @@ export default function WithdrawRequests() {
             display: "flex",
             flexDirection: "column",
             width: "100%",
-            gap: "15px"
+            gap: "12px"
         }}>
             {/* Stats Cards */}
             <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                gap: "12px",
-                marginBottom: "10px"
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                gap: "10px",
+                marginBottom: "8px"
             }}>
                 <div style={{
-                    padding: "12px 16px",
+                    padding: "10px 12px",
                     backgroundColor: "#faf5ff",
                     borderRadius: "8px",
                     borderLeft: "4px solid #8b5cf6"
                 }}>
-                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Total</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#8b5cf6" }}>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>Total</div>
+                    <div style={{ fontSize: "16px", fontWeight: "700", color: "#8b5cf6" }}>
                         {withdrawRequests.length}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                    <div style={{ fontSize: "10px", color: "#6b7280" }}>
                         ₹{totalAmount.toLocaleString('en-IN')}
                     </div>
                 </div>
                 <div style={{
-                    padding: "12px 16px",
+                    padding: "10px 12px",
                     backgroundColor: "#fffbeb",
                     borderRadius: "8px",
                     borderLeft: "4px solid #f59e0b"
                 }}>
-                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Pending</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#f59e0b" }}>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>Pending</div>
+                    <div style={{ fontSize: "16px", fontWeight: "700", color: "#f59e0b" }}>
                         {pendingCount}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                    <div style={{ fontSize: "10px", color: "#6b7280" }}>
                         ₹{pendingAmount.toLocaleString('en-IN')}
                     </div>
                 </div>
                 <div style={{
-                    padding: "12px 16px",
+                    padding: "10px 12px",
                     backgroundColor: "#f0fdf4",
                     borderRadius: "8px",
                     borderLeft: "4px solid #22c55e"
                 }}>
-                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Approved</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#22c55e" }}>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>Approved</div>
+                    <div style={{ fontSize: "16px", fontWeight: "700", color: "#22c55e" }}>
                         {approvedCount}
                     </div>
                 </div>
                 <div style={{
-                    padding: "12px 16px",
+                    padding: "10px 12px",
                     backgroundColor: "#fef2f2",
                     borderRadius: "8px",
                     borderLeft: "4px solid #ef4444"
                 }}>
-                    <div style={{ fontSize: "12px", color: "#6b7280" }}>Rejected</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#ef4444" }}>
+                    <div style={{ fontSize: "11px", color: "#6b7280" }}>Rejected</div>
+                    <div style={{ fontSize: "16px", fontWeight: "700", color: "#ef4444" }}>
                         {rejectedCount}
                     </div>
                 </div>
@@ -426,19 +406,19 @@ export default function WithdrawRequests() {
                 alignItems: "center",
                 width: "100%",
                 flexWrap: "wrap",
-                gap: "15px"
+                gap: "10px"
             }}>
                 {/* Left side - Filter and Search */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap",marginBottom:"8px" }}>
                     {/* Status Filter Dropdown */}
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{
-                            padding: "10px 14px",
-                            borderRadius: "8px",
+                            padding: "8px 12px",
+                            borderRadius: "6px",
                             border: "1px solid #d1d5db",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             outline: "none",
                             cursor: "pointer",
                             backgroundColor: "#fff"
@@ -449,79 +429,24 @@ export default function WithdrawRequests() {
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                     </select>
-
-                    {/* Search Input */}
                     <input
                         type="text"
                         placeholder="Search by name, phone, ID..."
                         value={filterText}
                         onChange={(e) => setFilterText(e.target.value)}
                         style={{
-                            padding: "10px 14px",
-                            borderRadius: "8px",
+                            padding: "8px 12px",
+                            borderRadius: "6px",
                             border: "1px solid #d1d5db",
-                            minWidth: "280px",
-                            fontSize: "14px",
+                            minWidth: "200px",
+                            fontSize: "13px",
                             outline: "none",
+                            flex: "1",
+                            height:"35px"
                         }}
                     />
-
-                    {/* Clear Button */}
-                    {(filterText || statusFilter !== "all") && (
-                        <button
-                            onClick={() => {
-                                setFilterText("");
-                                setStatusFilter("all");
-                            }}
-                            style={{
-                                padding: "10px 14px",
-                                backgroundColor: "#ef4444",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                            }}
-                        >
-                            ✕ Clear
-                        </button>
-                    )}
                 </div>
 
-                {/* Right side - Refresh and Stats */}
-                <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "15px",
-                    fontSize: "14px",
-                    color: "#6b7280"
-                }}>
-                    <span>
-                        Showing: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> of {withdrawRequests.length}
-                    </span>
-                    <button
-                        onClick={refetch}
-                        style={{
-                            padding: "10px 14px",
-                            backgroundColor: "#4f46e5",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                        }}
-                    >
-                        🔄 Refresh
-                    </button>
-                </div>
             </div>
         </div>
     );
@@ -539,27 +464,37 @@ export default function WithdrawRequests() {
             style: {
                 backgroundColor: "#f9fafb",
                 borderBottom: "2px solid #e5e7eb",
+                minHeight: "45px"
             },
         },
         headCells: {
             style: {
                 fontWeight: "600",
-                fontSize: "14px",
+                fontSize: "13px",
                 color: "#374151",
+                paddingLeft: "8px",
+                paddingRight: "8px",
             },
         },
         rows: {
             style: {
-                fontSize: "14px",
-                minHeight: "65px",
+                fontSize: "13px",
+                minHeight: "55px",
             },
             highlightOnHoverStyle: {
                 backgroundColor: "#f3f4f6",
             },
         },
+        cells: {
+            style: {
+                paddingLeft: "8px",
+                paddingRight: "8px",
+            },
+        },
         pagination: {
             style: {
                 borderTop: "1px solid #e5e7eb",
+                minHeight: "50px"
             },
         },
     };
@@ -605,12 +540,12 @@ export default function WithdrawRequests() {
                 }
             `}</style>
             
-            <main style={{ padding: "9px" }}>
+            <main style={{ padding: "9px", height: "100vh", overflow: "auto" }}>
                 <div style={{
                     backgroundColor: "#fff",
                     borderRadius: "12px",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    overflow: "hidden"
+                    overflow: "visible"
                 }}>
                     <DataTable
                         title={
@@ -618,9 +553,9 @@ export default function WithdrawRequests() {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "10px",
-                                padding: "10px 0"
+                                padding: "8px 0"
                             }}>
-                                <span style={{ fontSize: "18px", fontWeight: "600" }}>Withdraw Requests</span>
+                                <span style={{ fontSize: "17px", fontWeight: "600" }}>Withdraw Requests</span>
                             </div>
                         }
                         columns={columns}

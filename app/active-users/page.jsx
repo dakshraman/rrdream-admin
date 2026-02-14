@@ -18,7 +18,7 @@ const UserSkeleton = () => (
     }}>
         <Skeleton width={40} height={20} />
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Skeleton circle width={40} height={40} />
+            <Skeleton circle={true} width={40} height={40} />
             <Skeleton width={120} height={16} />
         </div>
         <Skeleton width={120} height={16} />
@@ -98,24 +98,18 @@ export default function ManageUsersData() {
             name: "S.No",
             selector: (row, index) => index + 1,
             sortable: false,
-            width: "70px",
-        },
-        {
-            name: "ID",
-            selector: (row) => row.id,
-            sortable: true,
-            width: "80px",
+            width: "40px",
         },
         {
             name: "Name",
             selector: (row) => row.name || "N/A",
             sortable: true,
             cell: (row) => (
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <div
                         style={{
-                            width: "40px",
-                            height: "40px",
+                            width: "35px",
+                            height: "35px",
                             borderRadius: "50%",
                             backgroundColor: (row.status === true || row.status === 1) ? "#4f46e5" : "#9ca3af",
                             display: "flex",
@@ -123,27 +117,27 @@ export default function ManageUsersData() {
                             justifyContent: "center",
                             color: "#fff",
                             fontWeight: "bold",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             flexShrink: 0,
                         }}
                     >
                         {(row.name || "U").charAt(0).toUpperCase()}
                     </div>
-                    <span style={{ fontWeight: "500" }}>{row.name || "N/A"}</span>
+                    <span style={{ fontWeight: "500", fontSize: "13px" }}>{row.name || "N/A"}</span>
                 </div>
             ),
-            width: "200px",
+            width: "120px",
         },
         {
             name: "Phone",
             selector: (row) => row.phone || "N/A",
             sortable: true,
             cell: (row) => (
-                <span style={{ fontFamily: "monospace", fontSize: "14px" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "13px" }}>
                     {row.phone || "N/A"}
                 </span>
             ),
-            width: "150px",
+            width: "110px",
         },
         {
             name: "Funds",
@@ -152,12 +146,13 @@ export default function ManageUsersData() {
             cell: (row) => (
                 <span style={{
                     fontWeight: "600",
-                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280"
+                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280",
+                    fontSize: "13px"
                 }}>
                     ₹{parseFloat(row.funds || 0).toLocaleString('en-IN')}
                 </span>
             ),
-            width: "120px",
+            width: "90px",
         },
         {
             name: "Status",
@@ -172,27 +167,16 @@ export default function ManageUsersData() {
                             color: "#fff",
                             fontWeight: "500",
                             backgroundColor: isActive ? "#22c55e" : "#ef4444",
-                            padding: "4px 12px",
+                            padding: "3px 10px",
                             borderRadius: "20px",
-                            fontSize: "12px",
+                            fontSize: "11px",
                         }}
                     >
                         {isActive ? "Active" : "Inactive"}
                     </span>
                 );
             },
-            width: "110px",
-        },
-        {
-            name: "Created At",
-            selector: (row) => row.created_at,
-            sortable: true,
-            cell: (row) => (
-                <span style={{ fontSize: "13px", color: "#6b7280" }}>
-                    {formatDate(row.created_at)}
-                </span>
-            ),
-            width: "180px",
+            width: "100px",
         },
         {
             name: "Actions",
@@ -201,18 +185,18 @@ export default function ManageUsersData() {
                 const isActive = row.status === true || row.status === 1;
 
                 return (
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div style={{ display: "flex", gap: "6px" }}>
                         <button
                             onClick={() => handleView(row)}
                             disabled={isToggling}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: "#3b82f6",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isToggling ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 opacity: isToggling ? 0.6 : 1,
                             }}
                         >
@@ -222,7 +206,7 @@ export default function ManageUsersData() {
                             onClick={() => handleToggleStatus(row)}
                             disabled={isToggling}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isToggling 
                                     ? "#9ca3af" 
                                     : isActive 
@@ -232,12 +216,12 @@ export default function ManageUsersData() {
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isToggling ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                gap: "5px",
-                                minWidth: "90px",
+                                gap: "4px",
+                                minWidth: "85px",
                                 transition: "all 0.2s ease",
                             }}
                             title={isActive ? "Click to deactivate user" : "Click to activate user"}
@@ -246,8 +230,8 @@ export default function ManageUsersData() {
                                 <>
                                     <span
                                         style={{
-                                            width: "12px",
-                                            height: "12px",
+                                            width: "10px",
+                                            height: "10px",
                                             border: "2px solid #fff",
                                             borderTopColor: "transparent",
                                             borderRadius: "50%",
@@ -263,7 +247,7 @@ export default function ManageUsersData() {
                     </div>
                 );
             },
-            width: "200px",
+            width: "180px",
         },
     ];
 
@@ -292,43 +276,27 @@ export default function ManageUsersData() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "15px 0",
+            padding: "12px 0",
             width: "100%",
-            flexWrap: "wrap",
-            gap: "15px"
+            gap: "12px",
+            flexWrap: "wrap"
         }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap" }}>
                 <input
                     type="text"
                     placeholder="Search by name, phone or ID..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     style={{
-                        padding: "10px 14px",
-                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
                         border: "1px solid #d1d5db",
-                        minWidth: "280px",
-                        fontSize: "14px",
+                        minWidth: "200px",
+                        fontSize: "13px",
                         outline: "none",
+                        flex: "1"
                     }}
                 />
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    style={{
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #d1d5db",
-                        fontSize: "14px",
-                        outline: "none",
-                        backgroundColor: "#fff",
-                        cursor: "pointer",
-                    }}
-                >
-                    <option value="all">All Status</option>
-                    <option value="active">Active Only</option>
-                    <option value="inactive">Inactive Only</option>
-                </select>
                 {(filterText || statusFilter !== "all") && (
                     <button
                         onClick={() => {
@@ -336,33 +304,20 @@ export default function ManageUsersData() {
                             setStatusFilter("all");
                         }}
                         style={{
-                            padding: "10px 14px",
+                            padding: "8px 12px",
                             backgroundColor: "#ef4444",
                             color: "#fff",
                             border: "none",
-                            borderRadius: "8px",
+                            borderRadius: "6px",
                             cursor: "pointer",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             fontWeight: "500",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
+                            whiteSpace: "nowrap"
                         }}
                     >
                         ✕ Clear
                     </button>
                 )}
-            </div>
-            <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "20px",
-                fontSize: "14px",
-                color: "#6b7280"
-            }}>
-                <span>
-                    Showing: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> of {users.length} users
-                </span>
             </div>
         </div>
     );
@@ -380,27 +335,37 @@ export default function ManageUsersData() {
             style: {
                 backgroundColor: "#f9fafb",
                 borderBottom: "2px solid #e5e7eb",
+                minHeight: "45px"
             },
         },
         headCells: {
             style: {
                 fontWeight: "600",
-                fontSize: "14px",
+                fontSize: "13px",
                 color: "#374151",
+                paddingLeft: "8px",
+                paddingRight: "8px",
             },
         },
         rows: {
             style: {
-                fontSize: "14px",
-                minHeight: "60px",
+                fontSize: "13px",
+                minHeight: "55px",
             },
             highlightOnHoverStyle: {
                 backgroundColor: "#f3f4f6",
             },
         },
+        cells: {
+            style: {
+                paddingLeft: "8px",
+                paddingRight: "8px",
+            },
+        },
         pagination: {
             style: {
                 borderTop: "1px solid #e5e7eb",
+                minHeight: "50px"
             },
         },
     };
@@ -447,12 +412,12 @@ export default function ManageUsersData() {
                 }
             `}</style>
 
-            <main style={{ padding: "9px" }}>
+            <main style={{ padding: "9px", height: "100vh", overflow: "auto" }}>
                 <div style={{
                     backgroundColor: "#fff",
                     borderRadius: "12px",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    overflow: "hidden"
+                    overflow: "visible"
                 }}>
                     <DataTable
                         title={
@@ -460,9 +425,11 @@ export default function ManageUsersData() {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "10px",
-                                padding: "10px 0"
+                                padding: "8px 0",
+                                position:"relative",
+                                right:"12px"
                             }}>
-                                <span style={{ fontSize: "18px", fontWeight: "600" }}>Manage Users</span>
+                                <span style={{ fontSize: "17px", fontWeight: "600" }}>Manage Users</span>
                             </div>
                         }
                         columns={columns}

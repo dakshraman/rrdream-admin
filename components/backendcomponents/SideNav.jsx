@@ -147,11 +147,11 @@ export default function SideNav() {
         .mobile-menu-toggle {
           display: none;
           position: fixed;
-          top: 11%;
-    left: -16px;
+          top:4%;
+    left: 10px;
           transform: translateY(-50%);
           z-index: 10;
-          background: var(--primary-a);
+          // background: var(--primary-a);
           border: none;
           width: 35px;
           height: 35px;
@@ -168,7 +168,7 @@ export default function SideNav() {
           display: block;
           width: 20px;
           height: 2.5px;
-          background: white;
+          background: black;
           border-radius: 2px;
           transition: 0.3s;
         }

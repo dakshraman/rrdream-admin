@@ -5,7 +5,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useGetInactiveUsersQuery, useToggleUserMutation } from "@/store/backendSlice/apiAPISlice";
 import UserViewModal from "../UserViewModal";
-import { toast } from "react-hot-toast"; // or your preferred toast library
+import { toast } from "react-hot-toast";
 
 // Skeleton component for loading state
 const UserSkeleton = () => (
@@ -18,7 +18,7 @@ const UserSkeleton = () => (
     }}>
         <Skeleton width={40} height={20} />
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Skeleton circle width={40} height={40} />
+            <Skeleton circle={true} width={40} height={40} />
             <Skeleton width={120} height={16} />
         </div>
         <Skeleton width={120} height={16} />
@@ -63,7 +63,6 @@ export default function ManageInactiveUsersData() {
     };
 
     const handleActivate = async (row) => {
-        // Confirm before activating
         const confirmActivate = window.confirm(
             `Are you sure you want to activate user "${row.name || row.phone}"?`
         );
@@ -74,12 +73,8 @@ export default function ManageInactiveUsersData() {
 
         try {
             const response = await toggleUser(row.id).unwrap();
-
-            // Success
             toast.success(response?.message || `User "${row.name || row.phone}" activated successfully!`);
-
         } catch(err) {
-            // Error handling
             const errorMessage = err?.data?.message || err?.message || "Failed to activate user";
             toast.error(errorMessage);
             console.error("Activate user error:", err);
@@ -93,24 +88,18 @@ export default function ManageInactiveUsersData() {
             name: "S.No",
             selector: (row, index) => index + 1,
             sortable: false,
-            width: "70px",
-        },
-        {
-            name: "ID",
-            selector: (row) => row.id,
-            sortable: true,
-            width: "80px",
+            width: "40px",
         },
         {
             name: "Name",
             selector: (row) => row.name || "N/A",
             sortable: true,
             cell: (row) => (
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <div
                         style={{
-                            width: "40px",
-                            height: "40px",
+                            width: "35px",
+                            height: "35px",
                             borderRadius: "50%",
                             backgroundColor: "#9ca3af",
                             display: "flex",
@@ -118,27 +107,27 @@ export default function ManageInactiveUsersData() {
                             justifyContent: "center",
                             color: "#fff",
                             fontWeight: "bold",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             flexShrink: 0,
                         }}
                     >
                         {(row.name || "U").charAt(0).toUpperCase()}
                     </div>
-                    <span style={{ fontWeight: "500" }}>{row.name || "N/A"}</span>
+                    <span style={{ fontWeight: "500", fontSize: "13px" }}>{row.name || "N/A"}</span>
                 </div>
             ),
-            width: "200px",
+            width: "110px",
         },
         {
             name: "Phone",
             selector: (row) => row.phone || "N/A",
             sortable: true,
             cell: (row) => (
-                <span style={{ fontFamily: "monospace", fontSize: "14px" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "13px" }}>
                     {row.phone || "N/A"}
                 </span>
             ),
-            width: "150px",
+            width: "120px",
         },
         {
             name: "Funds",
@@ -147,12 +136,13 @@ export default function ManageInactiveUsersData() {
             cell: (row) => (
                 <span style={{
                     fontWeight: "600",
-                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280"
+                    color: parseFloat(row.funds || 0) > 0 ? "#059669" : "#6b7280",
+                    fontSize: "13px"
                 }}>
                     ₹{parseFloat(row.funds || 0).toLocaleString('en-IN')}
                 </span>
             ),
-            width: "120px",
+            width: "80px",
         },
         {
             name: "Status",
@@ -164,26 +154,15 @@ export default function ManageInactiveUsersData() {
                         color: "#fff",
                         fontWeight: "500",
                         backgroundColor: "#ef4444",
-                        padding: "4px 12px",
+                        padding: "3px 10px",
                         borderRadius: "20px",
-                        fontSize: "12px",
+                        fontSize: "11px",
                     }}
                 >
                     Inactive
                 </span>
             ),
-            width: "110px",
-        },
-        {
-            name: "Created At",
-            selector: (row) => row.created_at,
-            sortable: true,
-            cell: (row) => (
-                <span style={{ fontSize: "13px", color: "#6b7280" }}>
-                    {formatDate(row.created_at)}
-                </span>
-            ),
-            width: "180px",
+            width: "100px",
         },
         {
             name: "Actions",
@@ -191,18 +170,18 @@ export default function ManageInactiveUsersData() {
                 const isActivating = activatingUserId === row.id;
 
                 return (
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div style={{ display: "flex", gap: "6px" }}>
                         <button
                             onClick={() => handleView(row)}
                             disabled={isActivating}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: "#3b82f6",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isActivating ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 opacity: isActivating ? 0.6 : 1,
                             }}
                         >
@@ -212,17 +191,17 @@ export default function ManageInactiveUsersData() {
                             onClick={() => handleActivate(row)}
                             disabled={isActivating}
                             style={{
-                                padding: "6px 12px",
+                                padding: "5px 10px",
                                 backgroundColor: isActivating ? "#86efac" : "#22c55e",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: isActivating ? "not-allowed" : "pointer",
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "5px",
-                                minWidth: "80px",
+                                gap: "4px",
+                                minWidth: "75px",
                                 justifyContent: "center",
                             }}
                         >
@@ -230,8 +209,8 @@ export default function ManageInactiveUsersData() {
                                 <>
                                     <span
                                         style={{
-                                            width: "12px",
-                                            height: "12px",
+                                            width: "10px",
+                                            height: "10px",
                                             border: "2px solid #fff",
                                             borderTopColor: "transparent",
                                             borderRadius: "50%",
@@ -247,7 +226,7 @@ export default function ManageInactiveUsersData() {
                     </div>
                 );
             },
-            width: "200px",
+            width: "170px",
         },
     ];
 
@@ -267,23 +246,23 @@ export default function ManageInactiveUsersData() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "15px 0",
+            padding: "12px 0",
             width: "100%",
-            flexWrap: "wrap",
-            gap: "15px"
+            gap: "12px",
+            flexWrap: "wrap"
         }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px" }}>
                 <input
                     type="text"
                     placeholder="Search by name, phone or ID..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     style={{
-                        padding: "10px 14px",
-                        borderRadius: "8px",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
                         border: "1px solid #d1d5db",
-                        minWidth: "280px",
-                        fontSize: "14px",
+                        flex: "1",
+                        fontSize: "13px",
                         outline: "none",
                     }}
                 />
@@ -291,33 +270,20 @@ export default function ManageInactiveUsersData() {
                     <button
                         onClick={() => setFilterText("")}
                         style={{
-                            padding: "10px 14px",
+                            padding: "8px 12px",
                             backgroundColor: "#ef4444",
                             color: "#fff",
                             border: "none",
-                            borderRadius: "8px",
+                            borderRadius: "6px",
                             cursor: "pointer",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             fontWeight: "500",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
+                            whiteSpace: "nowrap"
                         }}
                     >
                         ✕ Clear
                     </button>
                 )}
-            </div>
-            <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "20px",
-                fontSize: "14px",
-                color: "#6b7280"
-            }}>
-                <span>
-                    Showing: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> users
-                </span>
             </div>
         </div>
     );
@@ -335,27 +301,37 @@ export default function ManageInactiveUsersData() {
             style: {
                 backgroundColor: "#fef2f2",
                 borderBottom: "2px solid #fecaca",
+                minHeight: "45px"
             },
         },
         headCells: {
             style: {
                 fontWeight: "600",
-                fontSize: "14px",
+                fontSize: "13px",
                 color: "#374151",
+                paddingLeft: "8px",
+                paddingRight: "8px",
             },
         },
         rows: {
             style: {
-                fontSize: "14px",
-                minHeight: "60px",
+                fontSize: "13px",
+                minHeight: "55px",
             },
             highlightOnHoverStyle: {
                 backgroundColor: "#fff5f5",
             },
         },
+        cells: {
+            style: {
+                paddingLeft: "8px",
+                paddingRight: "8px",
+            },
+        },
         pagination: {
             style: {
                 borderTop: "1px solid #e5e7eb",
+                minHeight: "50px"
             },
         },
     };
@@ -401,12 +377,12 @@ export default function ManageInactiveUsersData() {
                 }
             `}</style>
 
-            <main style={{ padding: "0px 9px" }}>
+            <main style={{ padding: "0px 9px", height: "100vh", overflow: "auto" }}>
                 <div style={{
                     backgroundColor: "#fff",
                     borderRadius: "12px",
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    overflow: "hidden",
+                    overflow: "visible",
                 }}>
                     <DataTable
                         title={
@@ -414,9 +390,11 @@ export default function ManageInactiveUsersData() {
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "10px",
-                                padding: "10px 0"
+                                padding: "8px 0px",
+                                position:"relative",
+                                right:"12px"
                             }}>
-                                <span style={{ fontSize: "18px", fontWeight: "600" }}>
+                                <span style={{ fontSize: "17px", fontWeight: "600" }}>
                                     Inactive Users
                                 </span>
                             </div>
