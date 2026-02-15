@@ -9,7 +9,9 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/api/:path*",
-        destination: `${process.env.API_PROXY_TARGET || "https://game.rrdream.in/api"}/:path*`,
+        destination: process.env.NODE_ENV === 'development'
+          ? "https://game.rrdream.in/api/:path*"
+          : "http://localhost:3002/api/:path*",
       }
     ];
   },
