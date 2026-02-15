@@ -4,7 +4,7 @@ export const apiAPISlice = createApi({
   reducerPath: "apiAPISlice",
   baseQuery: retry(
     fetchBaseQuery({
-      baseUrl: "/api",
+      baseUrl: "https://game.rrdream.in/api",
       credentials: "include",
       prepareHeaders: (headers, { getState }) => {
         const token = getState().auth?.token;
