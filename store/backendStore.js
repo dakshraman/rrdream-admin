@@ -14,6 +14,7 @@ import storage from "./storage";
 import { authAPISlice } from "./backendSlice/authAPISlice";
 import { apiAPISlice } from "./backendSlice/apiAPISlice";
 import authReducer from "./backendSlice/authReducer";
+import { errorMiddleware } from "./errorMiddleware";
 
 const persistConfig = {
   key: "root",
@@ -36,7 +37,7 @@ export const backendStore = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authAPISlice.middleware, apiAPISlice.middleware),
+    }).concat(authAPISlice.middleware, apiAPISlice.middleware, errorMiddleware),
 });
 
 export const persistor = persistStore(backendStore);

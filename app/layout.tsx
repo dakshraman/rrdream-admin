@@ -7,6 +7,7 @@ import Loader from "@/app/loading";
 import '../public/admin-assets/fonts/font.css';
 import { Toaster } from 'react-hot-toast';
 import { ReduxProvider } from "../store/ReduxProvider";
+import AuthGuard from "@/components/AuthGuard";
 export const metadata = {
   title: "RDream Admin Panel",
   description: "RDream Admin Panel",
@@ -17,37 +18,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <html lang="en">
       <body cz-shortcut-listen="true">
         <ReduxProvider>
-          <Loader />
-          <MainHeaderFooter />
-          <Suspense fallback={<Loader />}>
-            {children}
-          </Suspense>
-          <Toaster
-            position="top-center"
-            reverseOrder={true}
-            toastOptions={{
-              duration: 1000,
-              style: {
-                borderRadius: '8px',
-                padding: '12px 16px',
-                color: '#fff',
-              },
-              success: {
-                style: { background: '#22c55e' },
-                iconTheme: {
-                  primary: '#ffffff',
-                  secondary: '#16a34a',
+          <AuthGuard>
+            <Loader />
+            <MainHeaderFooter />
+            <Suspense fallback={<Loader />}>
+              {children}
+            </Suspense>
+            <Toaster
+              position="top-center"
+              reverseOrder={true}
+              toastOptions={{
+                duration: 1000,
+                style: {
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  color: '#fff',
                 },
-              },
-              error: {
-                style: { background: '#ef4444' },
-                iconTheme: {
-                  primary: '#ffffff',
-                  secondary: '#b91c1c',
+                success: {
+                  style: { background: '#22c55e' },
+                  iconTheme: {
+                    primary: '#ffffff',
+                    secondary: '#16a34a',
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  style: { background: '#ef4444' },
+                  iconTheme: {
+                    primary: '#ffffff',
+                    secondary: '#b91c1c',
+                  },
+                },
+              }}
+            />
+          </AuthGuard>
         </ReduxProvider>
       </body>
     </html>

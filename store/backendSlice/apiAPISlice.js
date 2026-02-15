@@ -1,19 +1,22 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
 
 export const apiAPISlice = createApi({
   reducerPath: "apiAPISlice",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth?.token;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      // Don't set Content-Type for FormData - browser will set it automatically
-      return headers;
-    },
-  }),
+  baseQuery: retry(
+    fetchBaseQuery({
+      baseUrl: "/api",
+      credentials: "include",
+      prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth?.token;
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+        // Don't set Content-Type for FormData - browser will set it automatically
+        return headers;
+      },
+    }),
+    { maxRetries: 3 }
+  ),
   tagTypes: [
     "Users",
     "InactiveUsers",
