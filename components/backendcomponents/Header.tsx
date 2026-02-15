@@ -32,7 +32,7 @@ export default function Header() {
                 <div className="header-wrapper">
                     <div className="colA">
                         <a href="/dashboard" className="logo">
-                            <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px",marginLeft:"39px" }} />
+                            <img src="/admin-assets/img/logo.png" alt="UB" className="header-logo" />
                         </a>
                     </div>
                     <div className="colB">
@@ -58,6 +58,17 @@ export default function Header() {
                     </div>
                 </div>
             </header>
+            <style jsx>{`
+                .header-logo {
+                    width: 64px;
+                    margin-left: 39px;
+                }
+                @media (max-width: 991px) {
+                    .header-logo {
+                        margin-left: 70px; /* Space for hamburger menu */
+                    }
+                }
+            `}</style>
             {/* <Overlay /> */}
         </>
     )

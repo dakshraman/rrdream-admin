@@ -143,32 +143,34 @@ export default function SideNav() {
       </aside>
 
       <style jsx>{`
+
         /* Mobile Menu Toggle Button */
         .mobile-menu-toggle {
           display: none;
           position: fixed;
-          top:4%;
-    left: 10px;
-          transform: translateY(-50%);
-          z-index: 10;
-          // background: var(--primary-a);
-          border: none;
-          width: 35px;
-          height: 35px;
-          border-radius: 5px;
+          top: 15px;
+          left: 15px;
+          z-index: 1002;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
           cursor: pointer;
-          padding: 6px;
+          padding: 0;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .mobile-menu-toggle span {
           display: block;
-          width: 20px;
-          height: 2.5px;
-          background: black;
+          width: 22px;
+          height: 2px;
+          background: #333;
           border-radius: 2px;
           transition: 0.3s;
         }
@@ -181,13 +183,18 @@ export default function SideNav() {
           right: 15px;
           background: transparent;
           border: none;
-          font-size: 32px;
-          color: var(--general-c);
+          font-size: 28px;
+          color: #333;
           cursor: pointer;
           z-index: 1001;
           width: 40px;
           height: 40px;
           line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255,255,255,0.8);
+          border-radius: 50%;
         }
 
         /* Mobile Overlay */
@@ -198,17 +205,24 @@ export default function SideNav() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(4px);
           z-index: 998;
+          opacity: 0;
+          animation: fadeIn 0.3s forwards;
         }
 
-        @media (max-width: 767px) {
+        @keyframes fadeIn {
+          to { opacity: 1; }
+        }
+
+        @media (max-width: 991px) {
           .mobile-menu-toggle {
             display: flex;
           }
 
           .mobile-close-btn {
-            display: block;
+            display: flex;
           }
 
           .mobile-overlay {
@@ -217,57 +231,86 @@ export default function SideNav() {
 
           aside {
             position: fixed;
-            left: -100%;
+            left: -300px; /* Hide completely */
             top: 0;
             bottom: 0;
             width: 280px;
             height: 100vh;
             z-index: 999;
-            transition: left 0.3s ease-in-out;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+            background: #fff; /* Ensure background is solid */
             overflow-y: auto;
+            transform: translateX(0);
           }
 
           aside.mobile-open {
-            left: 0;
+            transform: translateX(300px); /* Slide in */
           }
+          
+          /* When open, ensure it stays at left 0 relative to viewport if we used left:0 instead of transform. 
+             But transform is better for performance. Let's adjust.
+          */
+          aside {
+             left: -280px;
+             transform: none;
+             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+           aside.mobile-open {
+             left: 0;
+             transform: none;
+           }
 
           aside .aside-wrap {
-            padding: 60px 0 20px;
+            padding: 20px 0;
+            margin-top: 50px; /* Space for close button */
           }
 
           aside .aside-col > ul > li {
             display: block;
-            padding: 0 12px;
+            padding: 0 16px;
+            margin-bottom: 4px;
           }
 
           aside .aside-col > ul > li > a,
           aside .aside-col > ul > li > .nav-item-wrap > a {
-            height: 44px;
-            line-height: 44px;
+            height: 48px; /* Larger touch target */
+            line-height: 48px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 0 8px;
+            gap: 12px;
+            padding: 0 16px;
             text-align: left;
+            border-radius: 8px;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.2s;
+          }
+          
+          aside .aside-col > ul > li > a.active,
+          aside .aside-col > ul > li > .nav-item-wrap > a.active {
+            background-color: #f3f4f6;
+            color: #111827;
+            font-weight: 600;
           }
 
           aside .aside-col > ul > li > a [data-icon],
           aside .aside-col > ul > li > .nav-item-wrap > a [data-icon] {
-            font-size: 18px;
-            display: inline-block;
-            margin: 0;
+            font-size: 20px;
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           aside .aside-col > ul > li > a span,
           aside .aside-col > ul > li > .nav-item-wrap > a span {
             display: inline-block;
+            font-size: 15px;
           }
 
           /* Adjust header padding for hamburger menu */
-          header .header-wrapper .colA {
-            padding-left: 55px;
-          }
+          /* We'll handle header padding in global css or Header component if needed */
         }
       `}</style>
     </>
