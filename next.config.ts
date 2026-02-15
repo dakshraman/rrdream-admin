@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/api/:path*",
-        destination: "https://game.rrdream.in/api/:path*",
+        destination: `${process.env.API_PROXY_TARGET || "https://game.rrdream.in/api"}/:path*`,
       }
     ];
   },
