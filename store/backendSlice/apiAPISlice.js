@@ -1,19 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQuery } from "./baseQuery";
 
 export const apiAPISlice = createApi({
   reducerPath: "apiAPISlice",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "/api",
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth?.token;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      // Don't set Content-Type for FormData - browser will set it automatically
-      return headers;
-    },
-  }),
+  baseQuery: baseQuery,
   tagTypes: [
     "Users",
     "InactiveUsers",
@@ -122,125 +112,81 @@ export const apiAPISlice = createApi({
     }),
 
     getBiddingHistory: builder.query({
-      query: ({
-        page = 1,
-        date = "",
-        game_name = "",
-        game_type = "",
-        session = "",
-        search = "",
-        per_page = 10,
-      } = {}) => {
-        const params = new URLSearchParams();
-        params.append("page", page);
-        if (date) params.append("date", date);
-        if (game_name) params.append("game_name", game_name);
-        if (game_type) params.append("game_type", game_type);
-        if (session) params.append("session", session);
-        if (search) params.append("search", search);
-        params.append("per_page", per_page);
+      query: (arg = {}) => {
+        const { page = 1, per_page = 10, ...rest } = arg;
+        // Filter out empty values to match original logic
+        const params = { page, per_page };
+        Object.keys(rest).forEach(key => {
+            if (rest[key]) params[key] = rest[key];
+        });
 
         return {
-          url: `getbiddinghistory?${params.toString()}`,
+          url: "getbiddinghistory",
           method: "GET",
+          params,
         };
       },
       providesTags: ["BiddingHistory"],
     }),
     getBiddingHistoryStarline: builder.query({
-      query: ({
-        page = 1,
-        date = "",
-        game_name = "",
-        game_type = "",
-        search = "",
-        per_page = 10,
-      } = {}) => {
-        const params = new URLSearchParams();
-        params.append("page", page);
-        if (date) params.append("date", date);
-        if (game_name) params.append("game_name", game_name);
-        if (game_type) params.append("game_type", game_type);
-        if (search) params.append("search", search);
-        params.append("per_page", per_page);
+      query: (arg = {}) => {
+        const { page = 1, per_page = 10, ...rest } = arg;
+        const params = { page, per_page };
+        Object.keys(rest).forEach(key => {
+            if (rest[key]) params[key] = rest[key];
+        });
 
         return {
-          url: `getbiddinghistory-starline?${params.toString()}`,
+          url: "getbiddinghistory-starline",
           method: "GET",
+          params,
         };
       },
       providesTags: ["BiddingHistoryStarline"],
     }),
     getDeclaredResultsStarline: builder.query({
-      query: ({
-        page = 1,
-        date = "",
-        game_name = "",
-        game_type = "",
-        session = "",
-        search = "",
-        per_page = 10,
-      } = {}) => {
-        const params = new URLSearchParams();
-        params.append("page", page);
-        if (date) params.append("date", date);
-        if (game_name) params.append("game_name", game_name);
-        if (game_type) params.append("game_type", game_type);
-        if (session) params.append("session", session);
-        if (search) params.append("search", search);
-        params.append("per_page", per_page);
+      query: (arg = {}) => {
+        const { page = 1, per_page = 10, ...rest } = arg;
+        const params = { page, per_page };
+        Object.keys(rest).forEach(key => {
+            if (rest[key]) params[key] = rest[key];
+        });
 
         return {
-          url: `getdeclaredresults-starline?${params.toString()}`,
+          url: "getdeclaredresults-starline",
           method: "GET",
+          params,
         };
       },
       providesTags: ["DeclaredResultsStarline"],
     }),
     getBiddingHistoryGali: builder.query({
-      query: ({
-        page = 1,
-        date = "",
-        game_name = "",
-        search = "",
-        per_page = 15,
-      } = {}) => {
-        const params = new URLSearchParams();
-        params.append("page", page);
-        if (date) params.append("date", date);
-        if (game_name) params.append("game_name", game_name);
-        if (search) params.append("search", search);
-        params.append("per_page", per_page);
+      query: (arg = {}) => {
+        const { page = 1, per_page = 15, ...rest } = arg;
+        const params = { page, per_page };
+        Object.keys(rest).forEach(key => {
+            if (rest[key]) params[key] = rest[key];
+        });
 
         return {
-          url: `getbiddinghistory-gali?${params.toString()}`,
+          url: "getbiddinghistory-gali",
           method: "GET",
+          params,
         };
       },
       providesTags: ["BiddingHistoryGali"],
     }),
     getProfit: builder.query({
-      query: ({
-        page,
-        date,
-        game_name,
-        game_type,
-        session,
-        search,
-        per_page,
-      } = {}) => {
-        const params = new URLSearchParams();
-        if (page) params.append("page", page);
-        if (date) params.append("date", date);
-        if (game_name) params.append("game_name", game_name);
-        if (game_type) params.append("game_type", game_type);
-        if (session) params.append("session", session);
-        if (search) params.append("search", search);
-        if (per_page) params.append("per_page", per_page);
+      query: (arg = {}) => {
+        const params = {};
+        Object.keys(arg).forEach(key => {
+            if (arg[key]) params[key] = arg[key];
+        });
 
         return {
-          url: `getprofit?${params.toString()}`,
+          url: "getprofit",
           method: "GET",
+          params,
         };
       },
       providesTags: ["Profit"],
@@ -269,8 +215,9 @@ export const apiAPISlice = createApi({
     }),
     declareResult: builder.mutation({
       query: ({ result_date, game_id, session, pana, digit }) => ({
-        url: `declareresult?result_date=${result_date}&game_id=${game_id}&session=${session}&pana=${pana}&digit=${digit}`,
+        url: `declareresult`,
         method: "POST",
+        params: { result_date, game_id, session, pana, digit },
       }),
       invalidatesTags: ["BiddingHistory", "DeclaredResults"],
     }),
@@ -290,19 +237,20 @@ export const apiAPISlice = createApi({
     }),
     updateConfig: builder.mutation({
       query: (params) => {
-        const searchParams = new URLSearchParams();
+        const queryParams = {};
         Object.keys(params).forEach((key) => {
           if (
             params[key] !== undefined &&
             params[key] !== null &&
             params[key] !== ""
           ) {
-            searchParams.append(key, params[key]);
+            queryParams[key] = params[key];
           }
         });
         return {
-          url: `config?${searchParams.toString()}`,
+          url: "config",
           method: "PUT",
+          params: queryParams,
         };
       },
       invalidatesTags: ["Config"],
@@ -350,19 +298,11 @@ export const apiAPISlice = createApi({
       ],
     }),
     checkWinner: builder.mutation({
-      query: ({ result_date, game_id, session, pana, digit }) => {
-        const params = new URLSearchParams();
-        params.append('result_date', result_date);
-        params.append('game_id', game_id);
-        params.append('session', session);
-        params.append('pana', pana);
-        params.append('digit', digit);
-
-        return {
-          url: `checkwinner?${params.toString()}`,
-          method: "POST",
-        };
-      },
+      query: ({ result_date, game_id, session, pana, digit }) => ({
+        url: "checkwinner",
+        method: "POST",
+        params: { result_date, game_id, session, pana, digit },
+      }),
     }),
   }),
 });
