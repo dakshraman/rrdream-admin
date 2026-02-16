@@ -41,15 +41,25 @@ export default function Dashboard() {
   const isDesktop = windowWidth >= 1024;
 
   // API Queries
-  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery();
+  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data: withdrawData, isLoading: withdrawLoading } =
-    useGetWithdrawRequestsQuery();
-  const { data: fundData, isLoading: fundLoading } = useGetFundRequestsQuery();
-  const { data: profitData, isLoading: profitLoading } = useGetProfitQuery({});
+    useGetWithdrawRequestsQuery(undefined, {
+      refetchOnMountOrArgChange: true,
+    });
+  const { data: fundData, isLoading: fundLoading } = useGetFundRequestsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: profitData, isLoading: profitLoading } = useGetProfitQuery({}, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data: biddingData, isLoading: biddingLoading } =
     useGetBiddingHistoryQuery({
       page: 1,
       per_page: 10,
+    }, {
+      refetchOnMountOrArgChange: true,
     });
 
   const isLoading =

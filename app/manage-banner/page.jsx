@@ -31,7 +31,9 @@ export default function ManageBannersData() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    const { data: bannerData, isLoading, isError, error, refetch } = useGetBannersQuery();
+    const { data: bannerData, isLoading, isError, error, refetch } = useGetBannersQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     console.log(" the bannerData", bannerData)
     const [addBanner, { isLoading: isAdding }] = useAddBannerMutation();
     const [deleteBanner] = useDeleteBannerMutation();
@@ -42,7 +44,7 @@ export default function ManageBannersData() {
     const [deletingId, setDeletingId] = useState(null);
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -55,15 +57,15 @@ export default function ManageBannersData() {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if(file) {
+        if (file) {
             // Validate file type
-            if(!file.type.startsWith('image/')) {
+            if (!file.type.startsWith('image/')) {
                 alert("Please select a valid image file");
                 return;
             }
 
             // Validate file size (max 5MB)
-            if(file.size > 5 * 1024 * 1024) {
+            if (file.size > 5 * 1024 * 1024) {
                 alert("Image size should be less than 5MB");
                 return;
             }
@@ -78,7 +80,7 @@ export default function ManageBannersData() {
     };
 
     const handleAddBanner = async () => {
-        if(!selectedImage) {
+        if (!selectedImage) {
             alert("Please select an image");
             return;
         }
@@ -94,14 +96,14 @@ export default function ManageBannersData() {
             setImagePreview(null);
             alert(result?.message || "Banner added successfully!");
             refetch(); // Refresh the banner list
-        } catch(err) {
+        } catch (err) {
             console.error("Add banner error:", err);
             alert(err?.data?.message || "Failed to add banner");
         }
     };
 
     const handleDeleteBanner = async (id) => {
-        if(!window.confirm("Are you sure you want to delete this banner?")) {
+        if (!window.confirm("Are you sure you want to delete this banner?")) {
             return;
         }
 
@@ -111,7 +113,7 @@ export default function ManageBannersData() {
             console.log("Delete banner result:", result);
             alert(result?.message || "Banner deleted successfully!");
             refetch(); // Refresh the banner list
-        } catch(err) {
+        } catch (err) {
             console.error("Delete banner error:", err);
             alert(err?.data?.message || "Failed to delete banner");
         } finally {
@@ -186,12 +188,12 @@ export default function ManageBannersData() {
                             transition: "background-color 0.2s"
                         }}
                         onMouseOver={(e) => {
-                            if(deletingId !== row.id) {
+                            if (deletingId !== row.id) {
                                 e.currentTarget.style.backgroundColor = "#dc2626";
                             }
                         }}
                         onMouseOut={(e) => {
-                            if(deletingId !== row.id) {
+                            if (deletingId !== row.id) {
                                 e.currentTarget.style.backgroundColor = "#ef4444";
                             }
                         }}
@@ -205,7 +207,7 @@ export default function ManageBannersData() {
     ];
 
     const filteredData = banners.filter((item) => {
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const id = (item.id || "").toString().toLowerCase();
             return id.includes(searchText);
@@ -360,7 +362,7 @@ export default function ManageBannersData() {
                 padding: "20px"
             }}
             onClick={() => {
-                if(!isAdding) {
+                if (!isAdding) {
                     setShowAddModal(false);
                     setSelectedImage(null);
                     setImagePreview(null);
@@ -389,7 +391,7 @@ export default function ManageBannersData() {
                     </h2>
                     <button
                         onClick={() => {
-                            if(!isAdding) {
+                            if (!isAdding) {
                                 setShowAddModal(false);
                                 setSelectedImage(null);
                                 setImagePreview(null);
@@ -527,7 +529,7 @@ export default function ManageBannersData() {
         </div>
     );
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

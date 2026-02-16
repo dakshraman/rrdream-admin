@@ -6,10 +6,10 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useGetBiddingHistoryQuery } from "@/store/backendSlice/apiAPISlice";
 
 const BiddingSkeleton = () => (
-    <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        padding: "12px 16px", 
+    <div style={{
+        display: "flex",
+        alignItems: "center",
+        padding: "12px 16px",
         gap: "20px",
         borderBottom: "1px solid #f0f0f0"
     }}>
@@ -29,7 +29,7 @@ const BiddingSkeleton = () => (
 
 export default function BiddingHistory() {
     const today = new Date().toISOString().split('T')[0];
-    
+
     const [filters, setFilters] = useState({
         page: 1,
         date: today,
@@ -49,7 +49,9 @@ export default function BiddingHistory() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters);
+    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters, {
+        refetchOnMountOrArgChange: true,
+    });
 
     // Handle your response structure: { status: true, data: [], pagination: {...} }
     const biddingHistory = responseData?.data?.data || [];
@@ -187,8 +189,8 @@ export default function BiddingHistory() {
             selector: (row) => row.game_name,
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "600", 
+                <span style={{
+                    fontWeight: "600",
                     color: "#111827",
                     fontSize: "13px"
                 }}>
@@ -216,8 +218,8 @@ export default function BiddingHistory() {
             selector: (row) => row.bid_number || row.number,
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "700", 
+                <span style={{
+                    fontWeight: "700",
                     color: "#4f46e5",
                     fontSize: "15px",
                     fontFamily: "monospace"
@@ -232,8 +234,8 @@ export default function BiddingHistory() {
             selector: (row) => parseFloat(row.amount || 0),
             sortable: true,
             cell: (row) => (
-                <span style={{ 
-                    fontWeight: "700", 
+                <span style={{
+                    fontWeight: "700",
                     color: "#059669",
                     fontSize: "14px"
                 }}>
@@ -295,23 +297,23 @@ export default function BiddingHistory() {
     const winCount = biddingHistory.filter(b => b.is_win || b.winning_amount > 0).length;
 
     const subHeaderComponent = (
-        <div style={{ 
-            display: "flex", 
+        <div style={{
+            display: "flex",
             flexDirection: "column",
             width: "100%",
             gap: "15px",
-            margin:"12px 0px"
+            margin: "12px 0px"
         }}>
             {/* Stats Cards */}
-            <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", 
+            <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
                 gap: "12px",
                 padding: "10px 0"
             }}>
-                <div style={{ 
-                    backgroundColor: "#eff6ff", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#eff6ff",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #3b82f6"
                 }}>
@@ -320,9 +322,9 @@ export default function BiddingHistory() {
                         {totalRows}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#fefce8", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#fefce8",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #f59e0b"
                 }}>
@@ -331,9 +333,9 @@ export default function BiddingHistory() {
                         ₹{totalBidAmount.toLocaleString('en-IN')}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#f0fdf4", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#f0fdf4",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #22c55e"
                 }}>
@@ -342,9 +344,9 @@ export default function BiddingHistory() {
                         ₹{totalWinAmount.toLocaleString('en-IN')}
                     </p>
                 </div>
-                <div style={{ 
-                    backgroundColor: "#fdf4ff", 
-                    padding: "12px 16px", 
+                <div style={{
+                    backgroundColor: "#fdf4ff",
+                    padding: "12px 16px",
                     borderRadius: "10px",
                     borderLeft: "4px solid #a855f7"
                 }}>
@@ -356,8 +358,8 @@ export default function BiddingHistory() {
             </div>
 
             {/* Filters */}
-            <div style={{ 
-                display: "flex", 
+            <div style={{
+                display: "flex",
                 flexWrap: "wrap",
                 gap: "12px",
                 alignItems: "center"
@@ -439,10 +441,10 @@ export default function BiddingHistory() {
                     placeholder="Search user, phone..."
                     value={debouncedSearch}
                     onChange={(e) => setDebouncedSearch(e.target.value)}
-                    style={{ 
-                        padding: "10px 14px", 
-                        borderRadius: "8px", 
-                        border: "1px solid #d1d5db", 
+                    style={{
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #d1d5db",
                         minWidth: "180px",
                         fontSize: "14px",
                         outline: "none",
@@ -534,9 +536,9 @@ export default function BiddingHistory() {
     if (isError) {
         return (
             <main style={{ padding: "20px" }}>
-                <div style={{ 
-                    color: "#dc2626", 
-                    padding: "40px", 
+                <div style={{
+                    color: "#dc2626",
+                    padding: "40px",
                     textAlign: "center",
                     backgroundColor: "#fef2f2",
                     borderRadius: "12px",
@@ -565,24 +567,24 @@ export default function BiddingHistory() {
 
     return (
         <main style={{ padding: "9px" }}>
-            <div style={{ 
-                backgroundColor: "#fff", 
-                borderRadius: "12px", 
+            <div style={{
+                backgroundColor: "#fff",
+                borderRadius: "12px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                 overflow: "hidden"
             }}>
                 <DataTable
                     title={
-                        <div style={{ 
-                            display: "flex", 
-                            alignItems: "center", 
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
                             gap: "10px",
                             padding: "10px 0"
                         }}>
                             <span style={{ fontSize: "18px", fontWeight: "600" }}>Bidding History</span>
                             {totalRows > 0 && (
-                                <span style={{ 
-                                    fontSize: "12px", 
+                                <span style={{
+                                    fontSize: "12px",
                                     color: "#6b7280",
                                     backgroundColor: "#f3f4f6",
                                     padding: "4px 10px",
@@ -612,8 +614,8 @@ export default function BiddingHistory() {
                     responsive
                     customStyles={customStyles}
                     noDataComponent={
-                        <div style={{ 
-                            padding: "40px", 
+                        <div style={{
+                            padding: "40px",
                             textAlign: "center",
                             color: "#6b7280"
                         }}>

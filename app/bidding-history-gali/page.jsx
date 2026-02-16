@@ -43,7 +43,9 @@ export default function BiddingHistoryGali() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryGaliQuery(filters);
+    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryGaliQuery(filters, {
+        refetchOnMountOrArgChange: true,
+    });
     const biddingHistory = responseData?.data?.data || [];
     const pagination = responseData?.data?.pagination || {};
     const totalRows = pagination.total || 0;

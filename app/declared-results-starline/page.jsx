@@ -44,7 +44,9 @@ export default function DeclaredResultsStarline() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    const { data: responseData, isLoading, isError, error, refetch } = useGetDeclaredResultsStarlineQuery(filters);
+    const { data: responseData, isLoading, isError, error, refetch } = useGetDeclaredResultsStarlineQuery(filters, {
+        refetchOnMountOrArgChange: true,
+    });
 
     const declaredResults = responseData?.data?.data || [];
     const pagination = responseData?.data?.pagination || {};
@@ -55,7 +57,7 @@ export default function DeclaredResultsStarline() {
     const gameTypes = ["single", "single_panna", "double_panna", "triple_panna"];
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -67,12 +69,12 @@ export default function DeclaredResultsStarline() {
     };
 
     const formatTime = (timeString) => {
-        if(!timeString) return "N/A";
+        if (!timeString) return "N/A";
         return timeString;
     };
 
     const getResultBadge = (result) => {
-        if(!result && result !== 0) {
+        if (!result && result !== 0) {
             return <span style={{ color: "#9ca3af" }}>Pending</span>;
         }
         return (
@@ -462,7 +464,7 @@ export default function DeclaredResultsStarline() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

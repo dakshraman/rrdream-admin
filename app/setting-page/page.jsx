@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import { useGetConfigQuery, useUpdateConfigMutation } from "@/store/backendSlice/apiAPISlice";
 
 export default function Settings() {
-    const { data: configResponse, isLoading, refetch } = useGetConfigQuery();
+    const { data: configResponse, isLoading, refetch } = useGetConfigQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [updateConfig, { isLoading: updating }] = useUpdateConfigMutation();
 
     const [formData, setFormData] = useState({});
@@ -176,7 +178,7 @@ export default function Settings() {
             backgroundColor: theme.background
         }}>
             {/* Header */}
-            <div style={{ marginBottom: isMobile ? "16px" : "20px",height: 'max-content' }}>
+            <div style={{ marginBottom: isMobile ? "16px" : "20px", height: 'max-content' }}>
                 <h1 style={{
                     fontSize: isMobile ? "18px" : "20px",
                     fontWeight: "600",
@@ -487,7 +489,7 @@ export default function Settings() {
                 </div>
             </div>
 
-           
+
 
             <style jsx>{`
                 @keyframes spin {

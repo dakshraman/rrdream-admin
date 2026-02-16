@@ -3,9 +3,9 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { 
+import {
     useGetWithdrawRequestsQuery,
-    useUpdateWithdrawStatusMutation 
+    useUpdateWithdrawStatusMutation
 } from "@/store/backendSlice/apiAPISlice";
 import { toast } from "react-hot-toast";
 
@@ -36,16 +36,18 @@ export default function WithdrawRequests() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [processingId, setProcessingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    
-    const { data: withdrawData, isLoading, isError, error, refetch } = useGetWithdrawRequestsQuery();
+
+    const { data: withdrawData, isLoading, isError, error, refetch } = useGetWithdrawRequestsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [updateWithdrawStatus] = useUpdateWithdrawStatusMutation();
-    
+
     console.log("the v", withdrawData);
 
     const withdrawRequests = withdrawData?.withdraw_requests || [];
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -68,20 +70,20 @@ export default function WithdrawRequests() {
 
         try {
             console.log("Approving withdraw ID:", row.id);
-            
+
             const response = await updateWithdrawStatus({
                 id: row.id,
                 status: "approved"
             }).unwrap();
-            
+
             console.log("Approve response:", response);
             toast.success(response?.message || "Withdrawal approved successfully!");
             refetch();
         } catch (err) {
             console.error("Approve error:", err);
-            const errorMessage = 
-                err?.data?.message || 
-                err?.message || 
+            const errorMessage =
+                err?.data?.message ||
+                err?.message ||
                 "Failed to approve withdrawal";
             toast.error(errorMessage);
         } finally {
@@ -101,20 +103,20 @@ export default function WithdrawRequests() {
 
         try {
             console.log("Rejecting withdraw ID:", row.id);
-            
+
             const response = await updateWithdrawStatus({
                 id: row.id,
                 status: "rejected"
             }).unwrap();
-            
+
             console.log("Reject response:", response);
             toast.success(response?.message || "Withdrawal rejected successfully!");
             refetch();
         } catch (err) {
             console.error("Reject error:", err);
-            const errorMessage = 
-                err?.data?.message || 
-                err?.message || 
+            const errorMessage =
+                err?.data?.message ||
+                err?.message ||
                 "Failed to reject withdrawal";
             toast.error(errorMessage);
         } finally {
@@ -303,11 +305,11 @@ export default function WithdrawRequests() {
     const filteredData = withdrawRequests.filter((item) => {
         // Status filter
         const itemStatus = (item.status || "").toLowerCase();
-        if(statusFilter !== "all" && itemStatus !== statusFilter) {
+        if (statusFilter !== "all" && itemStatus !== statusFilter) {
             return false;
         }
         // Text filter
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.user?.name || "").toLowerCase();
             const phone = (item.user?.phone || "").toString().toLowerCase();
@@ -409,7 +411,7 @@ export default function WithdrawRequests() {
                 gap: "10px"
             }}>
                 {/* Left side - Filter and Search */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap",marginBottom:"8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap", marginBottom: "8px" }}>
                     {/* Status Filter Dropdown */}
                     <select
                         value={statusFilter}
@@ -442,7 +444,7 @@ export default function WithdrawRequests() {
                             fontSize: "13px",
                             outline: "none",
                             flex: "1",
-                            height:"35px"
+                            height: "35px"
                         }}
                     />
                 </div>
@@ -499,7 +501,7 @@ export default function WithdrawRequests() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -539,7 +541,7 @@ export default function WithdrawRequests() {
                     100% { transform: rotate(360deg); }
                 }
             `}</style>
-            
+
             <main style={{ padding: "9px", height: "100vh", overflow: "auto" }}>
                 <div style={{
                     backgroundColor: "#fff",

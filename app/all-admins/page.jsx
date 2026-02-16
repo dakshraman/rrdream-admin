@@ -5,12 +5,14 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useGetAdminQuery } from "@/store/backendSlice/apiAPISlice";
 
 export default function ManageAdminData() {
-    const { data: adminData, isLoading, isError, error, refetch } = useGetAdminQuery();
+    const { data: adminData, isLoading, isError, error, refetch } = useGetAdminQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
 
     const admin = adminData?.data?.Admin || adminData?.data?.admin || null;
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -22,7 +24,7 @@ export default function ManageAdminData() {
     };
 
     const getTimeSince = (dateString) => {
-        if(!dateString) return "";
+        if (!dateString) return "";
         const date = new Date(dateString);
         const now = new Date();
         const diffTime = Math.abs(now - date);
@@ -30,16 +32,16 @@ export default function ManageAdminData() {
         const diffYears = Math.floor(diffDays / 365);
         const diffMonths = Math.floor((diffDays % 365) / 30);
 
-        if(diffYears > 0) {
+        if (diffYears > 0) {
             return `${diffYears} year${diffYears > 1 ? 's' : ''} ${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
-        } else if(diffMonths > 0) {
+        } else if (diffMonths > 0) {
             return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
         } else {
             return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
         }
     };
 
-    if(isLoading) {
+    if (isLoading) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -72,7 +74,7 @@ export default function ManageAdminData() {
         );
     }
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -109,7 +111,7 @@ export default function ManageAdminData() {
         );
     }
 
-    if(!admin) {
+    if (!admin) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -388,7 +390,7 @@ export default function ManageAdminData() {
                         </div>
                     </div>
 
-                  
+
                 </div>
 
                 <div style={{

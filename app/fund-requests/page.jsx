@@ -38,7 +38,9 @@ export default function FundRequests() {
     const [processingId, setProcessingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const { data: fundData, isLoading, isError, error, refetch } = useGetFundRequestsQuery();
+    const { data: fundData, isLoading, isError, error, refetch } = useGetFundRequestsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [approveFundRequest] = useApproveFundRequestMutation();
     const [rejectFundRequest] = useRejectFundRequestMutation();
 
@@ -47,7 +49,7 @@ export default function FundRequests() {
     console.log("Fund Requests Data:", fundRequests);
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -66,7 +68,7 @@ export default function FundRequests() {
             `Are you sure you want to approve ₹${row.amount} for ${userName}?`
         );
 
-        if(!confirmApprove) return;
+        if (!confirmApprove) return;
 
         const requestId = row.fund_request_id || row.id;
         setProcessingId(requestId);
@@ -79,7 +81,7 @@ export default function FundRequests() {
             console.log("Approve response:", response);
             toast.success(response?.message || "Fund request approved successfully!");
             refetch();
-        } catch(err) {
+        } catch (err) {
             console.error("Approve error:", err);
             const errorMessage =
                 err?.data?.errors?.fund_request_id?.[0] ||
@@ -102,7 +104,7 @@ export default function FundRequests() {
             `Are you sure you want to reject ₹${row.amount} request from ${userName}?`
         );
 
-        if(!confirmReject) return;
+        if (!confirmReject) return;
 
         const requestId = row.fund_request_id || row.id;
         setProcessingId(requestId);
@@ -115,7 +117,7 @@ export default function FundRequests() {
             console.log("Reject response:", response);
             toast.success(response?.message || "Fund request rejected successfully!");
             refetch();
-        } catch(err) {
+        } catch (err) {
             console.error("Reject error:", err);
             const errorMessage =
                 err?.data?.errors?.id?.[0] ||
@@ -234,7 +236,7 @@ export default function FundRequests() {
                 const isProcessing = processingId === requestId;
                 const isPending = (row.status || "").toLowerCase() === "pending";
 
-                if(!isPending) {
+                if (!isPending) {
                     return (
                         <span style={{
                             color: "#9ca3af",
@@ -306,18 +308,18 @@ export default function FundRequests() {
 
     const filteredData = requestsArray.filter((item) => {
         const itemStatus = (item.status || "").toLowerCase();
-        if(statusFilter !== "all" && itemStatus !== statusFilter) {
+        if (statusFilter !== "all" && itemStatus !== statusFilter) {
             return false;
         }
 
-        if(dateFilter) {
+        if (dateFilter) {
             const itemDate = item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : "";
-            if(itemDate !== dateFilter) {
+            if (itemDate !== dateFilter) {
                 return false;
             }
         }
 
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.user_name || "").toLowerCase();
             const phone = (item.user_phone || "").toString().toLowerCase();
@@ -334,7 +336,7 @@ export default function FundRequests() {
     });
 
     const dateFilteredRequests = requestsArray.filter(item => {
-        if(dateFilter) {
+        if (dateFilter) {
             const itemDate = item.created_at ? new Date(item.created_at).toISOString().split('T')[0] : "";
             return itemDate === dateFilter;
         }
@@ -402,7 +404,7 @@ export default function FundRequests() {
         </div>
     );
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

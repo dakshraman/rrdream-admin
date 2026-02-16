@@ -32,7 +32,7 @@ const InquiryModal = ({ userId, userName, onClose }) => {
     const inquiries = inquiryData?.inquiries || [];
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -195,7 +195,9 @@ export default function ManageInquiriesData() {
     const [selectedUserName, setSelectedUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
 
-    const { data: usersData, isLoading, isError, error } = useGetInquiryUsersQuery();
+    const { data: usersData, isLoading, isError, error } = useGetInquiryUsersQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
 
     console.log("Inquiry Users Data:", usersData);
 
@@ -284,7 +286,7 @@ export default function ManageInquiriesData() {
     ];
 
     const filteredData = users.filter((item) => {
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const id = (item.id || "").toString().toLowerCase();
@@ -391,7 +393,7 @@ export default function ManageInquiriesData() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

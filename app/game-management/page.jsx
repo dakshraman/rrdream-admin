@@ -4,12 +4,22 @@ import { useGetGameSchedulesQuery, useUpdateGameScheduleMutation, useToggleSched
 import { toast } from "react-hot-toast";
 
 export default function GameManagement() {
-    const { data: scheduleData, isLoading, isError, error } = useGetGameSchedulesQuery();
+    const { data: scheduleData, isLoading, isError, error } = useGetGameSchedulesQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [updateGameSchedule, { isLoading: isUpdating }] = useUpdateGameScheduleMutation();
     const [toggleScheduleStatus, { isLoading: isToggling }] = useToggleScheduleStatusMutation();
 
+    // State for search
+    const [searchQuery, setSearchQuery] = useState("");
+
     // API returns { data: [...] } so we access scheduleData.data
-    const games = scheduleData?.data || [];
+    const allGames = scheduleData?.data || [];
+
+    // Filter games based on search query
+    const games = allGames.filter(game =>
+        game.game_name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -120,6 +130,26 @@ export default function GameManagement() {
                 <p style={{ fontSize: "14px", color: theme.textMuted, marginTop: "4px" }}>
                     Manage game schedules and timings
                 </p>
+
+                {/* Search Input */}
+                <div style={{ marginTop: "16px" }}>
+                    <input
+                        type="text"
+                        placeholder="Search game by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            border: `1px solid ${theme.border}`,
+                            fontSize: "14px",
+                            width: "100%",
+                            maxWidth: "400px",
+                            outline: "none",
+                            transition: "border-color 0.2s"
+                        }}
+                    />
+                </div>
             </div>
 
             {/* Grid Layout */}

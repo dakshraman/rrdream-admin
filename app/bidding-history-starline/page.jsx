@@ -48,7 +48,9 @@ export default function BiddingHistoryStarline() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery(filters);
+    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery(filters, {
+        refetchOnMountOrArgChange: true,
+    });
 
     const biddingHistory = responseData?.data?.data || [];
     const pagination = responseData?.data?.pagination || {};
@@ -59,7 +61,7 @@ export default function BiddingHistoryStarline() {
     const gameTypes = ["single", "single_panna", "double_panna", "triple_panna"];
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -94,7 +96,7 @@ export default function BiddingHistoryStarline() {
     };
 
     const getResultBadge = (result, isWin) => {
-        if(!result && result !== 0) {
+        if (!result && result !== 0) {
             return <span style={{ color: "#9ca3af" }}>Pending</span>;
         }
         return (
@@ -269,7 +271,7 @@ export default function BiddingHistoryStarline() {
             flexDirection: "column",
             width: "100%",
             gap: "15px",
-            margin:"12px 0px"
+            margin: "12px 0px"
         }}>
             <div style={{
                 display: "grid",
@@ -478,7 +480,7 @@ export default function BiddingHistoryStarline() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{

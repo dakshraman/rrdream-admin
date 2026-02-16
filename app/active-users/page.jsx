@@ -35,7 +35,9 @@ export default function ManageUsersData() {
     const [showModal, setShowModal] = useState(false);
     const [togglingUserId, setTogglingUserId] = useState(null);
 
-    const { data: userData, isLoading, isError, error } = useGetUsersQuery();
+    const { data: userData, isLoading, isError, error } = useGetUsersQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [toggleUser] = useToggleUserMutation();
 
 

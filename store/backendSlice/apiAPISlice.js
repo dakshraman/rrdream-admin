@@ -307,6 +307,39 @@ export const apiAPISlice = createApi({
         };
       },
       invalidatesTags: ["Games"],
+      async onQueryStarted(schedule_id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          apiAPISlice.util.updateQueryData(
+            "getGameSchedules",
+            undefined,
+            (draft) => {
+              if (draft?.data) {
+                // Find all games and their schedules
+                draft.data.forEach((game) => {
+                  if (game.schedule) {
+                    Object.values(game.schedule).forEach((daySchedules) => {
+                      daySchedules.forEach((schedule) => {
+                        if (schedule.schedule_id === schedule_id) {
+                          // Toggle the status optimistically
+                          schedule.status =
+                            schedule.status === "Active"
+                              ? "Inactive"
+                              : "Active";
+                        }
+                      });
+                    });
+                  }
+                });
+              }
+            }
+          )
+        );
+        try {
+            await queryFulfilled;
+        } catch {
+            patchResult.undo();
+        }
+      },
     }),
     getConfig: builder.query({
       query: () => ({
