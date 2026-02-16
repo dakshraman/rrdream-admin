@@ -38,7 +38,7 @@ export default function ManageUsersData() {
     const { data: userData, isLoading, isError, error } = useGetUsersQuery();
     const [toggleUser] = useToggleUserMutation();
 
-    console.log("the userData", userData);
+
 
     const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -207,10 +207,10 @@ export default function ManageUsersData() {
                             disabled={isToggling}
                             style={{
                                 padding: "5px 10px",
-                                backgroundColor: isToggling 
-                                    ? "#9ca3af" 
-                                    : isActive 
-                                        ? "#ef4444" 
+                                backgroundColor: isToggling
+                                    ? "#9ca3af"
+                                    : isActive
+                                        ? "#ef4444"
                                         : "#22c55e",
                                 color: "#fff",
                                 border: "none",
@@ -426,8 +426,8 @@ export default function ManageUsersData() {
                                 alignItems: "center",
                                 gap: "10px",
                                 padding: "8px 0",
-                                position:"relative",
-                                right:"12px"
+                                position: "relative",
+                                right: "12px"
                             }}>
                                 <span style={{ fontSize: "17px", fontWeight: "600" }}>Manage Users</span>
                             </div>
