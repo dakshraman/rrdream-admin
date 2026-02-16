@@ -1,18 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "./baseQuery";
+import { apiAPISlice } from "./apiAPISlice";
 
-export const authAPISlice = createApi({
-  reducerPath: "authAPISlice",
-  baseQuery: baseQuery,
-  endpoints: (builder) => ({
-    login: builder.mutation({
-      query: (body) => ({
-        url: "admin-login",
-        method: "POST",
-        body,
-      }),
-    }),
-  }),
-});
-
-export const { useLoginMutation } = authAPISlice;
+export const { useLoginMutation, useCheckLoginQuery } = apiAPISlice;
+export const authAPISlice = apiAPISlice;

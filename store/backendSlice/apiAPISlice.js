@@ -1,9 +1,53 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery } from "./baseQuery";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+const apiBaseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (typeof window === "undefined"
+    ? "https://game.rrdream.in/api/"
+    : "/api/");
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: apiBaseUrl,
+  credentials: "include",
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth?.token;
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const baseQueryWithLogging = async (args, api, extraOptions) => {
+  const endpoint = typeof args === "string" ? args : args.url;
+  const method = typeof args === "string" ? "GET" : args.method || "GET";
+  console.log(
+    `%c[API Request] ${method} ${apiBaseUrl}${endpoint}`,
+    "color: #00bcd4; font-weight: bold;",
+  );
+
+  const result = await baseQuery(args, api, extraOptions);
+
+  if (result.error) {
+    console.log(
+      `%c[API Error] ${endpoint}`,
+      "color: #f44336; font-weight: bold;",
+      result.error,
+    );
+  } else {
+    console.log(
+      `%c[API Success] ${endpoint}`,
+      "color: #4caf50; font-weight: bold;",
+      result.data,
+    );
+  }
+
+  return result;
+};
 
 export const apiAPISlice = createApi({
   reducerPath: "apiAPISlice",
-  baseQuery: baseQuery,
+  baseQuery: baseQueryWithLogging,
   tagTypes: [
     "Users",
     "InactiveUsers",
@@ -24,6 +68,21 @@ export const apiAPISlice = createApi({
     "Inquiries"
   ],
   endpoints: (builder) => ({
+    login: builder.mutation({
+      query: (body) => ({
+        url: "admin-login",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Admin"],
+    }),
+    checkLogin: builder.query({
+      query: () => ({
+        url: "getadmin",
+        method: "GET",
+      }),
+      providesTags: ["Admin"],
+    }),
     getUsers: builder.query({
       query: () => ({
         url: "getallusers",
@@ -244,6 +303,7 @@ export const apiAPISlice = createApi({
           url: "toggleschedulestatus",
           method: "POST",
           body: formData,
+          formData: true,
         };
       },
       invalidatesTags: ["Games"],
@@ -356,5 +416,7 @@ export const {
   useGetTransactionsMutation,
   useGetInquiryUsersQuery,
   useGetUserInquiriesQuery,
-  useCheckWinnerMutation
+  useCheckWinnerMutation,
+  useLoginMutation,
+  useCheckLoginQuery,
 } = apiAPISlice;
