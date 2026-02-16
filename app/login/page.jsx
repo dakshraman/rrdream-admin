@@ -24,6 +24,7 @@ export default function Login() {
       console.log("Login Result:", result);
       if (result.token) {
         dispatch(login({
+          user: result.Admin || result.admin || result.user,
           admin: result.Admin || result.admin,
           token: result.token,
         }));
