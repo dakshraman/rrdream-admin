@@ -274,6 +274,13 @@ export const apiAPISlice = createApi({
       }),
       invalidatesTags: ["BiddingHistory", "DeclaredResults"],
     }),
+    getGameSchedules: builder.query({
+      query: () => ({
+        url: "game-schedules",
+        method: "GET",
+      }),
+      providesTags: ["Games"],
+    }),
     getConfig: builder.query({
       query: () => ({
         url: "get-config",
@@ -379,6 +386,7 @@ export const {
   useGetUserByIdQuery,
   useToggleUserMutation,
   useGetGamesQuery,
+  useGetGameSchedulesQuery,
   useDeclareResultMutation,
   useGetConfigQuery,
   useUpdateConfigMutation,

@@ -11,9 +11,7 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: process.env.API_URL
           ? `${process.env.API_URL}/:path*`
-          : process.env.NODE_ENV === "development"
-            ? "https://game.rrdream.in/api/:path*"
-            : "http://localhost:3002/api/:path*",
+          : "https://game.rrdream.in/api/:path*",
       }
     ];
   },
