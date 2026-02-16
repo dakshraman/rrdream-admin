@@ -1,13 +1,24 @@
 'use client';
-import { useGetGameSchedulesQuery } from "@/store/backendSlice/apiAPISlice";
-import parse from "html-react-parser";
+import { useState, useEffect } from "react";
+import { useGetGameSchedulesQuery, useUpdateGameScheduleMutation, useToggleScheduleStatusMutation } from "@/store/backendSlice/apiAPISlice";
+import { toast } from "react-hot-toast";
 
 export default function GameManagement() {
     const { data: scheduleData, isLoading, isError, error } = useGetGameSchedulesQuery();
+    const [updateGameSchedule, { isLoading: isUpdating }] = useUpdateGameScheduleMutation();
+    const [toggleScheduleStatus, { isLoading: isToggling }] = useToggleScheduleStatusMutation();
+
     // API returns { data: [...] } so we access scheduleData.data
     const games = scheduleData?.data || [];
 
     const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    // State for managing edits
+    const [editingScheduleId, setEditingScheduleId] = useState(null);
+    const [editForm, setEditForm] = useState({
+        open_time: "",
+        close_time: ""
+    });
 
     const theme = {
         primary: "#6366f1",
@@ -32,6 +43,57 @@ export default function GameManagement() {
         return `${formattedHour}:${minutes} ${ampm}`;
     };
 
+    const handleEditClick = (schedule) => {
+        setEditingScheduleId(schedule.schedule_id);
+        const openTime = schedule.open_time?.slice(0, 5) || ""; // Extract HH:MM
+        const closeTime = schedule.close_time?.slice(0, 5) || "";
+        setEditForm({
+            open_time: openTime,
+            close_time: closeTime
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingScheduleId(null);
+        setEditForm({ open_time: "", close_time: "" });
+    };
+
+    const handleUpdateSchedule = async (scheduleId) => {
+        if (!editForm.open_time || !editForm.close_time) {
+            toast.error("Please select both open and close times");
+            return;
+        }
+
+        try {
+            await updateGameSchedule({
+                id: scheduleId,
+                open_time: editForm.open_time,
+                close_time: editForm.close_time
+            }).unwrap();
+
+            toast.success("Schedule updated successfully");
+            setEditingScheduleId(null);
+        } catch (err) {
+            console.error("Update error:", err);
+            toast.error(err?.data?.message || "Failed to update schedule");
+        }
+    };
+
+    const handleToggleStatus = async (scheduleId, currentStatus) => {
+        const newStatus = currentStatus === "Active" ? "Inactive" : "Active";
+        const confirmMsg = `Are you sure you want to change status to ${newStatus}?`;
+
+        if (!window.confirm(confirmMsg)) return;
+
+        try {
+            await toggleScheduleStatus(scheduleId).unwrap();
+            toast.success(`Status changed to ${newStatus}`);
+        } catch (err) {
+            console.error("Toggle status error:", err);
+            toast.error(err?.data?.message || "Failed to toggle status");
+        }
+    };
+
     if (isLoading) {
         return (
             <div style={{ padding: "24px", textAlign: "center", color: theme.textMuted }}>
@@ -43,7 +105,7 @@ export default function GameManagement() {
     if (isError) {
         return (
             <div style={{ padding: "24px", textAlign: "center", color: theme.danger }}>
-                Error loading schedules: {error?.data?.message || "Unknown error"}
+                Error loading games: {error?.data?.message || "Unknown error"}
             </div>
         );
     }
@@ -63,7 +125,7 @@ export default function GameManagement() {
             {/* Grid Layout */}
             <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
                 gap: "20px"
             }}>
                 {games.map((game) => (
@@ -106,62 +168,173 @@ export default function GameManagement() {
                         {/* Schedule List */}
                         <div style={{ padding: "12px 16px", flex: 1 }}>
                             {weekDays.map((day, index) => {
-                                // Default to empty array if no schedule for the day
                                 const daySchedules = game.schedule?.[day] || [];
-                                const daySchedule = daySchedules[0]; // Assuming single schedule per day for now as per JSON example
-                                const isInactive = !daySchedule || daySchedule.status === "Inactive";
+                                const daySchedule = daySchedules[0];
+
+                                // Skip if no schedule (though usually there should be one)
+                                if (!daySchedule) return null;
+
+                                const isEditing = editingScheduleId === daySchedule.schedule_id;
+                                const isActive = daySchedule.status === "Active";
 
                                 return (
                                     <div key={day} style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        padding: "8px 0",
+                                        padding: "12px 0",
                                         borderBottom: index < weekDays.length - 1 ? `1px solid #f3f4f6` : "none",
                                     }}>
-                                        <span style={{
-                                            fontSize: "13px",
-                                            fontWeight: "500",
-                                            color: theme.text,
-                                            width: "80px"
-                                        }}>
-                                            {day}
-                                        </span>
-
-                                        {isInactive ? (
-                                            <span style={{
-                                                fontSize: "11px",
-                                                color: theme.danger,
-                                                fontWeight: "600",
-                                                backgroundColor: "#fee2e2",
-                                                padding: "2px 8px",
-                                                borderRadius: "4px"
-                                            }}>
-                                                Closed
+                                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                                            <span style={{ fontSize: "14px", fontWeight: "500", color: theme.text }}>
+                                                {day}
                                             </span>
+
+                                            {/* Status Toggle */}
+                                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                <span style={{
+                                                    fontSize: "11px",
+                                                    fontWeight: "600",
+                                                    color: isActive ? theme.success : theme.danger
+                                                }}>
+                                                    {daySchedule.status}
+                                                </span>
+                                                <label style={{ position: "relative", display: "inline-block", width: "34px", height: "20px" }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isActive}
+                                                        onChange={() => handleToggleStatus(daySchedule.schedule_id, daySchedule.status)}
+                                                        disabled={isToggling}
+                                                        style={{ opacity: 0, width: 0, height: 0 }}
+                                                    />
+                                                    <span style={{
+                                                        position: "absolute",
+                                                        cursor: "pointer",
+                                                        top: 0, left: 0, right: 0, bottom: 0,
+                                                        backgroundColor: isActive ? theme.success : "#ccc",
+                                                        borderRadius: "34px",
+                                                        transition: ".4s"
+                                                    }}>
+                                                        <span style={{
+                                                            position: "absolute",
+                                                            content: "",
+                                                            height: "14px",
+                                                            width: "14px",
+                                                            left: isActive ? "16px" : "4px",
+                                                            bottom: "3px",
+                                                            backgroundColor: "white",
+                                                            borderRadius: "50%",
+                                                            transition: ".4s"
+                                                        }}></span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {/* Edit Mode */}
+                                        {isEditing ? (
+                                            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <span style={{ fontSize: "10px", color: theme.textMuted, display: "block" }}>Open</span>
+                                                    <input
+                                                        type="time"
+                                                        value={editForm.open_time}
+                                                        onChange={(e) => setEditForm({ ...editForm, open_time: e.target.value })}
+                                                        style={{
+                                                            width: "100%",
+                                                            padding: "4px",
+                                                            fontSize: "12px",
+                                                            border: `1px solid ${theme.border}`,
+                                                            borderRadius: "4px"
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <span style={{ fontSize: "10px", color: theme.textMuted, display: "block" }}>Close</span>
+                                                    <input
+                                                        type="time"
+                                                        value={editForm.close_time}
+                                                        onChange={(e) => setEditForm({ ...editForm, close_time: e.target.value })}
+                                                        style={{
+                                                            width: "100%",
+                                                            padding: "4px",
+                                                            fontSize: "12px",
+                                                            border: `1px solid ${theme.border}`,
+                                                            borderRadius: "4px"
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: "flex", gap: "4px", alignSelf: "flex-end" }}>
+                                                    <button
+                                                        onClick={() => handleUpdateSchedule(daySchedule.schedule_id)}
+                                                        disabled={isUpdating}
+                                                        style={{
+                                                            backgroundColor: theme.success,
+                                                            color: "white",
+                                                            border: "none",
+                                                            padding: "6px",
+                                                            borderRadius: "4px",
+                                                            cursor: "pointer",
+                                                            display: "flex", alignItems: "center", justifyContent: "center"
+                                                        }}
+                                                        title="Save"
+                                                    >
+                                                        ✔️
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelEdit}
+                                                        style={{
+                                                            backgroundColor: theme.danger,
+                                                            color: "white",
+                                                            border: "none",
+                                                            padding: "6px",
+                                                            borderRadius: "4px",
+                                                            cursor: "pointer",
+                                                            display: "flex", alignItems: "center", justifyContent: "center"
+                                                        }}
+                                                        title="Cancel"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
                                         ) : (
-                                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                <span style={{
-                                                    fontSize: "12px",
-                                                    color: "#15803d",
-                                                    backgroundColor: "#dcfce7",
-                                                    padding: "2px 6px",
-                                                    borderRadius: "4px",
-                                                    fontWeight: "500"
-                                                }}>
-                                                    {formatTime(daySchedule?.open_time)}
-                                                </span>
-                                                <span style={{ fontSize: "12px", color: theme.textMuted }}>-</span>
-                                                <span style={{
-                                                    fontSize: "12px",
-                                                    color: "#b91c1c",
-                                                    backgroundColor: "#fee2e2",
-                                                    padding: "2px 6px",
-                                                    borderRadius: "4px",
-                                                    fontWeight: "500"
-                                                }}>
-                                                    {formatTime(daySchedule?.close_time)}
-                                                </span>
+                                            /* View Mode */
+                                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                                    <span style={{
+                                                        fontSize: "12px",
+                                                        color: "#15803d",
+                                                        backgroundColor: "#dcfce7",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px",
+                                                        fontWeight: "500"
+                                                    }}>
+                                                        {formatTime(daySchedule?.open_time)}
+                                                    </span>
+                                                    <span style={{ fontSize: "12px", color: theme.textMuted }}>-</span>
+                                                    <span style={{
+                                                        fontSize: "12px",
+                                                        color: "#b91c1c",
+                                                        backgroundColor: "#fee2e2",
+                                                        padding: "2px 6px",
+                                                        borderRadius: "4px",
+                                                        fontWeight: "500"
+                                                    }}>
+                                                        {formatTime(daySchedule?.close_time)}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleEditClick(daySchedule)}
+                                                    style={{
+                                                        backgroundColor: "transparent",
+                                                        color: theme.primary,
+                                                        border: "none",
+                                                        fontSize: "12px",
+                                                        cursor: "pointer",
+                                                        fontWeight: "500",
+                                                        padding: "4px"
+                                                    }}
+                                                >
+                                                    Edit
+                                                </button>
                                             </div>
                                         )}
                                     </div>

@@ -228,6 +228,26 @@ export const apiAPISlice = createApi({
       }),
       providesTags: ["Games"],
     }),
+    updateGameSchedule: builder.mutation({
+      query: ({ id, open_time, close_time }) => ({
+        url: `game-schedules/${id}`,
+        method: "PUT",
+        params: { open_time, close_time },
+      }),
+      invalidatesTags: ["Games"],
+    }),
+    toggleScheduleStatus: builder.mutation({
+      query: (schedule_id) => {
+        const formData = new FormData();
+        formData.append("schedule_id", schedule_id);
+        return {
+          url: "toggleschedulestatus",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Games"],
+    }),
     getConfig: builder.query({
       query: () => ({
         url: "get-config",
@@ -327,6 +347,8 @@ export const {
   useToggleUserMutation,
   useGetGamesQuery,
   useGetGameSchedulesQuery,
+  useUpdateGameScheduleMutation,
+  useToggleScheduleStatusMutation,
   useDeclareResultMutation,
   useGetConfigQuery,
   useUpdateConfigMutation,

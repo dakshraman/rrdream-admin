@@ -34,14 +34,16 @@ export default function ManageInactiveUsersData() {
     const [showModal, setShowModal] = useState(false);
     const [activatingUserId, setActivatingUserId] = useState(null);
 
-    const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery();
+    const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+    });
     const [toggleUser] = useToggleUserMutation();
 
     const users = userData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -67,14 +69,14 @@ export default function ManageInactiveUsersData() {
             `Are you sure you want to activate user "${row.name || row.phone}"?`
         );
 
-        if(!confirmActivate) return;
+        if (!confirmActivate) return;
 
         setActivatingUserId(row.id);
 
         try {
             const response = await toggleUser(row.id).unwrap();
             toast.success(response?.message || `User "${row.name || row.phone}" activated successfully!`);
-        } catch(err) {
+        } catch (err) {
             const errorMessage = err?.data?.message || err?.message || "Failed to activate user";
             toast.error(errorMessage);
             console.error("Activate user error:", err);
@@ -231,7 +233,7 @@ export default function ManageInactiveUsersData() {
     ];
 
     const filteredData = users.filter((item) => {
-        if(filterText) {
+        if (filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const phone = (item.phone || "").toString().toLowerCase();
@@ -336,7 +338,7 @@ export default function ManageInactiveUsersData() {
         },
     };
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
@@ -391,8 +393,8 @@ export default function ManageInactiveUsersData() {
                                 alignItems: "center",
                                 gap: "10px",
                                 padding: "8px 0px",
-                                position:"relative",
-                                right:"12px"
+                                position: "relative",
+                                right: "12px"
                             }}>
                                 <span style={{ fontSize: "17px", fontWeight: "600" }}>
                                     Inactive Users
