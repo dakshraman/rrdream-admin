@@ -27,22 +27,26 @@ export default function SideNav() {
     return () => hideBtn?.removeEventListener("click", menuToggle);
   }, []);
 
+  // Auto-open dropdown if current path matches a sub-item
+  useEffect(() => {
+    Menu.filter(item => item.Show === "1").forEach((item, index) => {
+      const subItems = item.MoreItem || [];
+      const isSubActive = subItems.some(sub => pathname === sub.url);
+      if(isSubActive) setOpenIndex(index);
+    });
+  }, [pathname]);
+
   const handleLogout = () => {
     localStorage.clear();
     router.push("/login");
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <>
-      {/* Hamburger Menu Button - Only visible on mobile */}
+      {/* Hamburger Button - mobile only */}
       <button
         className="mobile-menu-toggle"
         onClick={toggleMobileMenu}
@@ -53,16 +57,13 @@ export default function SideNav() {
         <span></span>
       </button>
 
-      {/* Overlay for mobile */}
+      {/* Dark overlay behind menu on mobile */}
       {isMobileMenuOpen && (
-        <div
-          className="mobile-overlay"
-          onClick={closeMobileMenu}
-        ></div>
+        <div className="mobile-overlay" onClick={closeMobileMenu} />
       )}
 
-      <aside className={isMobileMenuOpen ? 'mobile-open' : ''}>
-        {/* Close button for mobile */}
+      <aside className={isMobileMenuOpen ? "mobile-open" : ""}>
+        {/* Close × button inside sidebar on mobile */}
         <button
           className="mobile-close-btn"
           onClick={closeMobileMenu}
@@ -74,23 +75,50 @@ export default function SideNav() {
         <div className="aside-wrap">
           <div className="aside-col">
             <ul className="Header_nav_Active">
-              {Menu
-                .filter(item => item.Show === "1")
-                .map((item, index) => {
-                  const subItems =
-                    item.MoreItem?.filter(sub => sub.Show === "1") || [];
-                  const isActive =
-                    pathname === item.url ||
-                    pathname === item.addurl ||
-                    subItems.some(sub => pathname === sub.url);
-                  return (
-                    <li key={index}>
-                      <div
-                        className={`nav-item-wrap ${subItems.length ? "hasDropdown" : ""}`}
-                        onClick={() =>
-                          setOpenIndex(openIndex === index ? null : index)
-                        }
-                      >
+              {Menu.filter(item => item.Show === "1").map((item, index) => {
+                // FIX 1: MoreItem entries don't always have Show field — treat missing Show as visible
+                const subItems = (item.MoreItem || []).filter(
+                  sub => !sub.Show || sub.Show === "1"
+                );
+
+                const isActive =
+                  pathname === item.url ||
+                  pathname === item.addurl ||
+                  subItems.some(sub => pathname === sub.url);
+
+                const isOpen = openIndex === index;
+
+                return (
+                  <li key={index} className={isActive ? "li-active" : ""}>
+                    <div
+                      className={`nav-item-wrap ${subItems.length ? "hasDropdown" : ""}`}
+                    >
+                      {/* FIX 2: If has sub-items, make the whole row a toggle — not a navigation link */}
+                      {subItems.length > 0 ? (
+                        <button
+                          className={`nav-link-btn ${isActive ? "active" : ""}`}
+                          onClick={() => setOpenIndex(isOpen ? null : index)}
+                          type="button"
+                        >
+                          {item.icon && parse(item.icon)}
+                          <span>{item.title}</span>
+                          {/* FIX 3: Visible dropdown arrow */}
+                          <svg
+                            className={`dropdown-arrow ${isOpen ? "open" : ""}`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </button>
+                      ) : (
                         <Link
                           href={item.url || "#"}
                           className={isActive ? "active" : ""}
@@ -99,26 +127,31 @@ export default function SideNav() {
                           {item.icon && parse(item.icon)}
                           <span>{item.title}</span>
                         </Link>
-                      </div>
-                      {subItems.length > 0 && openIndex === index && (
-                        <ul className="aside-dropdown open">
-                          {subItems.map((sub, i) => (
-                            <li key={i}>
-                              <Link
-                                href={sub.url}
-                                className={pathname === sub.url ? "active" : ""}
-                                onClick={closeMobileMenu}
-                              >
-                                {sub.icon && parse(sub.icon)}
-                                <span>{sub.title}</span>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
                       )}
-                    </li>
-                  );
-                })}
+                    </div>
+
+                    {/* Dropdown sub-menu */}
+                    {subItems.length > 0 && (
+                      <ul className={`aside-dropdown ${isOpen ? "open" : ""}`} style={{ padding: "1px 0 10px 42px" }}>
+                        {subItems.map((sub, i) => (
+                          <li key={i}>
+                            <Link
+                              href={sub.url}
+                              className={pathname === sub.url ? "active" : ""}
+                              onClick={closeMobileMenu}
+                            >
+                              {sub.icon && parse(sub.icon)}
+                              <span>{sub.title}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+
+              {/* Logout */}
               <li>
                 <a onClick={handleLogout} style={{ cursor: "pointer" }}>
                   <svg
@@ -143,15 +176,59 @@ export default function SideNav() {
       </aside>
 
       <style jsx>{`
-        /* Mobile Menu Toggle Button */
+        /* ── Dropdown Arrow ── */
+        .dropdown-arrow {
+          margin-left: auto;
+          transition: transform 0.25s ease;
+          flex-shrink: 0;
+        }
+        .dropdown-arrow.open {
+          transform: rotate(180deg);
+        }
+
+        /* ── nav-link-btn resets so it looks identical to <a> ── */
+        .nav-link-btn {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0 8px;
+          text-align: left;
+          color: inherit;
+          font: inherit;
+          height: 44px;
+        }
+        .nav-link-btn.active {
+          /* match your existing .active styles */
+          color: var(--primary-a, #4f46e5);
+          font-weight: 600;
+        }
+
+        /* ── Dropdown animation ── */
+        .aside-dropdown {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .aside-dropdown.open {
+          max-height: 600px; /* large enough for all items */
+        }
+
+        /* ── Hamburger Button - mobile only ── */
         .mobile-menu-toggle {
           display: none;
           position: fixed;
-          top:4%;
-    left: 10px;
+          top: 4%;
+          left: 10px;
           transform: translateY(-50%);
-          z-index: 10;
-          // background: var(--primary-a);
+          z-index: 1000;
+          background: transparent;
           border: none;
           width: 35px;
           height: 35px;
@@ -163,7 +240,6 @@ export default function SideNav() {
           cursor: pointer;
           padding: 6px;
         }
-
         .mobile-menu-toggle span {
           display: block;
           width: 20px;
@@ -173,7 +249,7 @@ export default function SideNav() {
           transition: 0.3s;
         }
 
-        /* Mobile Close Button */
+        /* ── Mobile Close Button ── */
         .mobile-close-btn {
           display: none;
           position: absolute;
@@ -190,27 +266,23 @@ export default function SideNav() {
           line-height: 1;
         }
 
-        /* Mobile Overlay */
+        /* ── Mobile Overlay ── */
         .mobile-overlay {
           display: none;
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          inset: 0;
           background: rgba(0, 0, 0, 0.5);
           z-index: 998;
         }
 
+        /* ── Mobile breakpoint ── */
         @media (max-width: 767px) {
           .mobile-menu-toggle {
             display: flex;
           }
-
           .mobile-close-btn {
             display: block;
           }
-
           .mobile-overlay {
             display: block;
           }
@@ -224,25 +296,22 @@ export default function SideNav() {
             height: 100vh;
             z-index: 999;
             transition: left 0.3s ease-in-out;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
           }
-
           aside.mobile-open {
             left: 0;
           }
-
           aside .aside-wrap {
             padding: 60px 0 20px;
           }
-
           aside .aside-col > ul > li {
             display: block;
             padding: 0 12px;
           }
-
           aside .aside-col > ul > li > a,
-          aside .aside-col > ul > li > .nav-item-wrap > a {
+          aside .aside-col > ul > li > .nav-item-wrap > a,
+          aside .aside-col > ul > li > .nav-item-wrap > .nav-link-btn {
             height: 44px;
             line-height: 44px;
             display: flex;
@@ -251,20 +320,16 @@ export default function SideNav() {
             padding: 0 8px;
             text-align: left;
           }
-
-          aside .aside-col > ul > li > a [data-icon],
-          aside .aside-col > ul > li > .nav-item-wrap > a [data-icon] {
-            font-size: 18px;
-            display: inline-block;
-            margin: 0;
-          }
-
           aside .aside-col > ul > li > a span,
-          aside .aside-col > ul > li > .nav-item-wrap > a span {
+          aside .aside-col > ul > li > .nav-item-wrap > a span,
+          aside .aside-col > ul > li > .nav-item-wrap > .nav-link-btn span {
             display: inline-block;
           }
-
-          /* Adjust header padding for hamburger menu */
+          /* Give sub-items a slight indent on mobile */
+          .aside-dropdown.open li a {
+            padding-left: 24px;
+          }
+          /* Header padding so content isn't behind hamburger */
           header .header-wrapper .colA {
             padding-left: 55px;
           }

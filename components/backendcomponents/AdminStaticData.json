@@ -74,20 +74,67 @@
         "Show": "1"
       },
       {
-        "PageID": 10,
-        "title": "Starline Bidding",
+        "PageID": 20,
+        "title": "Starline Management",
         "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14L2 9.27l6.91-1.01L12 2z'/></g></svg>",
-        "url": "/bidding-history-starline",
-        "addurl": "",
-        "Show": "1"
-      },
-      {
-        "PageID": 11,
-        "title": "Starline Results",
-        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14L2 9.27l6.91-1.01L12 2z'/></g></svg>",
-        "url": "/declared-results-starline",
-        "addurl": "",
-        "Show": "1"
+        "url": "#",
+        "addurl": "#",
+        "Show": "1",
+        "MoreItem": [
+          {
+            "PageID": 21,
+            "title": "Starline Game Name",
+            "url": "/starline-game-name",
+            "addurl": "/starline-game-name"
+          },
+          {
+            "PageID": 22,
+            "title": "Starline Game Rates",
+            "url": "/starline-game-rates",
+            "addurl": "/starline-game-rates"
+          },
+          {
+            "PageID": 23,
+            "title": "Starline Declare Result",
+            "url": "/starline-declare-result",
+            "addurl": ""
+          },
+          {
+            "PageID": 24,
+            "title": "Starline Result History",
+            "url": "/starline-result-history",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 25,
+            "title": "Starline Bid Report",
+            "url": "/starline-bid-report",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 26,
+            "title": "Starline Self Report",
+            "url": "/starline-self-report",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 27,
+            "title": "Starline Winning Report",
+            "url": "/starline-winning-report",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 28,
+            "title": "Starline Winning Prediction",
+            "url": "/starline-winning-prediction",
+            "addurl": "",
+            "Show": "0"
+          }
+        ]
       },
       {
         "PageID": 12,

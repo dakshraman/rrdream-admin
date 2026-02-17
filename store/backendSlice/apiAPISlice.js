@@ -2,9 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  (typeof window === "undefined"
-    ? "https://game.rrdream.in/api/"
-    : "/api/");
+  (typeof window === "undefined" ? "https://game.rrdream.in/api/" : "/api/");
 
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
@@ -55,7 +53,7 @@ export const apiAPISlice = createApi({
     "Admin",
     "WithdrawRequest",
     "FundRequests",
-    "BiddingHistory", 
+    "BiddingHistory",
     "BiddingHistoryStarline",
     "DeclaredResultsStarline",
     "BiddingHistoryGali",
@@ -65,7 +63,10 @@ export const apiAPISlice = createApi({
     "DeclaredResults",
     "Config",
     "WithdrawRequests",
-    "Inquiries"
+    "Inquiries",
+    "StarlineGames",
+    "StarlineGames",
+    "StarlineRates",
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -175,8 +176,8 @@ export const apiAPISlice = createApi({
         const { page = 1, per_page = 10, ...rest } = arg;
         // Filter out empty values to match original logic
         const params = { page, per_page };
-        Object.keys(rest).forEach(key => {
-            if (rest[key]) params[key] = rest[key];
+        Object.keys(rest).forEach((key) => {
+          if (rest[key]) params[key] = rest[key];
         });
 
         return {
@@ -191,8 +192,8 @@ export const apiAPISlice = createApi({
       query: (arg = {}) => {
         const { page = 1, per_page = 10, ...rest } = arg;
         const params = { page, per_page };
-        Object.keys(rest).forEach(key => {
-            if (rest[key]) params[key] = rest[key];
+        Object.keys(rest).forEach((key) => {
+          if (rest[key]) params[key] = rest[key];
         });
 
         return {
@@ -207,8 +208,8 @@ export const apiAPISlice = createApi({
       query: (arg = {}) => {
         const { page = 1, per_page = 10, ...rest } = arg;
         const params = { page, per_page };
-        Object.keys(rest).forEach(key => {
-            if (rest[key]) params[key] = rest[key];
+        Object.keys(rest).forEach((key) => {
+          if (rest[key]) params[key] = rest[key];
         });
 
         return {
@@ -223,8 +224,8 @@ export const apiAPISlice = createApi({
       query: (arg = {}) => {
         const { page = 1, per_page = 15, ...rest } = arg;
         const params = { page, per_page };
-        Object.keys(rest).forEach(key => {
-            if (rest[key]) params[key] = rest[key];
+        Object.keys(rest).forEach((key) => {
+          if (rest[key]) params[key] = rest[key];
         });
 
         return {
@@ -238,8 +239,8 @@ export const apiAPISlice = createApi({
     getProfit: builder.query({
       query: (arg = {}) => {
         const params = {};
-        Object.keys(arg).forEach(key => {
-            if (arg[key]) params[key] = arg[key];
+        Object.keys(arg).forEach((key) => {
+          if (arg[key]) params[key] = arg[key];
         });
 
         return {
@@ -331,13 +332,13 @@ export const apiAPISlice = createApi({
                   }
                 });
               }
-            }
-          )
+            },
+          ),
         );
         try {
-            await queryFulfilled;
+          await queryFulfilled;
         } catch {
-            patchResult.undo();
+          patchResult.undo();
         }
       },
     }),
@@ -417,6 +418,78 @@ export const apiAPISlice = createApi({
         params: { result_date, game_id, session, pana, digit },
       }),
     }),
+    // GET /api/starline-allgames  →  fetch all starline games
+    getStarlineGames: builder.query({
+      query: () => ({ url: "starline-allgames", method: "GET" }),
+      providesTags: ["StarlineGames"],
+    }),
+    addStarlineGame: builder.mutation({
+      query: ({ name, name_hindi, time }) => {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("name_hindi", name_hindi);
+        formData.append("time", time);
+        return { url: "starline-addgame", method: "POST", body: formData };
+      },
+      invalidatesTags: ["StarlineGames"],
+    }),
+    updateStarlineGame: builder.mutation({
+      query: ({ id, name, name_hindi, time }) => {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("name_hindi", name_hindi);
+        formData.append("time", time);
+        return {
+          url: `starline-updategame/${id}`,
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["StarlineGames"],
+    }),
+    toggleStarlineGame: builder.mutation({
+      query: (id) => ({
+        url: `starline-tooglestatus/${id}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["StarlineGames"],
+    }),
+    getStarlineRates: builder.query({
+      query: () => ({ url: "starline-rates", method: "GET" }),
+      providesTags: ["StarlineRates"],
+    }),
+    updateStarlineRate: builder.mutation({
+      query: ({ id, rate, base }) => {
+        const formData = new FormData();
+        formData.append("id", id);
+        formData.append("rate", rate);
+        formData.append("base", base);
+        return { url: "updaterates-starline", method: "POST", body: formData };
+      },
+      invalidatesTags: ["StarlineRates"],
+    }),
+    starlineDeclareResult: builder.mutation({
+      query: ({ result_date, game_id, pana, digit }) => {
+        const formData = new FormData();
+        formData.append("result_date", result_date);
+        formData.append("game_id", game_id);
+        formData.append("pana", pana);
+        formData.append("digit", digit);
+        return {
+          url: "starline-declareresult",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["DeclaredResultsStarline"],
+    }),
+    starlineCheckWinner: builder.mutation({
+      query: ({ result_date, game_id, pana, digit }) => ({
+        url: "starline-checkwinner",
+        method: "POST",
+        params: { result_date, game_id, pana, digit },
+      }),
+    }),
   }),
 });
 
@@ -452,4 +525,13 @@ export const {
   useCheckWinnerMutation,
   useLoginMutation,
   useCheckLoginQuery,
+  // Starline Game Name
+  useGetStarlineGamesQuery,
+  useAddStarlineGameMutation,
+  useUpdateStarlineGameMutation,
+  useToggleStarlineGameMutation,
+  useGetStarlineRatesQuery,
+  useUpdateStarlineRateMutation,
+  useStarlineDeclareResultMutation,
+  useStarlineCheckWinnerMutation,
 } = apiAPISlice;
