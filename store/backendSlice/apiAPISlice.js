@@ -5,9 +5,15 @@ const normalizeBaseUrl = (url) => (url.endsWith("/") ? url : `${url}/`);
 const configuredPublicApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
 
-const apiBaseUrl = normalizeBaseUrl(
+// Use same-origin API route in the browser to avoid CORS issues.
+// Direct public API URLs are only used during server-side execution.
+const serverApiBaseUrl =
   configuredPublicApiBaseUrl ||
-    (typeof window === "undefined" ? "https://game.rrdream.in/api/" : "/api/"),
+  process.env.API_URL ||
+  "https://game.rrdream.in/api/";
+
+const apiBaseUrl = normalizeBaseUrl(
+  typeof window === "undefined" ? serverApiBaseUrl : "/api/",
 );
 
 const baseQuery = fetchBaseQuery({
