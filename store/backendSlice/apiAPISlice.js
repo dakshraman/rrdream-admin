@@ -5,15 +5,17 @@ const normalizeBaseUrl = (url) => (url.endsWith("/") ? url : `${url}/`);
 const configuredPublicApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
 
-// Use same-origin API route in the browser to avoid CORS issues.
-// Direct public API URLs are only used during server-side execution.
+// Server-side calls should use the direct API URL.
 const serverApiBaseUrl =
   configuredPublicApiBaseUrl ||
   process.env.API_URL ||
   "https://game.rrdream.in/api/";
 
+// Browser calls prefer direct public API URL (if configured); otherwise fallback to /api rewrite.
+const browserApiBaseUrl = configuredPublicApiBaseUrl || "/api/";
+
 const apiBaseUrl = normalizeBaseUrl(
-  typeof window === "undefined" ? serverApiBaseUrl : "/api/",
+  typeof window === "undefined" ? serverApiBaseUrl : browserApiBaseUrl,
 );
 
 const normalizeUsersResponse = (response) => {
@@ -75,7 +77,8 @@ const withRetryBustParam = (args) => {
 
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
-  credentials: "include",
+  // Keep cookies only for same-origin calls; avoid cross-origin credential mode.
+  credentials: "same-origin",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.token;
     headers.set("Accept", "application/json");
