@@ -16,6 +16,30 @@ const apiBaseUrl = normalizeBaseUrl(
   typeof window === "undefined" ? serverApiBaseUrl : "/api/",
 );
 
+const normalizeUsersResponse = (response) => {
+  if (Array.isArray(response)) {
+    return { users: response };
+  }
+
+  if (response && typeof response === "object") {
+    if (Array.isArray(response.users)) {
+      return response;
+    }
+
+    if (Array.isArray(response.data?.users)) {
+      return { ...response, users: response.data.users };
+    }
+
+    if (Array.isArray(response.data)) {
+      return { ...response, users: response.data };
+    }
+
+    return { ...response, users: [] };
+  }
+
+  return { users: [] };
+};
+
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
   credentials: "include",
@@ -45,11 +69,20 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
       result.error,
     );
   } else {
-    console.log(
-      `%c[API Success] ${endpoint}`,
-      "color: #4caf50; font-weight: bold;",
-      result.data,
-    );
+    const status = result.meta?.response?.status;
+    if (result.data === null) {
+      console.log(
+        `%c[API Success Empty] ${endpoint} (status: ${status ?? "unknown"})`,
+        "color: #ff9800; font-weight: bold;",
+        result.data,
+      );
+    } else {
+      console.log(
+        `%c[API Success] ${endpoint} (status: ${status ?? "unknown"})`,
+        "color: #4caf50; font-weight: bold;",
+        result.data,
+      );
+    }
   }
 
   return result;
@@ -101,6 +134,7 @@ export const apiAPISlice = createApi({
         url: "getallusers",
         method: "GET",
       }),
+      transformResponse: normalizeUsersResponse,
       providesTags: ["Users"],
     }),
     getInactiveUsers: builder.query({
@@ -108,6 +142,7 @@ export const apiAPISlice = createApi({
         url: "get-inactiveusers",
         method: "GET",
       }),
+      transformResponse: normalizeUsersResponse,
       providesTags: ["InactiveUsers"],
     }),
     getBanners: builder.query({
