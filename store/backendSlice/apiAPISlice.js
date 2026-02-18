@@ -40,11 +40,45 @@ const normalizeUsersResponse = (response) => {
   return { users: [] };
 };
 
+const isPlainObject = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+const withNoStoreForGet = (args, method) => {
+  if (typeof args === "string" || method !== "GET") {
+    return args;
+  }
+
+  return {
+    ...args,
+    cache: "no-store",
+  };
+};
+
+const withRetryBustParam = (args) => {
+  const retryKey = `_rt=${Date.now()}`;
+
+  if (typeof args === "string") {
+    const separator = args.includes("?") ? "&" : "?";
+    return `${args}${separator}${retryKey}`;
+  }
+
+  const params = isPlainObject(args.params) ? args.params : {};
+  return {
+    ...args,
+    cache: "no-store",
+    params: {
+      ...params,
+      _rt: Date.now(),
+    },
+  };
+};
+
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth?.token;
+    headers.set("Accept", "application/json");
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
     }
@@ -54,17 +88,32 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithLogging = async (args, api, extraOptions) => {
   const endpoint = typeof args === "string" ? args : args.url;
-  const method = typeof args === "string" ? "GET" : args.method || "GET";
+  const method = (typeof args === "string" ? "GET" : args.method || "GET").toUpperCase();
+  const requestArgs = withNoStoreForGet(args, method);
   console.log(
     `%c[API Request] ${method} ${apiBaseUrl}${endpoint}`,
     "color: #00bcd4; font-weight: bold;",
   );
 
-  const result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(requestArgs, api, extraOptions);
+  let retriedForEmpty = false;
+
+  const initialStatus = result.meta?.response?.status;
+  const shouldRetryEmptyResponse =
+    method === "GET" && !result.error && initialStatus === 200 && result.data === null;
+
+  if (shouldRetryEmptyResponse) {
+    retriedForEmpty = true;
+    console.log(
+      `%c[API Retry Empty] ${endpoint} (status: ${initialStatus})`,
+      "color: #ff9800; font-weight: bold;",
+    );
+    result = await baseQuery(withRetryBustParam(requestArgs), api, extraOptions);
+  }
 
   if (result.error) {
     console.log(
-      `%c[API Error] ${endpoint}`,
+      `%c[API Error] ${endpoint}${retriedForEmpty ? " (after retry)" : ""}`,
       "color: #f44336; font-weight: bold;",
       result.error,
     );
@@ -72,13 +121,13 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
     const status = result.meta?.response?.status;
     if (result.data === null) {
       console.log(
-        `%c[API Success Empty] ${endpoint} (status: ${status ?? "unknown"})`,
+        `%c[API Success Empty] ${endpoint} (status: ${status ?? "unknown"})${retriedForEmpty ? " after retry" : ""}`,
         "color: #ff9800; font-weight: bold;",
         result.data,
       );
     } else {
       console.log(
-        `%c[API Success] ${endpoint} (status: ${status ?? "unknown"})`,
+        `%c[API Success] ${endpoint} (status: ${status ?? "unknown"})${retriedForEmpty ? " after retry" : ""}`,
         "color: #4caf50; font-weight: bold;",
         result.data,
       );
