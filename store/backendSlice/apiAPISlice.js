@@ -1,8 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  (typeof window === "undefined" ? "https://game.rrdream.in/api/" : "/api/");
+const normalizeBaseUrl = (url) => (url.endsWith("/") ? url : `${url}/`);
+
+const configuredPublicApiBaseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
+
+const apiBaseUrl = normalizeBaseUrl(
+  configuredPublicApiBaseUrl ||
+    (typeof window === "undefined" ? "https://game.rrdream.in/api/" : "/api/"),
+);
 
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,

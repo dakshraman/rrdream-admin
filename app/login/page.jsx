@@ -22,21 +22,29 @@ export default function Login() {
     try {
       const result = await loginMutation({ username, password }).unwrap();
       console.log("Login Result:", result);
-      if (result.token) {
+
+      const payload = result && typeof result === "object" ? result : null;
+      if (payload?.token) {
         dispatch(login({
-          user: result.Admin || result.admin || result.user,
-          admin: result.Admin || result.admin,
-          token: result.token,
+          user: payload.Admin || payload.admin || payload.user,
+          admin: payload.Admin || payload.admin,
+          token: payload.token,
         }));
 
-        toast.success(result.message || "Login successful", { duration: 800 });
+        toast.success(payload.message || "Login successful", { duration: 800 });
         window.location.href = "/dashboard";
       } else {
-        toast.error(result.message || "Invalid credentials", { duration: 1500 });
+        if (!payload) {
+          console.error("Unexpected login response payload:", result);
+        }
+        toast.error(payload?.message || "Invalid credentials", { duration: 1500 });
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Something went wrong. Please try again.", { duration: 1500 });
+      toast.error(
+        error?.data?.message || "Something went wrong. Please try again.",
+        { duration: 1500 },
+      );
     } finally {
       setLoading(false);
     }
