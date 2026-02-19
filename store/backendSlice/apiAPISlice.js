@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { logout } from "./authReducer";
 
 const normalizeBaseUrl = (url) => (url.endsWith("/") ? url : `${url}/`);
 
@@ -75,6 +76,9 @@ const withRetryBustParam = (args) => {
   };
 };
 
+const isUnauthorizedError = (status) =>
+  status === 401 || status === 403 || status === 422;
+
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
   // Keep cookies only for same-origin calls; avoid cross-origin credential mode.
@@ -134,6 +138,25 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
         "color: #4caf50; font-weight: bold;",
         result.data,
       );
+    }
+  }
+
+  const errorStatus = result.error?.status;
+  const hasTokenInState = Boolean(api.getState()?.auth?.token);
+  const shouldForceLogout =
+    hasTokenInState &&
+    api.endpoint !== "login" &&
+    isUnauthorizedError(errorStatus);
+
+  if (shouldForceLogout) {
+    console.warn(
+      `[Auth] Session invalid for endpoint "${api.endpoint}". Logging out.`,
+    );
+    api.dispatch(logout());
+    api.dispatch(apiAPISlice.util.resetApiState());
+
+    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      window.location.replace("/login");
     }
   }
 

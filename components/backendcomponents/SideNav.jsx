@@ -5,10 +5,14 @@ import AdminStaticData from "./AdminStaticData.json";
 import parse from "html-react-parser";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { apiAPISlice } from "@/store/backendSlice/apiAPISlice";
+import { logout } from "@/store/backendSlice/authReducer";
 
 export default function SideNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [openIndex, setOpenIndex] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -37,7 +41,8 @@ export default function SideNav() {
   }, [pathname]);
 
   const handleLogout = () => {
-    localStorage.clear();
+    dispatch(logout());
+    dispatch(apiAPISlice.util.resetApiState());
     router.push("/login");
   };
 

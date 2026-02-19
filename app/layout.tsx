@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import "../public/admin-assets/styles/style.css";
 import MainHeaderFooter from "@/components/backendcomponents/MainHeaderFooter";
+import AuthSessionGuard from "@/components/backendcomponents/AuthSessionGuard";
 import NextTopLoader from "nextjs-toploader";
 import Loader from "@/app/loading";
 import '../public/admin-assets/fonts/font.css';
@@ -18,10 +19,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <body cz-shortcut-listen="true">
         <ReduxProvider>
           <Loader />
-          <MainHeaderFooter />
-          <Suspense fallback={<Loader />}>
-            {children}
-          </Suspense>
+          <AuthSessionGuard>
+            <MainHeaderFooter />
+            <Suspense fallback={<Loader />}>
+              {children}
+            </Suspense>
+          </AuthSessionGuard>
           <Toaster
             position="top-center"
             reverseOrder={true}
