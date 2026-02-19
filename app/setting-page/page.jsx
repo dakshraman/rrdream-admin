@@ -16,10 +16,16 @@ export default function Settings() {
     const config = configResponse?.config || {};
     const activeUsersCount = configResponse?.active_users_count || 0;
     const inactiveUsersCount = configResponse?.inactive_users_count || 0;
+    const normalizeUserStatus = (value) =>
+        value === true || value === 1 || value === "1" || value === "true";
+    const isNewUserActive = normalizeUserStatus(formData.user_status);
 
     useEffect(() => {
         if (config && Object.keys(config).length > 0) {
-            setFormData(config);
+            setFormData({
+                ...config,
+                user_status: normalizeUserStatus(config.user_status),
+            });
         }
     }, [configResponse]);
 
@@ -448,17 +454,23 @@ export default function Settings() {
                             margin: 0,
                             lineHeight: "1.4"
                         }}>
-                            {formData.user_status ? "New users will be active by default" : "New users will be inactive by default"}
+                            {isNewUserActive ? "New users will be active by default" : "New users will be inactive by default"}
                         </p>
                     </div>
                     <button
+                        disabled={updating}
                         onClick={async () => {
-                            const newStatus = !formData.user_status;
+                            const currentStatus = isNewUserActive;
+                            const newStatus = !currentStatus;
                             handleInputChange('user_status', newStatus);
                             try {
-                                await updateConfig({ email: config.email, user_status: newStatus }).unwrap();
+                                await updateConfig({
+                                    email: config.email,
+                                    user_status: newStatus ? 1 : 0,
+                                }).unwrap();
+                                refetch();
                             } catch (err) {
-                                handleInputChange('user_status', !newStatus);
+                                handleInputChange('user_status', currentStatus);
                                 alert("Failed to update");
                             }
                         }}
@@ -467,17 +479,18 @@ export default function Settings() {
                             height: isMobile ? "26px" : "28px",
                             borderRadius: "14px",
                             border: "none",
-                            backgroundColor: formData.user_status ? theme.success : theme.border,
-                            cursor: "pointer",
+                            backgroundColor: isNewUserActive ? theme.success : theme.border,
+                            cursor: updating ? "not-allowed" : "pointer",
                             position: "relative",
                             transition: "background-color 0.2s",
-                            flexShrink: 0
+                            flexShrink: 0,
+                            opacity: updating ? 0.7 : 1,
                         }}
                     >
                         <span style={{
                             position: "absolute",
                             top: "2px",
-                            left: formData.user_status ? (isMobile ? "24px" : "26px") : "2px",
+                            left: isNewUserActive ? (isMobile ? "24px" : "26px") : "2px",
                             width: isMobile ? "22px" : "24px",
                             height: isMobile ? "22px" : "24px",
                             borderRadius: "50%",

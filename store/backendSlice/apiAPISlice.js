@@ -475,12 +475,25 @@ export const apiAPISlice = createApi({
       query: (params) => {
         const queryParams = {};
         Object.keys(params).forEach((key) => {
+          let value = params[key];
+          if (key === "user_status") {
+            if (value === true || value === 1 || value === "1" || value === "true") {
+              value = 1;
+            } else if (
+              value === false ||
+              value === 0 ||
+              value === "0" ||
+              value === "false"
+            ) {
+              value = 0;
+            }
+          }
           if (
-            params[key] !== undefined &&
-            params[key] !== null &&
-            params[key] !== ""
+            value !== undefined &&
+            value !== null &&
+            value !== ""
           ) {
-            queryParams[key] = params[key];
+            queryParams[key] = value;
           }
         });
         return {
