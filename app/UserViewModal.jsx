@@ -96,7 +96,18 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
 
     // Fixed data extraction based on actual API structure
     const responseData = userData?.user || {};
-    const user = responseData?.user || {};
+    const rawUser = responseData?.user;
+    const baseUser = Array.isArray(rawUser) ? rawUser[0] || {} : rawUser || {};
+    const user = {
+        ...baseUser,
+        pass:
+            baseUser?.pass ??
+            baseUser?.password ??
+            responseData?.pass ??
+            responseData?.password ??
+            responseData?.user_pass ??
+            null,
+    };
     const transactions = responseData?.transactions || [];
     const fundRequests = responseData?.fund_requests || [];
     const withdrawals = responseData?.withdrawal || [];
@@ -141,6 +152,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
             <InfoRow label="Name" value={user.name} />
             <InfoRow label="Phone" value={user.phone} />
             <InfoRow label="Email" value={user.email} />
+            <InfoRow label="Pass" value={user.pass} isSensitive />
             <InfoRow label="Funds" value={formatCurrency(user.funds)} />
             <InfoRow label="Login Count" value={user.login_count} />
             <InfoRow label="Referral Code" value={user.referral_code} />
