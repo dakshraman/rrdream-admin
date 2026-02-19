@@ -17,6 +17,7 @@ import {
   useGetFundRequestsQuery,
   useGetProfitQuery,
   useGetBiddingHistoryQuery,
+  useGetConfigQuery,
 } from "@/store/backendSlice/apiAPISlice";
 
 export default function Dashboard() {
@@ -44,6 +45,9 @@ export default function Dashboard() {
   const { data: usersData, isLoading: usersLoading } = useGetUsersQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
+  const { data: configData, isLoading: configLoading } = useGetConfigQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data: withdrawData, isLoading: withdrawLoading } =
     useGetWithdrawRequestsQuery(undefined, {
       refetchOnMountOrArgChange: true,
@@ -64,6 +68,7 @@ export default function Dashboard() {
 
   const isLoading =
     usersLoading ||
+    configLoading ||
     withdrawLoading ||
     fundLoading ||
     profitLoading ||
@@ -72,12 +77,33 @@ export default function Dashboard() {
   // Process Users Data
   const usersStats = useMemo(() => {
     const users = usersData?.data?.users || usersData?.users || [];
-    const totalUsers = users.length;
-    const activeUsers = users.filter(
+    const fallbackTotalUsers = users.length;
+    const fallbackActiveUsers = users.filter(
       (u) => u.status === 1 || u.status === true
     ).length;
-    return { totalUsers, activeUsers };
-  }, [usersData]);
+    const fallbackInactiveUsers = Math.max(
+      fallbackTotalUsers - fallbackActiveUsers,
+      0,
+    );
+
+    const parsedActiveUsers = Number(configData?.active_users_count);
+    const parsedInactiveUsers = Number(configData?.inactive_users_count);
+    const hasActiveUsersFromConfig = Number.isFinite(parsedActiveUsers);
+    const hasInactiveUsersFromConfig = Number.isFinite(parsedInactiveUsers);
+
+    const activeUsers = hasActiveUsersFromConfig
+      ? parsedActiveUsers
+      : fallbackActiveUsers;
+    const inactiveUsers = hasInactiveUsersFromConfig
+      ? parsedInactiveUsers
+      : fallbackInactiveUsers;
+    const totalUsers =
+      hasActiveUsersFromConfig || hasInactiveUsersFromConfig
+        ? activeUsers + inactiveUsers
+        : fallbackTotalUsers;
+
+    return { totalUsers, activeUsers, inactiveUsers };
+  }, [usersData, configData]);
 
   // Process Withdraw Requests
   const withdrawStats = useMemo(() => {
@@ -209,7 +235,7 @@ export default function Dashboard() {
       {
         label: "Total Players",
         value: usersStats.totalUsers.toLocaleString(),
-        change: `${usersStats.activeUsers} active`,
+        change: `${usersStats.activeUsers} active / ${usersStats.inactiveUsers} inactive`,
         positive: true,
       },
       {
@@ -1164,6 +1190,26 @@ export default function Dashboard() {
                   }}
                 >
                   {usersStats.activeUsers}
+                </div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: isMobile ? "9px" : "11px",
+                    color: textMuted,
+                    marginBottom: "2px",
+                  }}
+                >
+                  Inactive
+                </div>
+                <div
+                  style={{
+                    fontSize: isMobile ? "14px" : "16px",
+                    fontWeight: "700",
+                    color: danger,
+                  }}
+                >
+                  {usersStats.inactiveUsers}
                 </div>
               </div>
             </div>
