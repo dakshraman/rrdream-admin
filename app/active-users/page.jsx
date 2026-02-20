@@ -46,7 +46,7 @@ export default function ManageUsersData() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if(!dateString) return "N/A";
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
@@ -76,7 +76,7 @@ export default function ManageUsersData() {
             `Are you sure you want to ${action} "${userName}"?`
         );
 
-        if (!confirmToggle) return;
+        if(!confirmToggle) return;
 
         setTogglingUserId(row.id);
 
@@ -86,7 +86,7 @@ export default function ManageUsersData() {
             toast.success(
                 response?.message || `User "${userName}" ${action}d successfully!`
             );
-        } catch (err) {
+        } catch(err) {
             const errorMessage = err?.data?.message || err?.message || `Failed to ${action} user`;
             toast.error(errorMessage);
             console.error("Toggle user error:", err);
@@ -255,15 +255,15 @@ export default function ManageUsersData() {
 
     const filteredData = users.filter((item) => {
         // Status filter
-        if (statusFilter === "active" && !(item.status === true || item.status === 1)) {
+        if(statusFilter === "active" && !(item.status === true || item.status === 1)) {
             return false;
         }
-        if (statusFilter === "inactive" && (item.status === true || item.status === 1)) {
+        if(statusFilter === "inactive" && (item.status === true || item.status === 1)) {
             return false;
         }
 
         // Text filter
-        if (filterText) {
+        if(filterText) {
             const searchText = filterText.toLowerCase();
             const name = (item.name || "").toLowerCase();
             const phone = (item.phone || "").toString().toLowerCase();
@@ -283,8 +283,10 @@ export default function ManageUsersData() {
             gap: "12px",
             flexWrap: "wrap"
         }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap" }}>
-                <input
+            <div style={{
+                display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px", flexWrap: "wrap", position: "relative", left: "-24px", top: "-19px"
+            }}>
+                < input
                     type="text"
                     placeholder="Search by name, phone or ID..."
                     value={filterText}
@@ -321,7 +323,7 @@ export default function ManageUsersData() {
                     </button>
                 )}
             </div>
-        </div>
+        </div >
     );
 
     const SkeletonLoader = () => (
@@ -372,7 +374,7 @@ export default function ManageUsersData() {
         },
     };
 
-    if (isError) {
+    if(isError) {
         return (
             <main style={{ padding: "20px" }}>
                 <div style={{
