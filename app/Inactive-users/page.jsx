@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
@@ -71,7 +71,7 @@ export default function ManageInactiveUsersData() {
             `Are you sure you want to activate user "${row.name || row.phone}"?`,
         );
 
-        if (!confirmActivate) return;
+        if(!confirmActivate) return;
 
         setActivatingUserId(row.id);
 

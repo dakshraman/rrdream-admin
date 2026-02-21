@@ -34,7 +34,7 @@ const FundSkeleton = () => (
 export default function FundRequests() {
     const [filterText, setFilterText] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [dateFilter, setDateFilter] = useState(new Date().toISOString().split('T')[0]);
+    const [dateFilter, setDateFilter] = useState("");
     const [processingId, setProcessingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 

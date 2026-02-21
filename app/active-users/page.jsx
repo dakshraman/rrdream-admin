@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
@@ -81,6 +81,9 @@ export default function ManageUsersData() {
     const formatCurrency = (amount) =>
         `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
 
+    const formatCurrency = (amount) =>
+        `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
+
     const handleView = (row) => {
         setSelectedUserId(row.id);
         setShowModal(true);
@@ -100,7 +103,7 @@ export default function ManageUsersData() {
             `Are you sure you want to ${action} "${userName}"?`,
         );
 
-        if (!confirmToggle) return;
+        if(!confirmToggle) return;
 
         setTogglingUserId(row.id);
 
@@ -321,7 +324,7 @@ export default function ManageUsersData() {
                     </button>
                 )}
             </div>
-        </div>
+        </div >
     );
 
     const SkeletonLoader = () => (
