@@ -81,9 +81,6 @@ export default function ManageUsersData() {
     const formatCurrency = (amount) =>
         `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
 
-    const formatCurrency = (amount) =>
-        `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
-
     const handleView = (row) => {
         setSelectedUserId(row.id);
         setShowModal(true);
