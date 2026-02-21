@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -34,6 +34,7 @@ export default function ManageInactiveUsersData() {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [activatingUserId, setActivatingUserId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [windowWidth, setWindowWidth] = useState(
         typeof window !== "undefined" ? window.innerWidth : 1200,
@@ -90,25 +91,50 @@ export default function ManageInactiveUsersData() {
         }
     };
 
-    const filteredData = users.filter((item) => {
-        if (filterText) {
-            const searchText = filterText.toLowerCase();
-            const name = (item.name || "").toLowerCase();
-            const phone = (item.phone || "").toString().toLowerCase();
-            const id = (item.id || "").toString().toLowerCase();
-            return (
-                name.includes(searchText) ||
-                phone.includes(searchText) ||
-                id.includes(searchText)
-            );
+    const filteredData = useMemo(
+        () =>
+            users.filter((item) => {
+                if (filterText) {
+                    const searchText = filterText.toLowerCase();
+                    const name = (item.name || "").toLowerCase();
+                    const phone = (item.phone || "").toString().toLowerCase();
+                    const id = (item.id || "").toString().toLowerCase();
+                    return (
+                        name.includes(searchText) ||
+                        phone.includes(searchText) ||
+                        id.includes(searchText)
+                    );
+                }
+                return true;
+            }),
+        [users, filterText],
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterText]);
+
+    const totalRows = filteredData.length;
+    const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
         }
-        return true;
-    });
+    }, [currentPage, totalPages]);
+
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        return filteredData.slice(startIndex, startIndex + rowsPerPage);
+    }, [filteredData, currentPage, rowsPerPage]);
+
+    const showFrom = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+    const showTo = Math.min(currentPage * rowsPerPage, totalRows);
 
     const columns = [
         {
             name: "S.No",
-            selector: (row, index) => index + 1,
+            selector: (row, index) => (currentPage - 1) * rowsPerPage + index + 1,
             sortable: false,
             width: "40px",
         },
@@ -367,7 +393,7 @@ export default function ManageInactiveUsersData() {
 
         return (
             <div style={{ display: "grid", gap: "10px", padding: "12px" }}>
-                {filteredData.map((row) => {
+                {paginatedData.map((row) => {
                     const isActivating = activatingUserId === row.id;
 
                     return (
@@ -469,6 +495,63 @@ export default function ManageInactiveUsersData() {
         );
     };
 
+    const renderPaginationControls = () => {
+        if (isLoading || totalRows === 0) return null;
+
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px",
+                    padding: "8px 12px 14px",
+                    borderTop: "1px solid #e5e7eb",
+                    flexWrap: "wrap",
+                }}
+            >
+                <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                    Showing {showFrom}-{showTo} of {totalRows}
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button
+                        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                        disabled={currentPage === 1}
+                        style={{
+                            padding: "6px 10px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            backgroundColor: currentPage === 1 ? "#f3f4f6" : "#fff",
+                            color: "#374151",
+                            fontSize: "12px",
+                            cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                    >
+                        Prev
+                    </button>
+                    <span style={{ fontSize: "12px", color: "#374151", minWidth: "72px", textAlign: "center" }}>
+                        Page {currentPage}/{totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                        disabled={currentPage >= totalPages}
+                        style={{
+                            padding: "6px 10px",
+                            border: "1px solid #d1d5db",
+                            borderRadius: "6px",
+                            backgroundColor: currentPage >= totalPages ? "#f3f4f6" : "#fff",
+                            color: "#374151",
+                            fontSize: "12px",
+                            cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
+                        }}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
     if (isError) {
         return (
             <main style={{ padding: "20px" }}>
@@ -550,6 +633,7 @@ export default function ManageInactiveUsersData() {
                                 />
                             </div>
                             {renderMobileContent()}
+                            {renderPaginationControls()}
                         </>
                     ) : (
                         <DataTable
@@ -570,15 +654,21 @@ export default function ManageInactiveUsersData() {
                                 </div>
                             }
                             columns={columns}
-                            data={filteredData}
+                            data={paginatedData}
                             striped
                             pagination
+                            paginationServer
                             highlightOnHover
                             subHeader
                             subHeaderComponent={subHeaderComponent}
                             paginationRowsPerPageOptions={[10, 30, 50, 100]}
+                            paginationTotalRows={totalRows}
+                            onChangePage={(page) => setCurrentPage(page)}
                             paginationPerPage={rowsPerPage}
-                            onChangeRowsPerPage={(newPerPage) => setRowsPerPage(newPerPage)}
+                            onChangeRowsPerPage={(newPerPage) => {
+                                setRowsPerPage(newPerPage);
+                                setCurrentPage(1);
+                            }}
                             progressPending={isLoading}
                             progressComponent={<SkeletonLoader />}
                             responsive

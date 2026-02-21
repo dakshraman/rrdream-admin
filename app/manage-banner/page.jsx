@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -8,6 +8,41 @@ import {
     useAddBannerMutation,
     useDeleteBannerMutation
 } from "@/store/backendSlice/apiAPISlice";
+
+const inferMimeTypeFromBase64 = (base64Value) => {
+    if (base64Value.startsWith("/9j/")) return "image/jpeg";
+    if (base64Value.startsWith("iVBORw0KGgo")) return "image/png";
+    if (base64Value.startsWith("R0lGOD")) return "image/gif";
+    if (base64Value.startsWith("Qk")) return "image/bmp";
+    if (base64Value.startsWith("UklGR")) return "image/webp";
+    if (base64Value.startsWith("PHN2Zy")) return "image/svg+xml";
+    return "image/jpeg";
+};
+
+const isLikelyRawBase64Image = (value) => {
+    if (!value || value.length < 80) return false;
+    return /^[A-Za-z0-9+/=]+$/.test(value);
+};
+
+const normalizeBannerImageSrc = (imageValue) => {
+    if (!imageValue || typeof imageValue !== "string") return "";
+
+    const trimmedValue = imageValue.trim();
+    if (!trimmedValue) return "";
+
+    if (/^data:/i.test(trimmedValue) || /^https?:\/\//i.test(trimmedValue) || trimmedValue.startsWith("blob:")) {
+        return trimmedValue;
+    }
+
+    const sanitizedBase64 = trimmedValue.replace(/\s+/g, "");
+    // Important: check raw base64 before treating leading "/" as a relative URL.
+    if (isLikelyRawBase64Image(sanitizedBase64)) {
+        const mimeType = inferMimeTypeFromBase64(sanitizedBase64);
+        return `data:${mimeType};base64,${sanitizedBase64}`;
+    }
+
+    return trimmedValue;
+};
 
 // Skeleton component for loading state
 const BannerSkeleton = () => (
@@ -38,6 +73,14 @@ export default function ManageBannersData() {
     const [addBanner, { isLoading: isAdding }] = useAddBannerMutation();
     const [deleteBanner] = useDeleteBannerMutation();
     const banners = bannerData?.banners || [];
+    const normalizedBanners = useMemo(
+        () =>
+            banners.map((banner) => ({
+                ...banner,
+                imageSrc: normalizeBannerImageSrc(banner.image || banner.image_url || banner.url || ""),
+            })),
+        [banners],
+    );
     console.log("Extracted banners:", banners);
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -139,7 +182,7 @@ export default function ManageBannersData() {
             cell: (row) => (
                 <div style={{ padding: "8px 0" }}>
                     <img
-                        src={row.image || row.image_url || row.url || ""}
+                        src={row.imageSrc}
                         alt={`Banner ${row.id}`}
                         style={{
                             width: "120px",
@@ -147,9 +190,13 @@ export default function ManageBannersData() {
                             objectFit: "cover",
                             borderRadius: "8px",
                             border: "1px solid #e5e7eb",
-                            cursor: "pointer"
+                            cursor: row.imageSrc ? "pointer" : "default"
                         }}
-                        onClick={() => window.open(row.image || row.image_url || row.url, '_blank')}
+                        onClick={() => {
+                            if (row.imageSrc) {
+                                window.open(row.imageSrc, "_blank");
+                            }
+                        }}
                         onError={(e) => {
                             e.target.src = "https://via.placeholder.com/120x60?text=No+Image";
                         }}
@@ -206,7 +253,7 @@ export default function ManageBannersData() {
         },
     ];
 
-    const filteredData = banners.filter((item) => {
+    const filteredData = normalizedBanners.filter((item) => {
         if (filterText) {
             const searchText = filterText.toLowerCase();
             const id = (item.id || "").toString().toLowerCase();
@@ -296,7 +343,7 @@ export default function ManageBannersData() {
                 color: "#6b7280"
             }}>
                 <span>
-                    Total: <strong style={{ color: "#111827" }}>{banners.length}</strong> banners
+                    Total: <strong style={{ color: "#111827" }}>{normalizedBanners.length}</strong> banners
                 </span>
                 {filterText && (
                     <span>
