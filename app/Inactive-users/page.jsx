@@ -57,6 +57,22 @@ export default function ManageInactiveUsersData() {
     const formatCurrency = (amount) =>
         `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
 
+    const getCreatedAtValue = (user) =>
+        user?.created_at || user?.createdAt || user?.created_on || user?.createdOn || "";
+
+    const formatDateTime = (value) => {
+        if (!value) return "N/A";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "N/A";
+        return date.toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
     const handleView = (row) => {
         setSelectedUserId(row.id);
         setShowModal(true);
@@ -130,6 +146,7 @@ export default function ManageInactiveUsersData() {
 
     const showFrom = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
     const showTo = Math.min(currentPage * rowsPerPage, totalRows);
+    const totalFunds = filteredData.reduce((sum, user) => sum + parseFloat(user.funds || 0), 0);
 
     const columns = [
         {
@@ -193,6 +210,21 @@ export default function ManageInactiveUsersData() {
                 </span>
             ),
             width: "110px",
+        },
+        {
+            name: "Created At",
+            selector: (row) => {
+                const createdAt = getCreatedAtValue(row);
+                const time = Date.parse(createdAt);
+                return Number.isFinite(time) ? time : 0;
+            },
+            sortable: true,
+            cell: (row) => (
+                <span style={{ fontSize: "12px", color: "#6b7280", whiteSpace: "nowrap" }}>
+                    {formatDateTime(getCreatedAtValue(row))}
+                </span>
+            ),
+            width: "165px",
         },
         {
             name: "Status",
@@ -260,44 +292,53 @@ export default function ManageInactiveUsersData() {
     ];
 
     const subHeaderComponent = (
-        <div
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "12px 0",
-                width: "100%",
-                gap: "12px",
-                flexWrap: "wrap",
-            }}
-        >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1", minWidth: "250px" }}>
+        <div style={{ width: "100%", display: "grid", gap: "10px", padding: "10px 0" }}>
+            <div
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+                    gap: "8px",
+                }}
+            >
+                <div style={{ border: "1px solid #fecaca", background: "#fff1f2", borderRadius: "10px", padding: "8px 10px" }}>
+                    <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Inactive Users</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#be123c" }}>{filteredData.length}</p>
+                </div>
+                <div style={{ border: "1px solid #ffedd5", background: "#fff7ed", borderRadius: "10px", padding: "8px 10px" }}>
+                    <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Inactive Funds</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#c2410c" }}>{formatCurrency(totalFunds)}</p>
+                </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <input
                     type="text"
                     placeholder="Search by name, phone or ID..."
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                     style={{
-                        padding: "8px 12px",
-                        borderRadius: "6px",
+                        padding: "9px 12px",
+                        borderRadius: "8px",
                         border: "1px solid #d1d5db",
-                        flex: "1",
+                        flex: "1 1 260px",
+                        minWidth: 0,
                         fontSize: "13px",
                         outline: "none",
+                        backgroundColor: "#fff",
                     }}
                 />
                 {filterText && (
                     <button
                         onClick={() => setFilterText("")}
                         style={{
-                            padding: "8px 12px",
+                            padding: "9px 12px",
                             backgroundColor: "#ef4444",
                             color: "#fff",
                             border: "none",
-                            borderRadius: "6px",
+                            borderRadius: "8px",
                             cursor: "pointer",
                             fontSize: "12px",
-                            fontWeight: "500",
+                            fontWeight: "600",
                             whiteSpace: "nowrap",
                         }}
                     >
@@ -319,39 +360,40 @@ export default function ManageInactiveUsersData() {
     const customStyles = {
         headRow: {
             style: {
-                backgroundColor: "#fef2f2",
-                borderBottom: "2px solid #fecaca",
-                minHeight: "45px",
+                backgroundColor: "#fff1f2",
+                borderBottom: "1px solid #fecdd3",
+                minHeight: "46px",
             },
         },
         headCells: {
             style: {
                 fontWeight: "600",
-                fontSize: "13px",
-                color: "#374151",
-                paddingLeft: "8px",
-                paddingRight: "8px",
+                fontSize: "12px",
+                color: "#1f2937",
+                paddingLeft: "10px",
+                paddingRight: "10px",
             },
         },
         rows: {
             style: {
                 fontSize: "13px",
-                minHeight: "55px",
+                minHeight: "58px",
             },
             highlightOnHoverStyle: {
-                backgroundColor: "#fff5f5",
+                backgroundColor: "#fff7f7",
             },
         },
         cells: {
             style: {
-                paddingLeft: "8px",
-                paddingRight: "8px",
+                paddingLeft: "10px",
+                paddingRight: "10px",
             },
         },
         pagination: {
             style: {
                 borderTop: "1px solid #e5e7eb",
                 minHeight: "50px",
+                backgroundColor: "#fffdfd",
             },
         },
     };
@@ -443,6 +485,9 @@ export default function ManageInactiveUsersData() {
 
                             <div style={{ marginTop: "10px", fontSize: "12px", color: "#4b5563" }}>
                                 Funds: <strong style={{ color: "#111827" }}>{formatCurrency(row.funds)}</strong>
+                            </div>
+                            <div style={{ marginTop: "6px", fontSize: "12px", color: "#4b5563" }}>
+                                Created: <strong style={{ color: "#111827" }}>{formatDateTime(getCreatedAtValue(row))}</strong>
                             </div>
 
                             <div
@@ -598,8 +643,9 @@ export default function ManageInactiveUsersData() {
                 <div
                     style={{
                         backgroundColor: "#fff",
-                        borderRadius: "12px",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        borderRadius: "14px",
+                        border: "1px solid #e5e7eb",
+                        boxShadow: "0 10px 24px rgba(15,23,42,0.06)",
                         overflow: "visible",
                     }}
                 >
@@ -615,6 +661,9 @@ export default function ManageInactiveUsersData() {
                             >
                                 <div style={{ fontSize: "16px", fontWeight: "700", color: "#111827" }}>
                                     Inactive Users
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                                    Total Inactive: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> | Funds: <strong style={{ color: "#111827" }}>{formatCurrency(totalFunds)}</strong>
                                 </div>
 
                                 <input
