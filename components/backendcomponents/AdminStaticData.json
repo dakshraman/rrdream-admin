@@ -108,10 +108,10 @@
           },
           {
             "PageID": 25,
-            "title": "Starline Bid Report",
-            "url": "/starline-bid-report",
+            "title": "Starline Bid History",
+            "url": "/bidding-history-starline",
             "addurl": "",
-            "Show": "0"
+            "Show": "1"
           },
           {
             "PageID": 26,

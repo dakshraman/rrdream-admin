@@ -53,7 +53,7 @@ export default function BiddingHistory() {
         { page: 1, per_page: 1000, date: "", game_name: "", game_type: "", session: "", search: "" },
         { refetchOnMountOrArgChange: false }
     );
-
+    console.log(' the allDataResponse', allDataResponse)
     const gameNameOptions = useMemo(() => {
         const raw = allDataResponse?.data || [];
         const names = raw.map(row => row.game_name).filter(Boolean);
@@ -75,7 +75,7 @@ export default function BiddingHistory() {
     const sessions = ["Open", "Close"];
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if(!dateString) return "N/A";
         return new Date(dateString).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     };
 
@@ -112,7 +112,7 @@ export default function BiddingHistory() {
     };
 
     const getResultBadge = (winning_amount, isWin) => {
-        if (winning_amount === null || winning_amount === undefined)
+        if(winning_amount === null || winning_amount === undefined)
             return <span style={{ color: "#9ca3af", fontSize: "10px" }}>Pending</span>;
         return (
             <span style={{
@@ -315,7 +315,7 @@ export default function BiddingHistory() {
         </div>
     );
 
-    if (isError) {
+    if(isError) {
         return (
             <main style={{ padding: "16px" }}>
                 <div style={{ color: "#dc2626", padding: "30px", textAlign: "center", backgroundColor: "#fef2f2", borderRadius: "12px", border: "1px solid #fecaca" }}>

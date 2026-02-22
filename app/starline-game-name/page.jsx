@@ -581,7 +581,7 @@ export default function StarlineGameName() {
                 }
             `}</style>
 
-            <main style={{ padding: "9px", minHeight: "100vh", overflow: "auto" }}>
+            <main style={{ padding: "9px", minHeight: "100vh", overflow: "auto",paddingBottom:"73px" }}>
                 <div className="sl-table" style={{ background: "#fff", borderRadius: "12px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", overflow: "visible" }}>
                     <DataTable
                         title={

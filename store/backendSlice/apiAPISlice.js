@@ -311,19 +311,7 @@ export const apiAPISlice = createApi({
       providesTags: ["BiddingHistory"],
     }),
     getBiddingHistoryStarline: builder.query({
-      query: (arg = {}) => {
-        const { page = 1, per_page = 10, ...rest } = arg;
-        const params = { page, per_page };
-        Object.keys(rest).forEach((key) => {
-          if (rest[key]) params[key] = rest[key];
-        });
-
-        return {
-          url: "getbiddinghistory-starline",
-          method: "GET",
-          params,
-        };
-      },
+      query: () => "starline-getbid",
       providesTags: ["BiddingHistoryStarline"],
     }),
     getDeclaredResultsStarline: builder.query({

@@ -74,6 +74,7 @@ export default function StarlineDeclareResult() {
         if(!validate()) return;
         try {
             const res = await starlineCheckWinner(formData).unwrap();
+            console.log("the res", res)
             setWinnersData(res);
             setShowWinnersModal(true);
         } catch(err) {
