@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGetGameSchedulesQuery, useUpdateGameScheduleMutation, useToggleScheduleStatusMutation } from "@/store/backendSlice/apiAPISlice";
 import { toast } from "react-hot-toast";
 
@@ -12,6 +12,7 @@ export default function GameManagement() {
 
     // State for search
     const [searchQuery, setSearchQuery] = useState("");
+    const [bulkTogglingGameId, setBulkTogglingGameId] = useState(null);
 
     // API returns { data: [...] } so we access scheduleData.data
     const allGames = scheduleData?.data || [];
@@ -104,6 +105,74 @@ export default function GameManagement() {
         }
     };
 
+    const getGameSchedules = (game) => {
+        if (!game?.schedule) return [];
+
+        return weekDays.flatMap((day) => (game.schedule?.[day] || []).filter(Boolean));
+    };
+
+    const getGameStatusSummary = (game) => {
+        const schedules = getGameSchedules(game);
+        const total = schedules.length;
+        const activeCount = schedules.filter((schedule) => schedule.status === "Active").length;
+
+        return {
+            schedules,
+            total,
+            activeCount,
+            allActive: total > 0 && activeCount === total,
+            someActive: activeCount > 0,
+            isMixed: activeCount > 0 && activeCount < total,
+        };
+    };
+
+    const handleToggleGameStatus = async (game) => {
+        const { schedules, total, allActive } = getGameStatusSummary(game);
+
+        if (!total) {
+            toast.error("No schedules found for this game");
+            return;
+        }
+
+        const targetStatus = allActive ? "Inactive" : "Active";
+        const schedulesToToggle = schedules.filter((schedule) => schedule.status !== targetStatus);
+
+        if (schedulesToToggle.length === 0) {
+            toast.success(`All day schedules are already ${targetStatus}`);
+            return;
+        }
+
+        const confirmMsg = `Change all ${schedulesToToggle.length} day toggles for ${game.game_name} to ${targetStatus}?`;
+        if (!window.confirm(confirmMsg)) return;
+
+        setBulkTogglingGameId(game.game_id);
+
+        let successCount = 0;
+        let failedCount = 0;
+
+        try {
+            for (const schedule of schedulesToToggle) {
+                try {
+                    await toggleScheduleStatus(schedule.schedule_id).unwrap();
+                    successCount += 1;
+                } catch (err) {
+                    failedCount += 1;
+                    console.error("Bulk toggle status error:", err);
+                }
+            }
+
+            if (successCount > 0) {
+                toast.success(`Updated ${successCount} day toggle${successCount > 1 ? "s" : ""} to ${targetStatus}`);
+            }
+
+            if (failedCount > 0) {
+                toast.error(`Failed to update ${failedCount} day toggle${failedCount > 1 ? "s" : ""}`);
+            }
+        } finally {
+            setBulkTogglingGameId(null);
+        }
+    };
+
     if (isLoading) {
         return (
             <div style={{ padding: "24px", textAlign: "center", color: theme.textMuted }}>
@@ -158,7 +227,13 @@ export default function GameManagement() {
                 gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
                 gap: "20px"
             }}>
-                {games.map((game) => (
+                {games.map((game) => {
+                    const gameStatus = getGameStatusSummary(game);
+                    const isGameAllActive = gameStatus.allActive;
+                    const isGameMixed = gameStatus.isMixed;
+                    const isGameToggleDisabled = isToggling || bulkTogglingGameId === game.game_id;
+
+                    return (
                     <div key={game.game_id} style={{
                         backgroundColor: theme.cardBg,
                         borderRadius: "12px",
@@ -192,6 +267,47 @@ export default function GameManagement() {
                                 }}>
                                     ID: {game.game_id}
                                 </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span style={{
+                                    fontSize: "11px",
+                                    fontWeight: "600",
+                                    color: isGameMixed
+                                        ? theme.warning
+                                        : (isGameAllActive ? theme.success : theme.danger)
+                                }}>
+                                    {isGameMixed ? "Mixed" : (isGameAllActive ? "All Active" : "All Inactive")}
+                                </span>
+                                <label style={{ position: "relative", display: "inline-block", width: "38px", height: "22px" }} title="Toggle all days">
+                                    <input
+                                        type="checkbox"
+                                        checked={isGameAllActive}
+                                        onChange={() => handleToggleGameStatus(game)}
+                                        disabled={isGameToggleDisabled}
+                                        style={{ opacity: 0, width: 0, height: 0 }}
+                                    />
+                                    <span style={{
+                                        position: "absolute",
+                                        cursor: isGameToggleDisabled ? "not-allowed" : "pointer",
+                                        top: 0, left: 0, right: 0, bottom: 0,
+                                        backgroundColor: isGameAllActive ? theme.success : (isGameMixed ? theme.warning : "#ccc"),
+                                        borderRadius: "34px",
+                                        transition: ".4s",
+                                        opacity: isGameToggleDisabled ? 0.65 : 1
+                                    }}>
+                                        <span style={{
+                                            position: "absolute",
+                                            content: "",
+                                            height: "16px",
+                                            width: "16px",
+                                            left: isGameAllActive ? "18px" : "4px",
+                                            bottom: "3px",
+                                            backgroundColor: "white",
+                                            borderRadius: "50%",
+                                            transition: ".4s"
+                                        }}></span>
+                                    </span>
+                                </label>
                             </div>
                         </div>
 
@@ -231,7 +347,7 @@ export default function GameManagement() {
                                                         type="checkbox"
                                                         checked={isActive}
                                                         onChange={() => handleToggleStatus(daySchedule.schedule_id, daySchedule.status)}
-                                                        disabled={isToggling}
+                                                        disabled={isGameToggleDisabled}
                                                         style={{ opacity: 0, width: 0, height: 0 }}
                                                     />
                                                     <span style={{
@@ -372,7 +488,7 @@ export default function GameManagement() {
                             })}
                         </div>
                     </div>
-                ))}
+                )})}
             </div>
             {/* Empty State */}
             {!isLoading && games.length === 0 && (
