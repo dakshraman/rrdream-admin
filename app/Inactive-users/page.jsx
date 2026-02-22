@@ -35,7 +35,7 @@ export default function ManageInactiveUsersData() {
     const [showModal, setShowModal] = useState(false);
     const [activatingUserId, setActivatingUserId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [windowWidth, setWindowWidth] = useState(
         typeof window !== "undefined" ? window.innerWidth : 1200,
     );

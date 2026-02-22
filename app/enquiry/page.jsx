@@ -199,10 +199,8 @@ export default function ManageInquiriesData() {
         refetchOnMountOrArgChange: true,
     });
 
-    console.log("Inquiry Users Data:", usersData);
-
     const users = usersData?.users || [];
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const handleViewInquiries = (row) => {
         setSelectedUserId(row.id);

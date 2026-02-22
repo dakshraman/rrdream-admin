@@ -17,19 +17,15 @@ export default function DeclareResult() {
     const [showGameDropdown, setShowGameDropdown] = useState(false);
     const [showSessionDropdown, setShowSessionDropdown] = useState(false);
     const [showWinnersModal, setShowWinnersModal] = useState(false);
-    const [winnersData, setWinnersData] = useState(null);
+    const [winnersData, setWinnersData] = useState(null); // { winners: [], message: "" }
 
-    // API hooks
     const { data: gamesResponse, isLoading: gamesLoading } = useGetGamesQuery();
     const [declareResult, { isLoading: declaring, isSuccess, isError, error }] = useDeclareResultMutation();
     const [checkWinner, { isLoading: checkingWinners }] = useCheckWinnerMutation();
 
-    // Get games list - handle API structure: { games: Array(20) }
     const gamesList = gamesResponse?.games || gamesResponse?.data || [];
-
     const sessions = ["Open", "Close"];
 
-    // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (!event.target.closest('.dropdown-container')) {
@@ -44,13 +40,7 @@ export default function DeclareResult() {
     useEffect(() => {
         if (isSuccess) {
             alert("Result declared successfully!");
-            setFormData({
-                result_date: today,
-                game_id: "",
-                session: "",
-                pana: "",
-                digit: ""
-            });
+            setFormData({ result_date: today, game_id: "", session: "", pana: "", digit: "" });
             setSelectedGame(null);
         }
     }, [isSuccess, today]);
@@ -76,47 +66,45 @@ export default function DeclareResult() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleDeclareResult = async () => {
-        if (!formData.result_date) { alert("Please select a date"); return; }
-        if (!formData.game_id) { alert("Please select a game"); return; }
-        if (!formData.session) { alert("Please select a session"); return; }
-        if (!formData.pana) { alert("Please enter Pana (3 digits)"); return; }
-        if (formData.pana.length !== 3) { alert("Pana must be exactly 3 digits"); return; }
-        if (!formData.digit) { alert("Please enter Digit (0-9)"); return; }
-        if (!/^[0-9]$/.test(formData.digit)) { alert("Digit must be a single number from 0 to 9"); return; }
+    const validate = () => {
+        if (!formData.result_date) { alert("Please select a date"); return false; }
+        if (!formData.game_id) { alert("Please select a game"); return false; }
+        if (!formData.session) { alert("Please select a session"); return false; }
+        if (!formData.pana) { alert("Please enter Pana (3 digits)"); return false; }
+        if (formData.pana.length !== 3) { alert("Pana must be exactly 3 digits"); return false; }
+        if (!formData.digit) { alert("Please enter Digit (0-9)"); return false; }
+        if (!/^[0-9]$/.test(formData.digit)) { alert("Digit must be a single number from 0 to 9"); return false; }
+        return true;
+    };
 
+    const handleDeclareResult = async () => {
+        if (!validate()) return;
         try {
             await declareResult(formData).unwrap();
-        } catch (err) {
-        }
+        } catch (err) {}
     };
 
     const handleCheckWinners = async () => {
-        if (!formData.result_date) { alert("Please select a date"); return; }
-        if (!formData.game_id) { alert("Please select a game"); return; }
-        if (!formData.session) { alert("Please select a session"); return; }
-        if (!formData.pana) { alert("Please enter Pana (3 digits)"); return; }
-        if (formData.pana.length !== 3) { alert("Pana must be exactly 3 digits"); return; }
-        if (!formData.digit) { alert("Please enter Digit (0-9)"); return; }
-        if (!/^[0-9]$/.test(formData.digit)) { alert("Digit must be a single number from 0 to 9"); return; }
-
+        if (!validate()) return;
         try {
             const response = await checkWinner(formData).unwrap();
             console.log("Winners Response:", response);
-            setWinnersData(response);
+            // response = { status: true, message: "...", winners: [...] }
+            setWinnersData({
+                winners: response?.winners || [],
+                message: response?.message || ""
+            });
             setShowWinnersModal(true);
         } catch (err) {
             alert(err?.data?.message || "Failed to fetch winners");
         }
     };
 
-    // Format time from "10:30:00" to "10:30"
     const formatTime = (time) => {
         if (!time) return "";
         return time.slice(0, 5);
     };
 
-    // Theme colors from Withdraw Requests
     const theme = {
         primary: "#6366f1",
         primaryLight: "#eef2ff",
@@ -128,44 +116,39 @@ export default function DeclareResult() {
         danger: "#ef4444",
     };
 
+    const getGameTypeBadgeColor = (type) => {
+        const map = {
+            "single": { bg: "#dbeafe", color: "#1d4ed8" },
+            "jodi": { bg: "#fce7f3", color: "#be185d" },
+            "single pana": { bg: "#d1fae5", color: "#047857" },
+            "double pana": { bg: "#fef3c7", color: "#b45309" },
+            "triple pana": { bg: "#ede9fe", color: "#6d28d9" },
+            "double digit": { bg: "#fef3c7", color: "#b45309" },
+        };
+        return map[type?.toLowerCase()] || { bg: "#f3f4f6", color: "#374151" };
+    };
+
     return (
         <main style={{ padding: "16px", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-            {/* Title */}
-            <h1 style={{
-                fontSize: "18px",
-                fontWeight: "600",
-                color: theme.text,
-                margin: "0 0 16px 0"
-            }}>
+            <h1 style={{ fontSize: "18px", fontWeight: "600", color: theme.text, margin: "0 0 16px 0" }}>
                 Declare Result
             </h1>
 
-            {/* Main Form Card */}
             <div style={{
-                backgroundColor: "#fff",
-                borderRadius: "8px",
-                padding: "20px",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                backgroundColor: "#fff", borderRadius: "8px",
+                padding: "20px", boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
             }}>
-                {/* Form Fields */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
 
                     {/* Date Picker */}
                     <div
                         style={{
-                            border: `1px solid ${theme.border}`,
-                            borderRadius: "6px",
-                            padding: "12px 14px",
-                            cursor: "pointer",
-                            position: "relative",
-                            backgroundColor: "#fff"
+                            border: `1px solid ${theme.border}`, borderRadius: "6px",
+                            padding: "12px 14px", cursor: "pointer", position: "relative", backgroundColor: "#fff"
                         }}
                         onClick={() => document.getElementById('date-input').showPicker?.()}
                     >
-                        <span style={{
-                            color: formData.result_date ? theme.primary : theme.textMuted,
-                            fontSize: "14px"
-                        }}>
+                        <span style={{ color: formData.result_date ? theme.primary : theme.textMuted, fontSize: "14px" }}>
                             {formData.result_date ? `Select Date: ${formData.result_date}` : "Select Date"}
                         </span>
                         <input
@@ -173,78 +156,43 @@ export default function DeclareResult() {
                             type="date"
                             value={formData.result_date}
                             onChange={(e) => handleInputChange('result_date', e.target.value)}
-                            style={{
-                                position: "absolute",
-                                opacity: 0,
-                                width: "100%",
-                                height: "100%",
-                                top: 0,
-                                left: 0,
-                                cursor: "pointer"
-                            }}
+                            style={{ position: "absolute", opacity: 0, width: "100%", height: "100%", top: 0, left: 0, cursor: "pointer" }}
                         />
                     </div>
 
                     {/* Game Dropdown */}
                     <div className="dropdown-container" style={{ position: "relative" }}>
                         <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowGameDropdown(!showGameDropdown);
-                                setShowSessionDropdown(false);
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setShowGameDropdown(!showGameDropdown); setShowSessionDropdown(false); }}
                             style={{
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                padding: "12px 14px",
-                                cursor: "pointer",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                backgroundColor: "#fff"
+                                border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "12px 14px",
+                                cursor: "pointer", display: "flex", justifyContent: "space-between",
+                                alignItems: "center", backgroundColor: "#fff"
                             }}
                         >
-                            <span style={{
-                                color: selectedGame ? theme.primary : theme.textMuted,
-                                fontSize: "14px"
-                            }}>
+                            <span style={{ color: selectedGame ? theme.primary : theme.textMuted, fontSize: "14px" }}>
                                 {selectedGame
                                     ? `${selectedGame.product_name} (${formatTime(selectedGame.open_time)}-${formatTime(selectedGame.close_time)})`
-                                    : "Select Game"
-                                }
+                                    : "Select Game"}
                             </span>
                             <span style={{
                                 color: theme.primary,
                                 transform: showGameDropdown ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s",
-                                fontSize: "10px"
+                                transition: "transform 0.2s", fontSize: "10px"
                             }}>▼</span>
                         </div>
 
-                        {/* Game Dropdown List */}
                         {showGameDropdown && (
                             <div style={{
-                                position: "absolute",
-                                top: "100%",
-                                left: 0,
-                                right: 0,
-                                backgroundColor: "#fff",
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                marginTop: "4px",
-                                maxHeight: "280px",
-                                overflowY: "auto",
-                                zIndex: 1000,
-                                boxShadow: "0 4px 16px rgba(0,0,0,0.12)"
+                                position: "absolute", top: "100%", left: 0, right: 0,
+                                backgroundColor: "#fff", border: `1px solid ${theme.border}`,
+                                borderRadius: "6px", marginTop: "4px", maxHeight: "280px",
+                                overflowY: "auto", zIndex: 1000, boxShadow: "0 4px 16px rgba(0,0,0,0.12)"
                             }}>
                                 {gamesLoading ? (
-                                    <div style={{ padding: "16px", textAlign: "center", color: theme.textMuted }}>
-                                        Loading games...
-                                    </div>
+                                    <div style={{ padding: "16px", textAlign: "center", color: theme.textMuted }}>Loading games...</div>
                                 ) : gamesList.length === 0 ? (
-                                    <div style={{ padding: "16px", textAlign: "center", color: theme.textMuted }}>
-                                        No games found
-                                    </div>
+                                    <div style={{ padding: "16px", textAlign: "center", color: theme.textMuted }}>No games found</div>
                                 ) : (
                                     gamesList.map((game, index) => {
                                         const isSelected = selectedGame?.id === game.id;
@@ -253,83 +201,42 @@ export default function DeclareResult() {
                                                 key={game.id || index}
                                                 onClick={() => handleGameSelect(game)}
                                                 style={{
-                                                    padding: "10px 14px",
-                                                    cursor: "pointer",
+                                                    padding: "10px 14px", cursor: "pointer",
                                                     borderBottom: index < gamesList.length - 1 ? "1px solid #f3f4f6" : "none",
                                                     backgroundColor: isSelected ? theme.primaryLight : "#fff",
-                                                    display: "flex",
-                                                    justifyContent: "space-between",
-                                                    alignItems: "center",
-                                                    transition: "background-color 0.15s"
+                                                    display: "flex", justifyContent: "space-between",
+                                                    alignItems: "center", transition: "background-color 0.15s"
                                                 }}
-                                                onMouseEnter={(e) => {
-                                                    if (!isSelected) e.currentTarget.style.backgroundColor = "#f9fafb";
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!isSelected) e.currentTarget.style.backgroundColor = "#fff";
-                                                }}
+                                                onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                                                onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = "#fff"; }}
                                             >
-                                                {/* Left: ID + Name */}
                                                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                                     <span style={{
                                                         backgroundColor: isSelected ? theme.primary : "#f3f4f6",
                                                         color: isSelected ? "#fff" : theme.textMuted,
-                                                        padding: "3px 8px",
-                                                        borderRadius: "4px",
-                                                        fontSize: "11px",
-                                                        fontWeight: "600",
-                                                        minWidth: "28px",
-                                                        textAlign: "center"
-                                                    }}>
-                                                        {game.id}
-                                                    </span>
+                                                        padding: "3px 8px", borderRadius: "4px",
+                                                        fontSize: "11px", fontWeight: "600",
+                                                        minWidth: "28px", textAlign: "center"
+                                                    }}>{game.id}</span>
                                                     <div>
-                                                        <p style={{
-                                                            margin: 0,
-                                                            fontSize: "13px",
-                                                            fontWeight: "500",
-                                                            color: isSelected ? theme.primary : theme.text
-                                                        }}>
+                                                        <p style={{ margin: 0, fontSize: "13px", fontWeight: "500", color: isSelected ? theme.primary : theme.text }}>
                                                             {game.product_name}
                                                         </p>
-                                                        <p style={{
-                                                            margin: "1px 0 0",
-                                                            fontSize: "11px",
-                                                            color: theme.textMuted
-                                                        }}>
+                                                        <p style={{ margin: "1px 0 0", fontSize: "11px", color: theme.textMuted }}>
                                                             {game.game_name_hindi}
                                                         </p>
                                                     </div>
                                                 </div>
-
-                                                {/* Right: Time badges */}
                                                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                                    <span style={{
-                                                        fontSize: "11px",
-                                                        color: "#059669",
-                                                        backgroundColor: "#d1fae5",
-                                                        padding: "3px 6px",
-                                                        borderRadius: "3px"
-                                                    }}>
+                                                    <span style={{ fontSize: "11px", color: "#059669", backgroundColor: "#d1fae5", padding: "3px 6px", borderRadius: "3px" }}>
                                                         {formatTime(game.open_time)}
                                                     </span>
                                                     <span style={{ color: "#d1d5db", fontSize: "10px" }}>→</span>
-                                                    <span style={{
-                                                        fontSize: "11px",
-                                                        color: theme.danger,
-                                                        backgroundColor: "#fee2e2",
-                                                        padding: "3px 6px",
-                                                        borderRadius: "3px"
-                                                    }}>
+                                                    <span style={{ fontSize: "11px", color: theme.danger, backgroundColor: "#fee2e2", padding: "3px 6px", borderRadius: "3px" }}>
                                                         {formatTime(game.close_time)}
                                                     </span>
                                                     {game.schedule_status === "Active" && (
-                                                        <span style={{
-                                                            width: "6px",
-                                                            height: "6px",
-                                                            borderRadius: "50%",
-                                                            backgroundColor: theme.success
-                                                        }}></span>
+                                                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: theme.success }}></span>
                                                     )}
                                                 </div>
                                             </div>
@@ -343,50 +250,29 @@ export default function DeclareResult() {
                     {/* Session Dropdown */}
                     <div className="dropdown-container" style={{ position: "relative" }}>
                         <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowSessionDropdown(!showSessionDropdown);
-                                setShowGameDropdown(false);
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setShowSessionDropdown(!showSessionDropdown); setShowGameDropdown(false); }}
                             style={{
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                padding: "12px 14px",
-                                cursor: "pointer",
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                backgroundColor: "#fff"
+                                border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "12px 14px",
+                                cursor: "pointer", display: "flex", justifyContent: "space-between",
+                                alignItems: "center", backgroundColor: "#fff"
                             }}
                         >
-                            <span style={{
-                                color: formData.session ? theme.primary : theme.textMuted,
-                                fontSize: "14px"
-                            }}>
+                            <span style={{ color: formData.session ? theme.primary : theme.textMuted, fontSize: "14px" }}>
                                 {formData.session || "Select Session"}
                             </span>
                             <span style={{
                                 color: theme.primary,
                                 transform: showSessionDropdown ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s",
-                                fontSize: "10px"
+                                transition: "transform 0.2s", fontSize: "10px"
                             }}>▼</span>
                         </div>
 
-                        {/* Session Dropdown List */}
                         {showSessionDropdown && (
                             <div style={{
-                                position: "absolute",
-                                top: "100%",
-                                left: 0,
-                                right: 0,
-                                backgroundColor: "#fff",
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                marginTop: "4px",
-                                zIndex: 1000,
-                                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-                                overflow: "hidden"
+                                position: "absolute", top: "100%", left: 0, right: 0,
+                                backgroundColor: "#fff", border: `1px solid ${theme.border}`,
+                                borderRadius: "6px", marginTop: "4px", zIndex: 1000,
+                                boxShadow: "0 4px 16px rgba(0,0,0,0.12)", overflow: "hidden"
                             }}>
                                 {sessions.map((session, index) => {
                                     const isSelected = formData.session === session;
@@ -395,32 +281,19 @@ export default function DeclareResult() {
                                             key={session}
                                             onClick={() => handleSessionSelect(session)}
                                             style={{
-                                                padding: "10px 14px",
-                                                cursor: "pointer",
+                                                padding: "10px 14px", cursor: "pointer",
                                                 borderBottom: index < sessions.length - 1 ? "1px solid #f3f4f6" : "none",
                                                 backgroundColor: isSelected ? theme.primaryLight : "#fff",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "10px",
+                                                display: "flex", alignItems: "center", gap: "10px",
                                                 transition: "background-color 0.15s"
                                             }}
-                                            onMouseEnter={(e) => {
-                                                if (!isSelected) e.currentTarget.style.backgroundColor = "#f9fafb";
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isSelected) e.currentTarget.style.backgroundColor = "#fff";
-                                            }}
+                                            onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                                            onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = "#fff"; }}
                                         >
-                                            <span style={{
-                                                fontSize: "13px",
-                                                fontWeight: "500",
-                                                color: isSelected ? theme.primary : theme.text
-                                            }}>
+                                            <span style={{ fontSize: "13px", fontWeight: "500", color: isSelected ? theme.primary : theme.text }}>
                                                 {session}
                                             </span>
-                                            {isSelected && (
-                                                <span style={{ marginLeft: "auto", color: theme.primary, fontSize: "12px" }}>✓</span>
-                                            )}
+                                            {isSelected && <span style={{ marginLeft: "auto", color: theme.primary, fontSize: "12px" }}>✓</span>}
                                         </div>
                                     );
                                 })}
@@ -437,28 +310,15 @@ export default function DeclareResult() {
                             maxLength={3}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                // Only allow numbers
-                                if (value === '' || /^\d+$/.test(value)) {
-                                    handleInputChange('pana', value);
-                                }
+                                if (value === '' || /^\d+$/.test(value)) handleInputChange('pana', value);
                             }}
                             style={{
-                                flex: 1,
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                padding: "12px 14px",
-                                fontSize: "14px",
-                                outline: "none",
+                                flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = theme.primary;
-                                e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)";
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = theme.border;
-                                e.target.style.boxShadow = "none";
-                            }}
+                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)"; }}
+                            onBlur={(e) => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = "none"; }}
                         />
                         <input
                             type="text"
@@ -467,28 +327,15 @@ export default function DeclareResult() {
                             maxLength={1}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                // Only allow single digit 0-9
-                                if (value === '' || /^[0-9]$/.test(value)) {
-                                    handleInputChange('digit', value);
-                                }
+                                if (value === '' || /^[0-9]$/.test(value)) handleInputChange('digit', value);
                             }}
                             style={{
-                                flex: 1,
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                padding: "12px 14px",
-                                fontSize: "14px",
-                                outline: "none",
+                                flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = theme.primary;
-                                e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)";
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = theme.border;
-                                e.target.style.boxShadow = "none";
-                            }}
+                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)"; }}
+                            onBlur={(e) => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = "none"; }}
                         />
                     </div>
 
@@ -498,74 +345,38 @@ export default function DeclareResult() {
                             onClick={handleDeclareResult}
                             disabled={declaring}
                             style={{
-                                flex: 1,
-                                backgroundColor: declaring ? "#a5b4fc" : theme.primary,
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: "6px",
-                                padding: "12px 18px",
-                                fontSize: "14px",
-                                fontWeight: "600",
+                                flex: 1, backgroundColor: declaring ? "#a5b4fc" : theme.primary,
+                                color: "#fff", border: "none", borderRadius: "6px",
+                                padding: "12px 18px", fontSize: "14px", fontWeight: "600",
                                 cursor: declaring ? "not-allowed" : "pointer",
-                                transition: "background-color 0.2s",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "8px"
+                                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
                             }}
                         >
                             {declaring ? (
                                 <>
-                                    <span style={{
-                                        width: "14px",
-                                        height: "14px",
-                                        border: "2px solid #fff",
-                                        borderTopColor: "transparent",
-                                        borderRadius: "50%",
-                                        animation: "spin 1s linear infinite"
-                                    }}></span>
+                                    <span style={{ width: "14px", height: "14px", border: "2px solid #fff", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></span>
                                     Declaring...
                                 </>
-                            ) : (
-                                "Declare Result"
-                            )}
+                            ) : "Declare Result"}
                         </button>
 
                         <button
                             onClick={handleCheckWinners}
                             disabled={checkingWinners}
                             style={{
-                                flex: 1,
-                                backgroundColor: "#fff",
-                                color: theme.primary,
-                                border: `1px solid ${theme.border}`,
-                                borderRadius: "6px",
-                                padding: "12px 18px",
-                                fontSize: "14px",
-                                fontWeight: "600",
+                                flex: 1, backgroundColor: "#fff", color: theme.primary,
+                                border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                padding: "12px 18px", fontSize: "14px", fontWeight: "600",
                                 cursor: checkingWinners ? "not-allowed" : "pointer",
-                                transition: "all 0.2s",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "8px"
+                                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
                             }}
                         >
                             {checkingWinners ? (
                                 <>
-                                    <span style={{
-                                        width: "14px",
-                                        height: "14px",
-                                        border: "2px solid currentColor",
-                                        borderTopColor: "transparent",
-                                        borderRadius: "50%",
-                                        animation: "spin 1s linear infinite"
-                                    }}></span>
+                                    <span style={{ width: "14px", height: "14px", border: "2px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }}></span>
                                     Checking...
                                 </>
-                            ) : (
-                                "Check Winners"
-                            )}
+                            ) : "Check Winners"}
                         </button>
                     </div>
                 </div>
@@ -576,164 +387,156 @@ export default function DeclareResult() {
                 <div
                     onClick={() => setShowWinnersModal(false)}
                     style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.5)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 9999,
-                        padding: "16px"
+                        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+                        alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "16px"
                     }}
                 >
                     <div
                         onClick={(e) => e.stopPropagation()}
                         style={{
-                            backgroundColor: "#fff",
-                            borderRadius: "12px",
-                            maxWidth: "600px",
-                            width: "100%",
-                            maxHeight: "80vh",
-                            display: "flex",
-                            flexDirection: "column",
-                            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+                            backgroundColor: "#fff", borderRadius: "12px", maxWidth: "600px",
+                            width: "100%", maxHeight: "80vh", display: "flex", flexDirection: "column",
+                            boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)"
                         }}
                     >
                         {/* Modal Header */}
                         <div style={{
-                            padding: "20px",
-                            borderBottom: `1px solid ${theme.border}`,
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center"
+                            padding: "20px", borderBottom: `1px solid ${theme.border}`,
+                            display: "flex", justifyContent: "space-between", alignItems: "center"
                         }}>
-                            <h2 style={{
-                                margin: 0,
-                                fontSize: "18px",
-                                fontWeight: "600",
-                                color: theme.text
-                            }}>
-                                🏆 Winners List
-                            </h2>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "600", color: theme.text }}>
+                                    🏆 Winners List
+                                </h2>
+                                {winnersData?.message && (
+                                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: theme.textMuted }}>
+                                        {winnersData.message}
+                                    </p>
+                                )}
+                            </div>
                             <button
                                 onClick={() => setShowWinnersModal(false)}
                                 style={{
-                                    backgroundColor: "transparent",
-                                    border: "none",
-                                    fontSize: "24px",
-                                    cursor: "pointer",
-                                    color: theme.textMuted,
-                                    padding: "0",
-                                    width: "32px",
-                                    height: "32px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    borderRadius: "6px",
-                                    transition: "background-color 0.2s"
+                                    backgroundColor: "transparent", border: "none", fontSize: "24px",
+                                    cursor: "pointer", color: theme.textMuted, padding: "0",
+                                    width: "32px", height: "32px", display: "flex",
+                                    alignItems: "center", justifyContent: "center", borderRadius: "6px"
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f3f4f6"}
                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-                            >
-                                ×
-                            </button>
+                            >×</button>
                         </div>
 
                         {/* Modal Body */}
-                        <div style={{
-                            padding: "20px",
-                            overflowY: "auto",
-                            flex: 1
-                        }}>
-                            {winnersData?.data && winnersData.data.length > 0 ? (
+                        <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
+                            {winnersData?.winners && winnersData.winners.length > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                                    {winnersData.data.map((winner, index) => (
-                                        <div
-                                            key={winner.id || index}
-                                            style={{
-                                                backgroundColor: "#f9fafb",
-                                                border: `1px solid ${theme.border}`,
-                                                borderLeft: `4px solid ${theme.success}`,
-                                                borderRadius: "8px",
-                                                padding: "14px",
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "center"
-                                            }}
-                                        >
-                                            <div>
-                                                <div style={{
-                                                    fontSize: "14px",
-                                                    fontWeight: "600",
-                                                    color: theme.text,
-                                                    marginBottom: "4px"
-                                                }}>
-                                                    {winner.user_name || winner.username || `User #${winner.user_id}`}
+                                    {winnersData.winners.map((winner, index) => {
+                                        const typeBadge = getGameTypeBadgeColor(winner.game_type);
+                                        return (
+                                            <div
+                                                key={winner.id || index}
+                                                style={{
+                                                    backgroundColor: "#f9fafb",
+                                                    border: `1px solid ${theme.border}`,
+                                                    borderLeft: `4px solid ${theme.success}`,
+                                                    borderRadius: "8px", padding: "14px"
+                                                }}
+                                            >
+                                                {/* Top row: user + points */}
+                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                        <div style={{
+                                                            width: "32px", height: "32px", borderRadius: "50%",
+                                                            backgroundColor: theme.primary, display: "flex",
+                                                            alignItems: "center", justifyContent: "center",
+                                                            color: "#fff", fontWeight: "700", fontSize: "12px"
+                                                        }}>
+                                                            {(winner.user_name || "U").charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: "14px", fontWeight: "600", color: theme.text }}>
+                                                                {winner.user_name || `User #${winner.id}`}
+                                                            </div>
+                                                            <div style={{ fontSize: "11px", color: theme.textMuted }}>
+                                                                {winner.game_name} • {winner.session}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ textAlign: "right" }}>
+                                                        <div style={{ fontSize: "13px", color: theme.textMuted }}>Bid Points</div>
+                                                        <div style={{ fontSize: "16px", fontWeight: "700", color: theme.success }}>
+                                                            ₹{parseFloat(winner.points || 0).toLocaleString('en-IN')}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div style={{
-                                                    fontSize: "12px",
-                                                    color: theme.textMuted
-                                                }}>
-                                                    {winner.game_type || 'N/A'} • Digit: {winner.digit || winner.number || 'N/A'}
+
+                                                {/* Bottom row: badges */}
+                                                <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                                    <span style={{
+                                                        backgroundColor: typeBadge.bg, color: typeBadge.color,
+                                                        padding: "3px 8px", borderRadius: "4px",
+                                                        fontSize: "11px", fontWeight: "600"
+                                                    }}>
+                                                        {winner.game_type}
+                                                    </span>
+                                                    <span style={{
+                                                        backgroundColor: "#dbeafe", color: "#1d4ed8",
+                                                        padding: "3px 8px", borderRadius: "4px",
+                                                        fontSize: "11px", fontWeight: "600", fontFamily: "monospace"
+                                                    }}>
+                                                        Pana: {winner.pana}
+                                                    </span>
+                                                    <span style={{
+                                                        backgroundColor: "#ede9fe", color: "#6d28d9",
+                                                        padding: "3px 8px", borderRadius: "4px",
+                                                        fontSize: "11px", fontWeight: "600", fontFamily: "monospace"
+                                                    }}>
+                                                        Digit: {winner.digit}
+                                                    </span>
+                                                    <span style={{
+                                                        backgroundColor: "#f0fdf4", color: "#166534",
+                                                        padding: "3px 8px", borderRadius: "4px",
+                                                        fontSize: "11px", fontWeight: "600"
+                                                    }}>
+                                                        {winner.bid_date}
+                                                    </span>
+                                                    {winner.jodi && (
+                                                        <span style={{
+                                                            backgroundColor: "#fce7f3", color: "#be185d",
+                                                            padding: "3px 8px", borderRadius: "4px",
+                                                            fontSize: "11px", fontWeight: "600"
+                                                        }}>
+                                                            Jodi: {winner.jodi}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div style={{
-                                                fontSize: "16px",
-                                                fontWeight: "700",
-                                                color: theme.success
-                                            }}>
-                                                ₹{winner.winning_amount || winner.amount || '0'}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
-                                <div style={{
-                                    textAlign: "center",
-                                    padding: "40px 20px",
-                                    color: theme.textMuted
-                                }}>
+                                <div style={{ textAlign: "center", padding: "40px 20px", color: theme.textMuted }}>
                                     <div style={{ fontSize: "48px", marginBottom: "12px" }}>🎯</div>
-                                    <div style={{ fontSize: "16px", fontWeight: "500", marginBottom: "6px" }}>
-                                        No Winners Found
-                                    </div>
-                                    <div style={{ fontSize: "14px" }}>
-                                        {winnersData?.message || "No winning bids for this result"}
-                                    </div>
+                                    <div style={{ fontSize: "16px", fontWeight: "500", marginBottom: "6px" }}>No Winners Found</div>
+                                    <div style={{ fontSize: "14px" }}>{winnersData?.message || "No winning bids for this result"}</div>
                                 </div>
                             )}
                         </div>
 
                         {/* Modal Footer */}
-                        {winnersData?.data && winnersData.data.length > 0 && (
+                        {winnersData?.winners && winnersData.winners.length > 0 && (
                             <div style={{
-                                padding: "16px 20px",
-                                borderTop: `1px solid ${theme.border}`,
-                                backgroundColor: "#f9fafb",
-                                borderBottomLeftRadius: "12px",
-                                borderBottomRightRadius: "12px"
+                                padding: "16px 20px", borderTop: `1px solid ${theme.border}`,
+                                backgroundColor: "#f9fafb", borderBottomLeftRadius: "12px", borderBottomRightRadius: "12px"
                             }}>
-                                <div style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}>
-                                    <span style={{
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        color: theme.text
-                                    }}>
-                                        Total Winners: {winnersData.data.length}
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "14px", fontWeight: "600", color: theme.text }}>
+                                        Total Winners: {winnersData.winners.length}
                                     </span>
-                                    <span style={{
-                                        fontSize: "14px",
-                                        fontWeight: "600",
-                                        color: theme.success
-                                    }}>
-                                        Total Payout: ₹{winnersData.data.reduce((sum, w) => sum + parseFloat(w.winning_amount || w.amount || 0), 0).toLocaleString('en-IN')}
+                                    <span style={{ fontSize: "14px", fontWeight: "600", color: theme.success }}>
+                                        Total Bid Points: ₹{winnersData.winners.reduce((sum, w) => sum + parseFloat(w.points || 0), 0).toLocaleString('en-IN')}
                                     </span>
                                 </div>
                             </div>
@@ -742,7 +545,6 @@ export default function DeclareResult() {
                 </div>
             )}
 
-            {/* CSS for spinner animation */}
             <style jsx>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }

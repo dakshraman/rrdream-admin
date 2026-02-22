@@ -36,7 +36,7 @@ export default function FundRequests() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [dateFilter, setDateFilter] = useState("");
     const [processingId, setProcessingId] = useState(null);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const { data: fundData, isLoading, isError, error, refetch } = useGetFundRequestsQuery(undefined, {
         refetchOnMountOrArgChange: true,

@@ -373,7 +373,7 @@ export default function StarlineGameName() {
     const [modalOpen, setModalOpen]     = useState(false);
     const [editData, setEditData]       = useState(null);
     const [togglingId, setTogglingId]   = useState(null);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const { data: gamesData, isLoading, isError, error } = useGetStarlineGamesQuery(undefined, {
         refetchOnMountOrArgChange: true,

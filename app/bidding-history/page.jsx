@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import DataTable from "react-data-table-component";
@@ -48,6 +48,19 @@ export default function BiddingHistory() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
+    // ── QUERY 1: Fetch all game names for dropdown (once, no filters) ──
+    const { data: allDataResponse } = useGetBiddingHistoryQuery(
+        { page: 1, per_page: 1000, date: "", game_name: "", game_type: "", session: "", search: "" },
+        { refetchOnMountOrArgChange: false }
+    );
+
+    const gameNameOptions = useMemo(() => {
+        const raw = allDataResponse?.data || [];
+        const names = raw.map(row => row.game_name).filter(Boolean);
+        return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+    }, [allDataResponse]);
+
+    // ── QUERY 2: Filtered table data ──
     const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters, {
         refetchOnMountOrArgChange: true,
     });
@@ -138,7 +151,16 @@ export default function BiddingHistory() {
             </div>
             <div>
                 <label style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Game Name</label>
-                <input type="text" placeholder="Game name..." value={filters.game_name} onChange={(e) => handleFilterChange("game_name", e.target.value)} style={{ ...inputStyle, marginTop: "3px" }} />
+                <select
+                    value={filters.game_name}
+                    onChange={(e) => handleFilterChange("game_name", e.target.value)}
+                    style={{ ...inputStyle, marginTop: "3px", cursor: "pointer" }}
+                >
+                    <option value="">All Games</option>
+                    {gameNameOptions.map((name, i) => (
+                        <option key={i} value={name}>{name}</option>
+                    ))}
+                </select>
             </div>
             <div>
                 <label style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Type</label>
@@ -240,6 +262,7 @@ export default function BiddingHistory() {
             </div>
         );
     };
+
     // ── DESKTOP DATATABLE COLUMNS ─────────────────────────────────────────────────
     const columns = [
         { name: "S.No", selector: (row, i) => ((filters.page - 1) * filters.per_page) + i + 1, width: "60px" },

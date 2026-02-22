@@ -83,7 +83,7 @@ export default function ManageBannersData() {
     );
     console.log("Extracted banners:", banners);
 
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [deletingId, setDeletingId] = useState(null);
 
     const formatDate = (dateString) => {
