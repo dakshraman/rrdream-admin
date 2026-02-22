@@ -1,18 +1,19 @@
 'use client';
 import { useState } from "react";
-import { useGetGameSchedulesQuery, useUpdateGameScheduleMutation, useToggleScheduleStatusMutation } from "@/store/backendSlice/apiAPISlice";
+import { useGetGameSchedulesQuery, useUpdateGameMutation, useUpdateGameScheduleMutation, useToggleScheduleStatusMutation } from "@/store/backendSlice/apiAPISlice";
 import { toast } from "react-hot-toast";
 
 export default function GameManagement() {
     const { data: scheduleData, isLoading, isError, error } = useGetGameSchedulesQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
+    const [updateGame, { isLoading: isUpdatingGame }] = useUpdateGameMutation();
     const [updateGameSchedule, { isLoading: isUpdating }] = useUpdateGameScheduleMutation();
     const [toggleScheduleStatus, { isLoading: isToggling }] = useToggleScheduleStatusMutation();
 
     // State for search
     const [searchQuery, setSearchQuery] = useState("");
-    const [bulkTogglingGameId, setBulkTogglingGameId] = useState(null);
+    const [updatingGameId, setUpdatingGameId] = useState(null);
 
     // API returns { data: [...] } so we access scheduleData.data
     const allGames = scheduleData?.data || [];
@@ -25,6 +26,11 @@ export default function GameManagement() {
     const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
     // State for managing edits
+    const [editingGameId, setEditingGameId] = useState(null);
+    const [gameEditForm, setGameEditForm] = useState({
+        game_name: "",
+        game_name_hindi: ""
+    });
     const [editingScheduleId, setEditingScheduleId] = useState(null);
     const [editForm, setEditForm] = useState({
         open_time: "",
@@ -69,6 +75,19 @@ export default function GameManagement() {
         setEditForm({ open_time: "", close_time: "" });
     };
 
+    const handleGameEditClick = (game) => {
+        setEditingGameId(game.game_id);
+        setGameEditForm({
+            game_name: game.game_name || "",
+            game_name_hindi: game.game_name_hindi || ""
+        });
+    };
+
+    const handleCancelGameEdit = () => {
+        setEditingGameId(null);
+        setGameEditForm({ game_name: "", game_name_hindi: "" });
+    };
+
     const handleUpdateSchedule = async (scheduleId) => {
         if (!editForm.open_time || !editForm.close_time) {
             toast.error("Please select both open and close times");
@@ -105,6 +124,47 @@ export default function GameManagement() {
         }
     };
 
+    const resolveGameStatusForUpdate = (game, fallbackStatus) => {
+        if (fallbackStatus) return fallbackStatus;
+
+        if (typeof game?.status === "string" && game.status.trim()) {
+            return game.status === "Active" ? "Active" : "Inactive";
+        }
+
+        if (typeof game?.status === "number") {
+            return game.status === 1 ? "Active" : "Inactive";
+        }
+
+        if (typeof game?.status === "boolean") {
+            return game.status ? "Active" : "Inactive";
+        }
+
+        return getGameStatusSummary(game).allActive ? "Active" : "Inactive";
+    };
+
+    const submitGameUpdate = async (game, overrides = {}, successMessage = "Game updated successfully") => {
+        const payload = {
+            id: game.game_id,
+            game_name: overrides.game_name ?? game.game_name,
+            game_name_hindi: overrides.game_name_hindi ?? game.game_name_hindi,
+            status: resolveGameStatusForUpdate(game, overrides.status),
+        };
+
+        setUpdatingGameId(game.game_id);
+
+        try {
+            await updateGame(payload).unwrap();
+            toast.success(successMessage);
+            return true;
+        } catch (err) {
+            console.error("Update game error:", err);
+            toast.error(err?.data?.message || "Failed to update game");
+            return false;
+        } finally {
+            setUpdatingGameId(null);
+        }
+    };
+
     const getGameSchedules = (game) => {
         if (!game?.schedule) return [];
 
@@ -127,49 +187,30 @@ export default function GameManagement() {
     };
 
     const handleToggleGameStatus = async (game) => {
-        const { schedules, total, allActive } = getGameStatusSummary(game);
-
-        if (!total) {
-            toast.error("No schedules found for this game");
-            return;
-        }
-
+        const { allActive } = getGameStatusSummary(game);
         const targetStatus = allActive ? "Inactive" : "Active";
-        const schedulesToToggle = schedules.filter((schedule) => schedule.status !== targetStatus);
+        const confirmMsg = `Change ${game.game_name} status to ${targetStatus}? This will update the game via updategame API.`;
+        if (!window.confirm(confirmMsg)) return;
+        await submitGameUpdate(game, { status: targetStatus }, `Game status changed to ${targetStatus}`);
+    };
 
-        if (schedulesToToggle.length === 0) {
-            toast.success(`All day schedules are already ${targetStatus}`);
+    const handleUpdateGameNames = async (game) => {
+        const game_name = (gameEditForm.game_name || "").trim();
+        const game_name_hindi = (gameEditForm.game_name_hindi || "").trim();
+
+        if (!game_name || !game_name_hindi) {
+            toast.error("Please enter both game name and game name hindi");
             return;
         }
 
-        const confirmMsg = `Change all ${schedulesToToggle.length} day toggles for ${game.game_name} to ${targetStatus}?`;
-        if (!window.confirm(confirmMsg)) return;
+        const isUpdated = await submitGameUpdate(
+            game,
+            { game_name, game_name_hindi },
+            "Game name updated successfully"
+        );
 
-        setBulkTogglingGameId(game.game_id);
-
-        let successCount = 0;
-        let failedCount = 0;
-
-        try {
-            for (const schedule of schedulesToToggle) {
-                try {
-                    await toggleScheduleStatus(schedule.schedule_id).unwrap();
-                    successCount += 1;
-                } catch (err) {
-                    failedCount += 1;
-                    console.error("Bulk toggle status error:", err);
-                }
-            }
-
-            if (successCount > 0) {
-                toast.success(`Updated ${successCount} day toggle${successCount > 1 ? "s" : ""} to ${targetStatus}`);
-            }
-
-            if (failedCount > 0) {
-                toast.error(`Failed to update ${failedCount} day toggle${failedCount > 1 ? "s" : ""}`);
-            }
-        } finally {
-            setBulkTogglingGameId(null);
+        if (isUpdated) {
+            handleCancelGameEdit();
         }
     };
 
@@ -231,7 +272,10 @@ export default function GameManagement() {
                     const gameStatus = getGameStatusSummary(game);
                     const isGameAllActive = gameStatus.allActive;
                     const isGameMixed = gameStatus.isMixed;
-                    const isGameToggleDisabled = isToggling || bulkTogglingGameId === game.game_id;
+                    const isEditingGame = editingGameId === game.game_id;
+                    const isGameHeaderUpdating = isUpdatingGame && updatingGameId === game.game_id;
+                    const isGameToggleDisabled = isGameHeaderUpdating;
+                    const isDayToggleDisabled = isToggling || isGameHeaderUpdating;
 
                     return (
                     <div key={game.game_id} style={{
@@ -256,6 +300,16 @@ export default function GameManagement() {
                                 <h3 style={{ fontSize: "16px", fontWeight: "600", color: theme.text, margin: 0 }}>
                                     {game.game_name}
                                 </h3>
+                                {!!game.game_name_hindi && (
+                                    <div style={{
+                                        fontSize: "12px",
+                                        color: theme.textMuted,
+                                        marginTop: "4px",
+                                        lineHeight: 1.3
+                                    }}>
+                                        {game.game_name_hindi}
+                                    </div>
+                                )}
                                 <span style={{
                                     fontSize: "12px",
                                     color: theme.textMuted,
@@ -267,6 +321,23 @@ export default function GameManagement() {
                                 }}>
                                     ID: {game.game_id}
                                 </span>
+                                <button
+                                    onClick={() => isEditingGame ? handleCancelGameEdit() : handleGameEditClick(game)}
+                                    disabled={isGameHeaderUpdating}
+                                    style={{
+                                        marginLeft: "8px",
+                                        backgroundColor: "transparent",
+                                        color: theme.primary,
+                                        border: "none",
+                                        fontSize: "12px",
+                                        cursor: isGameHeaderUpdating ? "not-allowed" : "pointer",
+                                        fontWeight: "500",
+                                        padding: 0,
+                                        opacity: isGameHeaderUpdating ? 0.6 : 1
+                                    }}
+                                >
+                                    {isEditingGame ? "Cancel Name Edit" : "Edit Name"}
+                                </button>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                 <span style={{
@@ -311,6 +382,91 @@ export default function GameManagement() {
                             </div>
                         </div>
 
+                        {isEditingGame && (
+                            <div style={{
+                                padding: "12px 16px",
+                                borderBottom: `1px solid ${theme.border}`,
+                                backgroundColor: "#ffffff"
+                            }}>
+                                <div style={{ display: "grid", gap: "10px" }}>
+                                    <div>
+                                        <label style={{ display: "block", fontSize: "11px", color: theme.textMuted, marginBottom: "4px" }}>
+                                            Game Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={gameEditForm.game_name}
+                                            onChange={(e) => setGameEditForm((prev) => ({ ...prev, game_name: e.target.value }))}
+                                            disabled={isGameHeaderUpdating}
+                                            style={{
+                                                width: "100%",
+                                                padding: "8px 10px",
+                                                borderRadius: "6px",
+                                                border: `1px solid ${theme.border}`,
+                                                fontSize: "13px",
+                                                outline: "none",
+                                                boxSizing: "border-box"
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: "block", fontSize: "11px", color: theme.textMuted, marginBottom: "4px" }}>
+                                            Game Name (Hindi)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={gameEditForm.game_name_hindi}
+                                            onChange={(e) => setGameEditForm((prev) => ({ ...prev, game_name_hindi: e.target.value }))}
+                                            disabled={isGameHeaderUpdating}
+                                            style={{
+                                                width: "100%",
+                                                padding: "8px 10px",
+                                                borderRadius: "6px",
+                                                border: `1px solid ${theme.border}`,
+                                                fontSize: "13px",
+                                                outline: "none",
+                                                boxSizing: "border-box"
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                                        <button
+                                            onClick={handleCancelGameEdit}
+                                            disabled={isGameHeaderUpdating}
+                                            style={{
+                                                backgroundColor: "#f3f4f6",
+                                                color: theme.text,
+                                                border: `1px solid ${theme.border}`,
+                                                padding: "6px 10px",
+                                                borderRadius: "6px",
+                                                cursor: isGameHeaderUpdating ? "not-allowed" : "pointer",
+                                                fontSize: "12px"
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => handleUpdateGameNames(game)}
+                                            disabled={isGameHeaderUpdating}
+                                            style={{
+                                                backgroundColor: theme.primary,
+                                                color: "white",
+                                                border: "none",
+                                                padding: "6px 10px",
+                                                borderRadius: "6px",
+                                                cursor: isGameHeaderUpdating ? "not-allowed" : "pointer",
+                                                fontSize: "12px",
+                                                fontWeight: "600",
+                                                opacity: isGameHeaderUpdating ? 0.7 : 1
+                                            }}
+                                        >
+                                            {isGameHeaderUpdating ? "Saving..." : "Save Name"}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Schedule List */}
                         <div style={{ padding: "12px 16px", flex: 1 }}>
                             {weekDays.map((day, index) => {
@@ -347,7 +503,7 @@ export default function GameManagement() {
                                                         type="checkbox"
                                                         checked={isActive}
                                                         onChange={() => handleToggleStatus(daySchedule.schedule_id, daySchedule.status)}
-                                                        disabled={isGameToggleDisabled}
+                                                        disabled={isDayToggleDisabled}
                                                         style={{ opacity: 0, width: 0, height: 0 }}
                                                     />
                                                     <span style={{

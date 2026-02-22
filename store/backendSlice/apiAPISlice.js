@@ -398,6 +398,23 @@ export const apiAPISlice = createApi({
       }),
       providesTags: ["Games"],
     }),
+    updateGame: builder.mutation({
+      query: ({ id, game_name, game_name_hindi, status }) => {
+        const formData = new FormData();
+        if (game_name !== undefined) formData.append("game_name", game_name);
+        if (game_name_hindi !== undefined)
+          formData.append("game_name_hindi", game_name_hindi);
+        if (status !== undefined) formData.append("status", status);
+
+        return {
+          url: `updategame/${id}`,
+          method: "POST",
+          body: formData,
+          formData: true,
+        };
+      },
+      invalidatesTags: ["Games"],
+    }),
     updateGameSchedule: builder.mutation({
       query: ({ id, open_time, close_time }) => ({
         url: `game-schedules/${id}`,
@@ -636,6 +653,7 @@ export const {
   useToggleUserMutation,
   useGetGamesQuery,
   useGetGameSchedulesQuery,
+  useUpdateGameMutation,
   useUpdateGameScheduleMutation,
   useToggleScheduleStatusMutation,
   useDeclareResultMutation,
