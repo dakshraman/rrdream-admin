@@ -414,6 +414,49 @@ export const apiAPISlice = createApi({
         };
       },
       invalidatesTags: ["Games"],
+      async onQueryStarted(
+        { id, game_name, game_name_hindi, status },
+        { dispatch, queryFulfilled },
+      ) {
+        const patchResult = dispatch(
+          apiAPISlice.util.updateQueryData(
+            "getGameSchedules",
+            undefined,
+            (draft) => {
+              if (!draft?.data) return;
+
+              const targetGame = draft.data.find(
+                (game) => String(game?.game_id ?? game?.id) === String(id),
+              );
+
+              if (!targetGame) return;
+
+              if (game_name !== undefined) targetGame.game_name = game_name;
+              if (game_name_hindi !== undefined)
+                targetGame.game_name_hindi = game_name_hindi;
+
+              if (status !== undefined) {
+                targetGame.status = status;
+
+                // Keep nested day toggles aligned with the main game status in UI.
+                if (targetGame.schedule) {
+                  Object.values(targetGame.schedule).forEach((daySchedules) => {
+                    daySchedules.forEach((schedule) => {
+                      schedule.status = status;
+                    });
+                  });
+                }
+              }
+            },
+          ),
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
     updateGameSchedule: builder.mutation({
       query: ({ id, open_time, close_time }) => ({

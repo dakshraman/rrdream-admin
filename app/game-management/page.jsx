@@ -4,7 +4,7 @@ import { useGetGameSchedulesQuery, useUpdateGameMutation, useUpdateGameScheduleM
 import { toast } from "react-hot-toast";
 
 export default function GameManagement() {
-    const { data: scheduleData, isLoading, isError, error } = useGetGameSchedulesQuery(undefined, {
+    const { data: scheduleData, isLoading, isError, error, refetch } = useGetGameSchedulesQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
     const [updateGame, { isLoading: isUpdatingGame }] = useUpdateGameMutation();
@@ -142,12 +142,33 @@ export default function GameManagement() {
         return getGameStatusSummary(game).allActive ? "Active" : "Inactive";
     };
 
+    const getExplicitGameStatusForUpdate = (game) => {
+        if (typeof game?.status === "string" && game.status.trim()) {
+            return game.status === "Active" ? "Active" : "Inactive";
+        }
+
+        if (typeof game?.status === "number") {
+            return game.status === 1 ? "Active" : "Inactive";
+        }
+
+        if (typeof game?.status === "boolean") {
+            return game.status ? "Active" : "Inactive";
+        }
+
+        return undefined;
+    };
+
     const submitGameUpdate = async (game, overrides = {}, successMessage = "Game updated successfully") => {
+        const resolvedStatus =
+            overrides.status !== undefined
+                ? resolveGameStatusForUpdate(game, overrides.status)
+                : getExplicitGameStatusForUpdate(game);
+
         const payload = {
             id: game.game_id,
             game_name: overrides.game_name ?? game.game_name,
             game_name_hindi: overrides.game_name_hindi ?? game.game_name_hindi,
-            status: resolveGameStatusForUpdate(game, overrides.status),
+            status: resolvedStatus,
         };
 
         setUpdatingGameId(game.game_id);
@@ -171,6 +192,22 @@ export default function GameManagement() {
         return weekDays.flatMap((day) => (game.schedule?.[day] || []).filter(Boolean));
     };
 
+    const getGameLevelIsActive = (game) => {
+        if (typeof game?.status === "string" && game.status.trim()) {
+            return game.status === "Active";
+        }
+
+        if (typeof game?.status === "number") {
+            return game.status === 1;
+        }
+
+        if (typeof game?.status === "boolean") {
+            return game.status;
+        }
+
+        return null;
+    };
+
     const getGameStatusSummary = (game) => {
         const schedules = getGameSchedules(game);
         const total = schedules.length;
@@ -187,11 +224,52 @@ export default function GameManagement() {
     };
 
     const handleToggleGameStatus = async (game) => {
+        const gameLevelIsActive = getGameLevelIsActive(game);
         const { allActive } = getGameStatusSummary(game);
-        const targetStatus = allActive ? "Inactive" : "Active";
+        const isCurrentlyActive = gameLevelIsActive ?? allActive;
+        const targetStatus = isCurrentlyActive ? "Inactive" : "Active";
         const confirmMsg = `Change ${game.game_name} status to ${targetStatus}? This will update the game via updategame API.`;
         if (!window.confirm(confirmMsg)) return;
-        await submitGameUpdate(game, { status: targetStatus }, `Game status changed to ${targetStatus}`);
+
+        const isUpdated = await submitGameUpdate(game, { status: targetStatus }, `Game status changed to ${targetStatus}`);
+        if (!isUpdated) return;
+
+        // Ensure the day-level schedule toggles follow the main game status.
+        try {
+            const refreshedResult = await refetch();
+            const refreshedGames = refreshedResult?.data?.data || [];
+            const refreshedGame = refreshedGames.find(
+                (item) => String(item?.game_id ?? item?.id) === String(game.game_id)
+            );
+
+            const sourceGame = refreshedGame || game;
+            const schedulesToSync = getGameSchedules(sourceGame).filter(
+                (schedule) => schedule.status !== targetStatus
+            );
+
+            if (schedulesToSync.length === 0) return;
+
+            let synced = 0;
+            let failed = 0;
+
+            for (const schedule of schedulesToSync) {
+                try {
+                    await toggleScheduleStatus(schedule.schedule_id).unwrap();
+                    synced += 1;
+                } catch (err) {
+                    failed += 1;
+                    console.error("Main toggle day sync error:", err);
+                }
+            }
+
+            if (failed > 0) {
+                toast.error(`Main toggle updated game, but ${failed} day toggle${failed > 1 ? "s" : ""} failed to sync`);
+            } else if (synced > 0) {
+                toast.success(`Synced ${synced} day toggle${synced > 1 ? "s" : ""}`);
+            }
+        } catch (err) {
+            console.error("Refetch after main toggle failed:", err);
+        }
     };
 
     const handleUpdateGameNames = async (game) => {
@@ -270,11 +348,12 @@ export default function GameManagement() {
             }}>
                 {games.map((game) => {
                     const gameStatus = getGameStatusSummary(game);
-                    const isGameAllActive = gameStatus.allActive;
+                    const gameLevelIsActive = getGameLevelIsActive(game);
+                    const isGameAllActive = gameLevelIsActive ?? gameStatus.allActive;
                     const isGameMixed = gameStatus.isMixed;
                     const isEditingGame = editingGameId === game.game_id;
                     const isGameHeaderUpdating = isUpdatingGame && updatingGameId === game.game_id;
-                    const isGameToggleDisabled = isGameHeaderUpdating;
+                    const isGameToggleDisabled = isGameHeaderUpdating || isToggling;
                     const isDayToggleDisabled = isToggling || isGameHeaderUpdating;
 
                     return (
