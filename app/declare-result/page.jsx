@@ -506,86 +506,90 @@ export default function DeclareResult() {
                         borderRadius: "8px",
                         overflow: "hidden"
                     }}>
-                        <div className="declared-results-grid-head" style={{
-                            display: "grid",
-                            gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
-                            gap: "10px",
-                            padding: "10px 12px",
-                            backgroundColor: "#f8fafc",
-                            borderBottom: `1px solid ${theme.border}`,
-                            fontSize: "12px",
-                            color: theme.textMuted,
-                            fontWeight: "600"
-                        }}>
-                            <span>Game</span>
-                            <span>Date</span>
-                            <span>Open</span>
-                            <span>Close</span>
-                        </div>
-
-                        {declaredResultsList.map((row, index) => (
-                            <div
-                                key={`${row.game_name}-${row.result_date}-${index}`}
-                                className="declared-results-grid-row"
-                                style={{
+                        <div className="declared-results-scroll">
+                            <div className="declared-results-table-inner">
+                                <div className="declared-results-grid-head" style={{
                                     display: "grid",
                                     gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
                                     gap: "10px",
                                     padding: "10px 12px",
-                                    borderBottom: index < declaredResultsList.length - 1 ? `1px solid ${theme.border}` : "none",
-                                    alignItems: "center"
-                                }}
-                            >
-                                <span style={{ fontSize: "13px", fontWeight: "600", color: theme.text }}>
-                                    {row.game_name || "-"}
-                                </span>
-                                <span style={{ fontSize: "12px", color: theme.textMuted }}>
-                                    {row.result_date || "-"}
-                                </span>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                                    {renderSessionResult(row?.sessions?.open)}
-                                    {row?.sessions?.open?.result_id ? (
-                                        <button
-                                            onClick={() => handleDeleteResult(row.sessions.open.result_id, "Open", row.game_name)}
-                                            disabled={deletingResultId === row.sessions.open.result_id}
-                                            style={{
-                                                border: "none",
-                                                borderRadius: "4px",
-                                                padding: "4px 8px",
-                                                fontSize: "11px",
-                                                fontWeight: "600",
-                                                color: "#fff",
-                                                backgroundColor: deletingResultId === row.sessions.open.result_id ? "#fca5a5" : theme.danger,
-                                                cursor: deletingResultId === row.sessions.open.result_id ? "not-allowed" : "pointer"
-                                            }}
-                                        >
-                                            {deletingResultId === row.sessions.open.result_id ? "Deleting..." : "Delete"}
-                                        </button>
-                                    ) : null}
+                                    backgroundColor: "#f8fafc",
+                                    borderBottom: `1px solid ${theme.border}`,
+                                    fontSize: "12px",
+                                    color: theme.textMuted,
+                                    fontWeight: "600"
+                                }}>
+                                    <span>Game</span>
+                                    <span>Date</span>
+                                    <span>Open</span>
+                                    <span>Close</span>
                                 </div>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                                    {renderSessionResult(row?.sessions?.close)}
-                                    {row?.sessions?.close?.result_id ? (
-                                        <button
-                                            onClick={() => handleDeleteResult(row.sessions.close.result_id, "Close", row.game_name)}
-                                            disabled={deletingResultId === row.sessions.close.result_id}
-                                            style={{
-                                                border: "none",
-                                                borderRadius: "4px",
-                                                padding: "4px 8px",
-                                                fontSize: "11px",
-                                                fontWeight: "600",
-                                                color: "#fff",
-                                                backgroundColor: deletingResultId === row.sessions.close.result_id ? "#fca5a5" : theme.danger,
-                                                cursor: deletingResultId === row.sessions.close.result_id ? "not-allowed" : "pointer"
-                                            }}
-                                        >
-                                            {deletingResultId === row.sessions.close.result_id ? "Deleting..." : "Delete"}
-                                        </button>
-                                    ) : null}
-                                </div>
+
+                                {declaredResultsList.map((row, index) => (
+                                    <div
+                                        key={`${row.game_name}-${row.result_date}-${index}`}
+                                        className="declared-results-grid-row"
+                                        style={{
+                                            display: "grid",
+                                            gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
+                                            gap: "10px",
+                                            padding: "10px 12px",
+                                            borderBottom: index < declaredResultsList.length - 1 ? `1px solid ${theme.border}` : "none",
+                                            alignItems: "center"
+                                        }}
+                                    >
+                                        <span style={{ fontSize: "13px", fontWeight: "600", color: theme.text }}>
+                                            {row.game_name || "-"}
+                                        </span>
+                                        <span style={{ fontSize: "12px", color: theme.textMuted }}>
+                                            {row.result_date || "-"}
+                                        </span>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                            {renderSessionResult(row?.sessions?.open)}
+                                            {row?.sessions?.open?.result_id ? (
+                                                <button
+                                                    onClick={() => handleDeleteResult(row.sessions.open.result_id, "Open", row.game_name)}
+                                                    disabled={deletingResultId === row.sessions.open.result_id}
+                                                    style={{
+                                                        border: "none",
+                                                        borderRadius: "4px",
+                                                        padding: "4px 8px",
+                                                        fontSize: "11px",
+                                                        fontWeight: "600",
+                                                        color: "#fff",
+                                                        backgroundColor: deletingResultId === row.sessions.open.result_id ? "#fca5a5" : theme.danger,
+                                                        cursor: deletingResultId === row.sessions.open.result_id ? "not-allowed" : "pointer"
+                                                    }}
+                                                >
+                                                    {deletingResultId === row.sessions.open.result_id ? "Deleting..." : "Delete"}
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                            {renderSessionResult(row?.sessions?.close)}
+                                            {row?.sessions?.close?.result_id ? (
+                                                <button
+                                                    onClick={() => handleDeleteResult(row.sessions.close.result_id, "Close", row.game_name)}
+                                                    disabled={deletingResultId === row.sessions.close.result_id}
+                                                    style={{
+                                                        border: "none",
+                                                        borderRadius: "4px",
+                                                        padding: "4px 8px",
+                                                        fontSize: "11px",
+                                                        fontWeight: "600",
+                                                        color: "#fff",
+                                                        backgroundColor: deletingResultId === row.sessions.close.result_id ? "#fca5a5" : theme.danger,
+                                                        cursor: deletingResultId === row.sessions.close.result_id ? "not-allowed" : "pointer"
+                                                    }}
+                                                >
+                                                    {deletingResultId === row.sessions.close.result_id ? "Deleting..." : "Delete"}
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -769,14 +773,16 @@ export default function DeclareResult() {
                     min-width: 0;
                 }
 
-                .declared-results-table-wrap {
+                .declared-results-scroll {
                     overflow-x: auto;
+                    overflow-y: hidden;
+                    width: 100%;
                     -webkit-overflow-scrolling: touch;
+                    touch-action: pan-x pan-y;
                 }
 
-                .declared-results-grid-head,
-                .declared-results-grid-row {
-                    min-width: 620px;
+                .declared-results-table-inner {
+                    min-width: 700px;
                 }
 
                 @media (max-width: 768px) {
@@ -790,6 +796,11 @@ export default function DeclareResult() {
 
                     .form-row-responsive {
                         flex-direction: column;
+                    }
+
+                    .declared-results-table-wrap {
+                        margin-left: -8px;
+                        margin-right: -8px;
                     }
                 }
             `}</style>
