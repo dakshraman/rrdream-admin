@@ -377,7 +377,7 @@ export default function DeclareResult() {
                     </div>
 
                     {/* Pana and Digit Inputs */}
-                    <div style={{ display: "flex", gap: "14px" }}>
+                    <div className="form-row-responsive" style={{ display: "flex", gap: "14px" }}>
                         <input
                             type="text"
                             placeholder="Pana (3 digits)"
@@ -388,7 +388,7 @@ export default function DeclareResult() {
                                 if (value === '' || /^\d+$/.test(value)) handleInputChange('pana', value);
                             }}
                             style={{
-                                flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                flex: 1, minWidth: 0, border: `1px solid ${theme.border}`, borderRadius: "6px",
                                 padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
@@ -405,7 +405,7 @@ export default function DeclareResult() {
                                 if (value === '' || /^[0-9]$/.test(value)) handleInputChange('digit', value);
                             }}
                             style={{
-                                flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                flex: 1, minWidth: 0, border: `1px solid ${theme.border}`, borderRadius: "6px",
                                 padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
@@ -415,7 +415,7 @@ export default function DeclareResult() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div style={{ display: "flex", gap: "14px", marginTop: "6px" }}>
+                    <div className="action-row-responsive" style={{ display: "flex", gap: "14px", marginTop: "6px" }}>
                         <button
                             onClick={handleDeclareResult}
                             disabled={declaring}
@@ -501,12 +501,12 @@ export default function DeclareResult() {
                         No declared results found.
                     </div>
                 ) : (
-                    <div style={{
+                    <div className="declared-results-table-wrap" style={{
                         border: `1px solid ${theme.border}`,
                         borderRadius: "8px",
                         overflow: "hidden"
                     }}>
-                        <div style={{
+                        <div className="declared-results-grid-head" style={{
                             display: "grid",
                             gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
                             gap: "10px",
@@ -526,6 +526,7 @@ export default function DeclareResult() {
                         {declaredResultsList.map((row, index) => (
                             <div
                                 key={`${row.game_name}-${row.result_date}-${index}`}
+                                className="declared-results-grid-row"
                                 style={{
                                     display: "grid",
                                     gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
@@ -756,6 +757,40 @@ export default function DeclareResult() {
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
+                }
+
+                .form-row-responsive,
+                .action-row-responsive {
+                    flex-wrap: wrap;
+                }
+
+                .form-row-responsive > * ,
+                .action-row-responsive > * {
+                    min-width: 0;
+                }
+
+                .declared-results-table-wrap {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .declared-results-grid-head,
+                .declared-results-grid-row {
+                    min-width: 620px;
+                }
+
+                @media (max-width: 768px) {
+                    .action-row-responsive {
+                        flex-direction: column;
+                    }
+
+                    .action-row-responsive > button {
+                        width: 100%;
+                    }
+
+                    .form-row-responsive {
+                        flex-direction: column;
+                    }
                 }
             `}</style>
         </main>
