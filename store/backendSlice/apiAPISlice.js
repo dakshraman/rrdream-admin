@@ -330,6 +330,23 @@ export const apiAPISlice = createApi({
       },
       providesTags: ["DeclaredResultsStarline"],
     }),
+    getDeclaredResults: builder.query({
+      query: (arg = {}) => {
+        const params = {};
+        Object.keys(arg).forEach((key) => {
+          if (arg[key] !== undefined && arg[key] !== null && arg[key] !== "") {
+            params[key] = arg[key];
+          }
+        });
+
+        return {
+          url: "getdeclaredresults",
+          method: "GET",
+          ...(Object.keys(params).length ? { params } : {}),
+        };
+      },
+      providesTags: ["DeclaredResults"],
+    }),
     getBiddingHistoryGali: builder.query({
       query: (arg = {}) => {
         const { page = 1, per_page = 15, ...rest } = arg;
@@ -390,6 +407,19 @@ export const apiAPISlice = createApi({
         params: { result_date, game_id, session, pana, digit },
       }),
       invalidatesTags: ["BiddingHistory", "DeclaredResults"],
+    }),
+    deleteResult: builder.mutation({
+      query: (id) => {
+        const formData = new FormData();
+        formData.append("id", id);
+        return {
+          url: "deleteresult",
+          method: "POST",
+          body: formData,
+          formData: true,
+        };
+      },
+      invalidatesTags: ["DeclaredResults", "BiddingHistory"],
     }),
     getGameSchedules: builder.query({
       query: () => ({
@@ -690,6 +720,7 @@ export const {
   useGetBiddingHistoryQuery,
   useGetBiddingHistoryStarlineQuery,
   useGetDeclaredResultsStarlineQuery,
+  useGetDeclaredResultsQuery,
   useGetBiddingHistoryGaliQuery,
   useGetProfitQuery,
   useGetUserByIdQuery,
@@ -700,6 +731,7 @@ export const {
   useUpdateGameScheduleMutation,
   useToggleScheduleStatusMutation,
   useDeclareResultMutation,
+  useDeleteResultMutation,
   useGetConfigQuery,
   useUpdateConfigMutation,
   useUpdateWithdrawStatusMutation,

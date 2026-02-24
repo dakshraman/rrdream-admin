@@ -1,6 +1,12 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useGetGamesQuery, useDeclareResultMutation, useCheckWinnerMutation } from "@/store/backendSlice/apiAPISlice";
+import {
+    useGetGamesQuery,
+    useDeclareResultMutation,
+    useDeleteResultMutation,
+    useCheckWinnerMutation,
+    useGetDeclaredResultsQuery
+} from "@/store/backendSlice/apiAPISlice";
 
 export default function DeclareResult() {
     const today = new Date().toISOString().split('T')[0];
@@ -18,13 +24,32 @@ export default function DeclareResult() {
     const [showSessionDropdown, setShowSessionDropdown] = useState(false);
     const [showWinnersModal, setShowWinnersModal] = useState(false);
     const [winnersData, setWinnersData] = useState(null); // { winners: [], message: "" }
+    const [deletingResultId, setDeletingResultId] = useState(null);
 
     const { data: gamesResponse, isLoading: gamesLoading } = useGetGamesQuery();
     const [declareResult, { isLoading: declaring, isSuccess, isError, error }] = useDeclareResultMutation();
+    const [deleteResult] = useDeleteResultMutation();
     const [checkWinner, { isLoading: checkingWinners }] = useCheckWinnerMutation();
+    const {
+        data: declaredResultsResponse,
+        isLoading: declaredResultsLoading,
+        isFetching: declaredResultsFetching,
+        isError: isDeclaredResultsError,
+        error: declaredResultsError,
+        refetch: refetchDeclaredResults
+    } = useGetDeclaredResultsQuery(
+        undefined,
+        { refetchOnMountOrArgChange: true }
+    );
 
     const gamesList = gamesResponse?.games || gamesResponse?.data || [];
     const sessions = ["Open", "Close"];
+    const declaredResultsListRaw = Array.isArray(declaredResultsResponse?.data)
+        ? declaredResultsResponse.data
+        : [];
+    const declaredResultsList = formData.result_date
+        ? declaredResultsListRaw.filter((item) => item?.result_date === formData.result_date)
+        : declaredResultsListRaw;
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -42,8 +67,9 @@ export default function DeclareResult() {
             alert("Result declared successfully!");
             setFormData({ result_date: today, game_id: "", session: "", pana: "", digit: "" });
             setSelectedGame(null);
+            refetchDeclaredResults();
         }
-    }, [isSuccess, today]);
+    }, [isSuccess, today, refetchDeclaredResults]);
 
     useEffect(() => {
         if (isError) {
@@ -126,6 +152,55 @@ export default function DeclareResult() {
             "double digit": { bg: "#fef3c7", color: "#b45309" },
         };
         return map[type?.toLowerCase()] || { bg: "#f3f4f6", color: "#374151" };
+    };
+
+    const renderSessionResult = (sessionData) => {
+        if (!sessionData) {
+            return (
+                <span style={{
+                    color: theme.textMuted,
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                    padding: "4px 8px",
+                    borderRadius: "4px"
+                }}>
+                    Pending
+                </span>
+            );
+        }
+
+        return (
+            <span style={{
+                fontSize: "12px",
+                fontWeight: "600",
+                color: theme.text,
+                backgroundColor: "#eef2ff",
+                border: `1px solid ${theme.border}`,
+                padding: "4px 8px",
+                borderRadius: "4px",
+                fontFamily: "monospace"
+            }}>
+                {sessionData.pana}-{sessionData.digit}
+            </span>
+        );
+    };
+
+    const handleDeleteResult = async (resultId, sessionLabel, gameName) => {
+        if (!resultId) return;
+
+        const confirmed = window.confirm(`Delete ${sessionLabel} result for ${gameName || "this game"}?`);
+        if (!confirmed) return;
+
+        try {
+            setDeletingResultId(resultId);
+            const response = await deleteResult(resultId).unwrap();
+            alert(response?.message || "Result deleted successfully");
+            refetchDeclaredResults();
+        } catch (err) {
+            alert(err?.data?.message || "Failed to delete result");
+        } finally {
+            setDeletingResultId(null);
+        }
     };
 
     return (
@@ -380,6 +455,138 @@ export default function DeclareResult() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div style={{
+                marginTop: "16px",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                padding: "20px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+            }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "12px",
+                    gap: "12px",
+                    flexWrap: "wrap"
+                }}>
+                    <h2 style={{ margin: 0, fontSize: "16px", fontWeight: "600", color: theme.text }}>
+                        Declared Results
+                    </h2>
+                    <div style={{ fontSize: "12px", color: theme.textMuted }}>
+                        {formData.result_date ? `Date: ${formData.result_date}` : "All dates"}
+                        {declaredResultsFetching ? " • Refreshing..." : ""}
+                    </div>
+                </div>
+
+                {declaredResultsLoading ? (
+                    <div style={{ color: theme.textMuted, fontSize: "14px", padding: "8px 0" }}>
+                        Loading declared results...
+                    </div>
+                ) : isDeclaredResultsError ? (
+                    <div style={{
+                        border: `1px solid #fecaca`,
+                        backgroundColor: "#fef2f2",
+                        color: "#991b1b",
+                        borderRadius: "6px",
+                        padding: "10px 12px",
+                        fontSize: "13px"
+                    }}>
+                        {declaredResultsError?.data?.message || "Failed to fetch declared results"}
+                    </div>
+                ) : declaredResultsList.length === 0 ? (
+                    <div style={{ color: theme.textMuted, fontSize: "14px", padding: "8px 0" }}>
+                        No declared results found.
+                    </div>
+                ) : (
+                    <div style={{
+                        border: `1px solid ${theme.border}`,
+                        borderRadius: "8px",
+                        overflow: "hidden"
+                    }}>
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
+                            gap: "10px",
+                            padding: "10px 12px",
+                            backgroundColor: "#f8fafc",
+                            borderBottom: `1px solid ${theme.border}`,
+                            fontSize: "12px",
+                            color: theme.textMuted,
+                            fontWeight: "600"
+                        }}>
+                            <span>Game</span>
+                            <span>Date</span>
+                            <span>Open</span>
+                            <span>Close</span>
+                        </div>
+
+                        {declaredResultsList.map((row, index) => (
+                            <div
+                                key={`${row.game_name}-${row.result_date}-${index}`}
+                                style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "minmax(180px, 2fr) minmax(110px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr)",
+                                    gap: "10px",
+                                    padding: "10px 12px",
+                                    borderBottom: index < declaredResultsList.length - 1 ? `1px solid ${theme.border}` : "none",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <span style={{ fontSize: "13px", fontWeight: "600", color: theme.text }}>
+                                    {row.game_name || "-"}
+                                </span>
+                                <span style={{ fontSize: "12px", color: theme.textMuted }}>
+                                    {row.result_date || "-"}
+                                </span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                    {renderSessionResult(row?.sessions?.open)}
+                                    {row?.sessions?.open?.result_id ? (
+                                        <button
+                                            onClick={() => handleDeleteResult(row.sessions.open.result_id, "Open", row.game_name)}
+                                            disabled={deletingResultId === row.sessions.open.result_id}
+                                            style={{
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                padding: "4px 8px",
+                                                fontSize: "11px",
+                                                fontWeight: "600",
+                                                color: "#fff",
+                                                backgroundColor: deletingResultId === row.sessions.open.result_id ? "#fca5a5" : theme.danger,
+                                                cursor: deletingResultId === row.sessions.open.result_id ? "not-allowed" : "pointer"
+                                            }}
+                                        >
+                                            {deletingResultId === row.sessions.open.result_id ? "Deleting..." : "Delete"}
+                                        </button>
+                                    ) : null}
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                    {renderSessionResult(row?.sessions?.close)}
+                                    {row?.sessions?.close?.result_id ? (
+                                        <button
+                                            onClick={() => handleDeleteResult(row.sessions.close.result_id, "Close", row.game_name)}
+                                            disabled={deletingResultId === row.sessions.close.result_id}
+                                            style={{
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                padding: "4px 8px",
+                                                fontSize: "11px",
+                                                fontWeight: "600",
+                                                color: "#fff",
+                                                backgroundColor: deletingResultId === row.sessions.close.result_id ? "#fca5a5" : theme.danger,
+                                                cursor: deletingResultId === row.sessions.close.result_id ? "not-allowed" : "pointer"
+                                            }}
+                                        >
+                                            {deletingResultId === row.sessions.close.result_id ? "Deleting..." : "Delete"}
+                                        </button>
+                                    ) : null}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Winners Modal */}

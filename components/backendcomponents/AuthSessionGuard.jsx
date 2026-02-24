@@ -17,7 +17,7 @@ export default function AuthSessionGuard({ children }) {
   const token = useSelector((state) => state.auth?.token);
   const onPublicRoute = isPublicRoute(pathname);
 
-  const { isLoading, isFetching, isSuccess, isError, error } =
+  const { isLoading, isSuccess, isError, error } =
     useCheckLoginQuery(undefined, {
       skip: !token,
       refetchOnMountOrArgChange: true,
@@ -55,7 +55,8 @@ export default function AuthSessionGuard({ children }) {
 
   if (!onPublicRoute) {
     if (!token) return null;
-    if (isLoading || isFetching) return <Pageloading />;
+    // Only block UI on the initial auth check; background refetches should not flicker the page.
+    if (isLoading) return <Pageloading />;
     if (hasAuthError) return null;
   }
 
