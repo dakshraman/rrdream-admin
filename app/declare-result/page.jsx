@@ -388,7 +388,7 @@ export default function DeclareResult() {
                                 if (value === '' || /^\d+$/.test(value)) handleInputChange('pana', value);
                             }}
                             style={{
-                                flex: 1, minWidth: 0, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                flex: 1, minWidth: '100%', border: `1px solid ${theme.border}`, borderRadius: "6px",
                                 padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
@@ -405,7 +405,7 @@ export default function DeclareResult() {
                                 if (value === '' || /^[0-9]$/.test(value)) handleInputChange('digit', value);
                             }}
                             style={{
-                                flex: 1, minWidth: 0, border: `1px solid ${theme.border}`, borderRadius: "6px",
+                                flex: 1, minWidth: '100%', border: `1px solid ${theme.border}`, borderRadius: "6px",
                                 padding: "12px 14px", fontSize: "14px", outline: "none",
                                 transition: "border-color 0.2s, box-shadow 0.2s"
                             }}
