@@ -95,7 +95,9 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithLogging = async (args, api, extraOptions) => {
   const endpoint = typeof args === "string" ? args : args.url;
-  const method = (typeof args === "string" ? "GET" : args.method || "GET").toUpperCase();
+  const method = (
+    typeof args === "string" ? "GET" : args.method || "GET"
+  ).toUpperCase();
   const requestArgs = withNoStoreForGet(args, method);
   console.log(
     `%c[API Request] ${method} ${apiBaseUrl}${endpoint}`,
@@ -107,7 +109,10 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
 
   const initialStatus = result.meta?.response?.status;
   const shouldRetryEmptyResponse =
-    method === "GET" && !result.error && initialStatus === 200 && result.data === null;
+    method === "GET" &&
+    !result.error &&
+    initialStatus === 200 &&
+    result.data === null;
 
   if (shouldRetryEmptyResponse) {
     retriedForEmpty = true;
@@ -115,7 +120,11 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
       `%c[API Retry Empty] ${endpoint} (status: ${initialStatus})`,
       "color: #ff9800; font-weight: bold;",
     );
-    result = await baseQuery(withRetryBustParam(requestArgs), api, extraOptions);
+    result = await baseQuery(
+      withRetryBustParam(requestArgs),
+      api,
+      extraOptions,
+    );
   }
 
   if (result.error) {
@@ -155,7 +164,10 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
     api.dispatch(logout());
     api.dispatch(apiAPISlice.util.resetApiState());
 
-    if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/login"
+    ) {
       window.location.replace("/login");
     }
   }
@@ -555,7 +567,12 @@ export const apiAPISlice = createApi({
         Object.keys(params).forEach((key) => {
           let value = params[key];
           if (key === "user_status") {
-            if (value === true || value === 1 || value === "1" || value === "true") {
+            if (
+              value === true ||
+              value === 1 ||
+              value === "1" ||
+              value === "true"
+            ) {
               value = 1;
             } else if (
               value === false ||
@@ -566,11 +583,7 @@ export const apiAPISlice = createApi({
               value = 0;
             }
           }
-          if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-          ) {
+          if (value !== undefined && value !== null && value !== "") {
             queryParams[key] = value;
           }
         });
@@ -703,6 +716,17 @@ export const apiAPISlice = createApi({
         params: { result_date, game_id, pana, digit },
       }),
     }),
+    addGame: builder.mutation({
+      query: ({ game_name, game_name_hindi, open_time, close_time }) => {
+        const formData = new FormData();
+        formData.append("game_name", game_name);
+        formData.append("game_name_hindi", game_name_hindi);
+        formData.append("open_time", open_time);
+        formData.append("close_time", close_time);
+        return { url: "addgame", method: "POST", body: formData };
+      },
+      invalidatesTags: ["Games"],
+    }),
   }),
 });
 
@@ -750,4 +774,5 @@ export const {
   useUpdateStarlineRateMutation,
   useStarlineDeclareResultMutation,
   useStarlineCheckWinnerMutation,
+  useAddGameMutation,
 } = apiAPISlice;
