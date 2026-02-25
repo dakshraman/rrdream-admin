@@ -76,8 +76,7 @@ const withRetryBustParam = (args) => {
   };
 };
 
-const isUnauthorizedError = (status) =>
-  status === 401 || status === 403 || status === 422;
+const isUnauthorizedError = (status) => status === 401 || status === 403;
 
 const baseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,

@@ -29,7 +29,7 @@ export default function BiddingHistory() {
 
     const [filters, setFilters] = useState({
         page: 1, date: today, game_name: "", game_type: "",
-        session: "", search: "", per_page: 10
+        session: "", search: "", per_page: 100
     });
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [isMobile, setIsMobile] = useState(false);
@@ -48,16 +48,46 @@ export default function BiddingHistory() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    // ── QUERY 1: Fetch all game names for dropdown (once, no filters) ──
+    const normalizeOptionKey = (value) =>
+        String(value ?? "")
+            .trim()
+            .replace(/\s+/g, " ")
+            .toLowerCase();
+
+    const formatOptionLabel = (value) =>
+        String(value ?? "")
+            .trim()
+            .replace(/_/g, " ")
+            .replace(/\s+/g, " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    const getUniqueOptions = (rows, field) => {
+        const seen = new Set();
+        const options = [];
+
+        for (const row of rows) {
+            const rawValue = row?.[field];
+            const trimmed = String(rawValue ?? "").trim();
+            if (!trimmed) continue;
+
+            const key = normalizeOptionKey(trimmed);
+            if (seen.has(key)) continue;
+
+            seen.add(key);
+            options.push(trimmed);
+        }
+
+        return options.sort((a, b) => a.localeCompare(b));
+    };
+
+    // ── QUERY 1: Fetch all filter values for dropdowns (once, no filters) ──
     const { data: allDataResponse } = useGetBiddingHistoryQuery(
-        { page: 1, per_page: 1000, date: "", game_name: "", game_type: "", session: "", search: "" },
+        { page: 1, per_page: 100, date: "", game_name: "", game_type: "", session: "", search: "" },
         { refetchOnMountOrArgChange: false }
     );
-    console.log(' the allDataResponse', allDataResponse)
-    const gameNameOptions = useMemo(() => {
-        const raw = allDataResponse?.data || [];
-        const names = raw.map(row => row.game_name).filter(Boolean);
-        return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+    const allFilterRows = useMemo(() => {
+        const rows = allDataResponse?.data;
+        return Array.isArray(rows) ? rows : [];
     }, [allDataResponse]);
 
     // ── QUERY 2: Filtered table data ──
@@ -66,13 +96,30 @@ export default function BiddingHistory() {
     });
 
     const biddingHistory = responseData?.data || [];
+    const filterSourceRows = useMemo(() => {
+        if (allFilterRows.length > 0) return allFilterRows;
+        return Array.isArray(biddingHistory) ? biddingHistory : [];
+    }, [allFilterRows, biddingHistory]);
+
+    const gameNameOptions = useMemo(
+        () => getUniqueOptions(filterSourceRows, "game_name"),
+        [filterSourceRows]
+    );
+
+    const gameTypeOptions = useMemo(
+        () => getUniqueOptions(filterSourceRows, "game_type"),
+        [filterSourceRows]
+    );
+
+    const sessionOptions = useMemo(
+        () => getUniqueOptions(filterSourceRows, "session"),
+        [filterSourceRows]
+    );
+
     const pagination = responseData?.pagination || {};
     const totalRows = pagination.total || 0;
     const currentPage = pagination.current_page || 1;
     const lastPage = pagination.last_page || 1;
-
-    const gameTypes = ["single", "jodi", "single_panna", "double_panna", "triple_panna", "DOUBLE DIGIT"];
-    const sessions = ["Open", "Close"];
 
     const formatDate = (dateString) => {
         if(!dateString) return "N/A";
@@ -128,7 +175,7 @@ export default function BiddingHistory() {
     const handlePageChange = (page) => setFilters(prev => ({ ...prev, page }));
     const handlePerRowsChange = (newPerPage) => setFilters(prev => ({ ...prev, per_page: newPerPage, page: 1 }));
     const clearFilters = () => {
-        setFilters({ page: 1, date: today, game_name: "", game_type: "", session: "", search: "", per_page: 10 });
+        setFilters({ page: 1, date: today, game_name: "", game_type: "", session: "", search: "", per_page: 100 });
         setDebouncedSearch("");
     };
     const hasActiveFilters = filters.game_name || filters.game_type || filters.session || filters.search || filters.date !== today;
@@ -157,8 +204,8 @@ export default function BiddingHistory() {
                     style={{ ...inputStyle, marginTop: "3px", cursor: "pointer" }}
                 >
                     <option value="">All Games</option>
-                    {gameNameOptions.map((name, i) => (
-                        <option key={i} value={name}>{name}</option>
+                    {gameNameOptions.map((name) => (
+                        <option key={name} value={name}>{name}</option>
                     ))}
                 </select>
             </div>
@@ -166,14 +213,18 @@ export default function BiddingHistory() {
                 <label style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Type</label>
                 <select value={filters.game_type} onChange={(e) => handleFilterChange("game_type", e.target.value)} style={{ ...inputStyle, marginTop: "3px" }}>
                     <option value="">All Types</option>
-                    {gameTypes.map((t, i) => <option key={i} value={t}>{t.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</option>)}
+                    {gameTypeOptions.map((type) => (
+                        <option key={type} value={type}>{formatOptionLabel(type)}</option>
+                    ))}
                 </select>
             </div>
             <div>
                 <label style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Session</label>
                 <select value={filters.session} onChange={(e) => handleFilterChange("session", e.target.value)} style={{ ...inputStyle, marginTop: "3px" }}>
                     <option value="">All Sessions</option>
-                    {sessions.map((s, i) => <option key={i} value={s}>{s}</option>)}
+                    {sessionOptions.map((session) => (
+                        <option key={session} value={session}>{formatOptionLabel(session)}</option>
+                    ))}
                 </select>
             </div>
             <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
