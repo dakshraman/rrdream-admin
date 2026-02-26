@@ -1,4 +1,8 @@
-import { apiAPISlice } from "./apiAPISlice";
+import {
+  apiAPISlice,
+  useLoginMutation,
+  useCheckLoginQuery,
+} from "./apiAPISlice";
 
-export const { useLoginMutation, useCheckLoginQuery } = apiAPISlice;
+export { useLoginMutation, useCheckLoginQuery };
 export const authAPISlice = apiAPISlice;

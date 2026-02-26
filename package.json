@@ -13,6 +13,7 @@
     "@fancyapps/ui": "github:fancyapps/ui",
     "@react-google-maps/api": "^2.20.7",
     "@reduxjs/toolkit": "^2.9.0",
+    "@tanstack/react-query": "^5.90.5",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "concurrently": "^9.2.1",
