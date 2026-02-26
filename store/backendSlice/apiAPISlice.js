@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -113,11 +113,15 @@ const getToken = () => backendStore.getState()?.auth?.token;
 const forceLogoutIfNeeded = (errorStatus, endpointName) => {
   const token = getToken();
   const shouldForceLogout =
-    Boolean(token) && endpointName !== "login" && isUnauthorizedError(errorStatus);
+    Boolean(token) &&
+    endpointName !== "login" &&
+    isUnauthorizedError(errorStatus);
 
   if (!shouldForceLogout) return;
 
-  console.warn(`[Auth] Session invalid for endpoint "${endpointName}". Logging out.`);
+  console.warn(
+    `[Auth] Session invalid for endpoint "${endpointName}". Logging out.`,
+  );
   backendStore.dispatch(logout());
   resetApiCache();
 
@@ -166,7 +170,10 @@ const executeRequest = async (requestLike, { endpointName }) => {
     };
 
     if (nextRequest.body !== undefined) {
-      if (typeof FormData !== "undefined" && nextRequest.body instanceof FormData) {
+      if (
+        typeof FormData !== "undefined" &&
+        nextRequest.body instanceof FormData
+      ) {
         fetchOptions.body = nextRequest.body;
       } else {
         headers.set("Content-Type", "application/json");
@@ -274,10 +281,18 @@ const invalidateAllQueries = async () => {
   await getQueryClient().invalidateQueries();
 };
 
-const createQueryHook = ({ endpointName, queryKey, request, transformResponse }) => {
+const createQueryHook = ({
+  endpointName,
+  queryKey,
+  request,
+  transformResponse,
+}) => {
   return function useCompatQuery(arg, options = {}) {
     const normalized = normalizeQueryOptions(options);
-    const key = useMemo(() => [endpointName, queryKey ? queryKey(arg) : arg], [arg]);
+    const key = useMemo(
+      () => [endpointName, queryKey ? queryKey(arg) : arg],
+      [arg],
+    );
 
     const query = useQuery({
       queryKey: key,
@@ -416,7 +431,11 @@ const queries = {
   },
   getProfit: {
     endpointName: "getProfit",
-    request: (arg = {}) => ({ url: "getprofit", method: "GET", params: cleanTruthyParams(arg) }),
+    request: (arg = {}) => ({
+      url: "getprofit",
+      method: "GET",
+      params: cleanTruthyParams(arg),
+    }),
   },
   getUserById: {
     endpointName: "getUserById",
@@ -459,7 +478,11 @@ const mutations = {
   },
   addBanner: {
     endpointName: "addBanner",
-    request: (formData) => ({ url: "addbanner", method: "POST", body: formData }),
+    request: (formData) => ({
+      url: "addbanner",
+      method: "POST",
+      body: formData,
+    }),
   },
   deleteBanner: {
     endpointName: "deleteBanner",
@@ -481,7 +504,11 @@ const mutations = {
   },
   toggleUser: {
     endpointName: "toggleUser",
-    request: (user_id) => ({ url: "toggleuser", method: "POST", body: { user_id } }),
+    request: (user_id) => ({
+      url: "toggleuser",
+      method: "POST",
+      body: { user_id },
+    }),
   },
   declareResult: {
     endpointName: "declareResult",
@@ -504,7 +531,8 @@ const mutations = {
     request: ({ id, game_name, game_name_hindi, status }) => {
       const formData = new FormData();
       if (game_name !== undefined) formData.append("game_name", game_name);
-      if (game_name_hindi !== undefined) formData.append("game_name_hindi", game_name_hindi);
+      if (game_name_hindi !== undefined)
+        formData.append("game_name_hindi", game_name_hindi);
       if (status !== undefined) formData.append("status", status);
       return { url: `updategame/${id}`, method: "POST", body: formData };
     },
@@ -532,8 +560,20 @@ const mutations = {
       Object.keys(params || {}).forEach((key) => {
         let value = params[key];
         if (key === "user_status") {
-          if (value === true || value === 1 || value === "1" || value === "true") value = 1;
-          else if (value === false || value === 0 || value === "0" || value === "false") value = 0;
+          if (
+            value === true ||
+            value === 1 ||
+            value === "1" ||
+            value === "true"
+          )
+            value = 1;
+          else if (
+            value === false ||
+            value === 0 ||
+            value === "0" ||
+            value === "false"
+          )
+            value = 0;
         }
         if (value !== undefined && value !== null && value !== "") {
           queryParams[key] = value;
@@ -584,7 +624,11 @@ const mutations = {
       formData.append("name", name);
       formData.append("name_hindi", name_hindi);
       formData.append("time", time);
-      return { url: `starline-updategame/${id}`, method: "POST", body: formData };
+      return {
+        url: `starline-updategame/${id}`,
+        method: "POST",
+        body: formData,
+      };
     },
   },
   toggleStarlineGame: {
@@ -631,52 +675,118 @@ const mutations = {
       return { url: "addgame", method: "POST", body: formData };
     },
   },
+  adminAddFunds: {
+    endpointName: "adminAddFunds",
+    request: ({ user_id, amount }) => {
+      const formData = new FormData();
+      formData.append("user_id", user_id);
+      formData.append("amount", amount);
+      return { url: "admin-addfunds", method: "POST", body: formData };
+    },
+  },
 };
 
 export const useCheckLoginQuery = createQueryHook(queries.checkLogin);
 export const useGetUsersQuery = createQueryHook(queries.getUsers);
-export const useGetInactiveUsersQuery = createQueryHook(queries.getInactiveUsers);
+export const useGetInactiveUsersQuery = createQueryHook(
+  queries.getInactiveUsers,
+);
 export const useGetBannersQuery = createQueryHook(queries.getBanners);
 export const useGetAdminQuery = createQueryHook(queries.getAdmin);
-export const useGetWithdrawRequestsQuery = createQueryHook(queries.getWithdrawRequests);
+export const useGetWithdrawRequestsQuery = createQueryHook(
+  queries.getWithdrawRequests,
+);
 export const useGetFundRequestsQuery = createQueryHook(queries.getFundRequests);
-export const useGetBiddingHistoryQuery = createQueryHook(queries.getBiddingHistory);
-export const useGetBiddingHistoryStarlineQuery = createQueryHook(queries.getBiddingHistoryStarline);
-export const useGetDeclaredResultsStarlineQuery = createQueryHook(queries.getDeclaredResultsStarline);
-export const useGetDeclaredResultsQuery = createQueryHook(queries.getDeclaredResults);
-export const useGetBiddingHistoryGaliQuery = createQueryHook(queries.getBiddingHistoryGali);
+export const useGetBiddingHistoryQuery = createQueryHook(
+  queries.getBiddingHistory,
+);
+export const useGetBiddingHistoryStarlineQuery = createQueryHook(
+  queries.getBiddingHistoryStarline,
+);
+export const useGetDeclaredResultsStarlineQuery = createQueryHook(
+  queries.getDeclaredResultsStarline,
+);
+export const useGetDeclaredResultsQuery = createQueryHook(
+  queries.getDeclaredResults,
+);
+export const useGetBiddingHistoryGaliQuery = createQueryHook(
+  queries.getBiddingHistoryGali,
+);
 export const useGetProfitQuery = createQueryHook(queries.getProfit);
 export const useGetUserByIdQuery = createQueryHook(queries.getUserById);
 export const useGetGamesQuery = createQueryHook(queries.getGames);
-export const useGetGameSchedulesQuery = createQueryHook(queries.getGameSchedules);
+export const useGetGameSchedulesQuery = createQueryHook(
+  queries.getGameSchedules,
+);
 export const useGetConfigQuery = createQueryHook(queries.getConfig);
 export const useGetInquiryUsersQuery = createQueryHook(queries.getInquiryUsers);
-export const useGetUserInquiriesQuery = createQueryHook(queries.getUserInquiries);
-export const useGetStarlineGamesQuery = createQueryHook(queries.getStarlineGames);
-export const useGetStarlineRatesQuery = createQueryHook(queries.getStarlineRates);
+export const useGetUserInquiriesQuery = createQueryHook(
+  queries.getUserInquiries,
+);
+export const useGetStarlineGamesQuery = createQueryHook(
+  queries.getStarlineGames,
+);
+export const useGetStarlineRatesQuery = createQueryHook(
+  queries.getStarlineRates,
+);
 
 export const useLoginMutation = createMutationHook(mutations.login);
 export const useAddBannerMutation = createMutationHook(mutations.addBanner);
-export const useDeleteBannerMutation = createMutationHook(mutations.deleteBanner);
-export const useApproveFundRequestMutation = createMutationHook(mutations.approveFundRequest);
-export const useRejectFundRequestMutation = createMutationHook(mutations.rejectFundRequest);
+export const useDeleteBannerMutation = createMutationHook(
+  mutations.deleteBanner,
+);
+export const useApproveFundRequestMutation = createMutationHook(
+  mutations.approveFundRequest,
+);
+export const useRejectFundRequestMutation = createMutationHook(
+  mutations.rejectFundRequest,
+);
 export const useToggleUserMutation = createMutationHook(mutations.toggleUser);
-export const useDeclareResultMutation = createMutationHook(mutations.declareResult);
-export const useDeleteResultMutation = createMutationHook(mutations.deleteResult);
+export const useDeclareResultMutation = createMutationHook(
+  mutations.declareResult,
+);
+export const useDeleteResultMutation = createMutationHook(
+  mutations.deleteResult,
+);
 export const useUpdateGameMutation = createMutationHook(mutations.updateGame);
-export const useUpdateGameScheduleMutation = createMutationHook(mutations.updateGameSchedule);
-export const useToggleScheduleStatusMutation = createMutationHook(mutations.toggleScheduleStatus);
-export const useUpdateConfigMutation = createMutationHook(mutations.updateConfig);
-export const useUpdateWithdrawStatusMutation = createMutationHook(mutations.updateWithdrawStatus);
-export const useGetTransactionsMutation = createMutationHook(mutations.getTransactions);
+export const useUpdateGameScheduleMutation = createMutationHook(
+  mutations.updateGameSchedule,
+);
+export const useToggleScheduleStatusMutation = createMutationHook(
+  mutations.toggleScheduleStatus,
+);
+export const useUpdateConfigMutation = createMutationHook(
+  mutations.updateConfig,
+);
+export const useUpdateWithdrawStatusMutation = createMutationHook(
+  mutations.updateWithdrawStatus,
+);
+export const useGetTransactionsMutation = createMutationHook(
+  mutations.getTransactions,
+);
 export const useCheckWinnerMutation = createMutationHook(mutations.checkWinner);
-export const useAddStarlineGameMutation = createMutationHook(mutations.addStarlineGame);
-export const useUpdateStarlineGameMutation = createMutationHook(mutations.updateStarlineGame);
-export const useToggleStarlineGameMutation = createMutationHook(mutations.toggleStarlineGame);
-export const useUpdateStarlineRateMutation = createMutationHook(mutations.updateStarlineRate);
-export const useStarlineDeclareResultMutation = createMutationHook(mutations.starlineDeclareResult);
-export const useStarlineCheckWinnerMutation = createMutationHook(mutations.starlineCheckWinner);
+export const useAddStarlineGameMutation = createMutationHook(
+  mutations.addStarlineGame,
+);
+export const useUpdateStarlineGameMutation = createMutationHook(
+  mutations.updateStarlineGame,
+);
+export const useToggleStarlineGameMutation = createMutationHook(
+  mutations.toggleStarlineGame,
+);
+export const useUpdateStarlineRateMutation = createMutationHook(
+  mutations.updateStarlineRate,
+);
+export const useStarlineDeclareResultMutation = createMutationHook(
+  mutations.starlineDeclareResult,
+);
+export const useStarlineCheckWinnerMutation = createMutationHook(
+  mutations.starlineCheckWinner,
+);
 export const useAddGameMutation = createMutationHook(mutations.addGame);
+export const useAdminAddFundsMutation = createMutationHook(
+  mutations.adminAddFunds,
+);
 
 export const apiAPISlice = {
   util: {
