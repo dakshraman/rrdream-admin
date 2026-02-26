@@ -727,6 +727,19 @@ export const apiAPISlice = createApi({
       },
       invalidatesTags: ["Games"],
     }),
+     adminAddFunds: builder.mutation({
+      query: ({ user_id, amount }) => {
+        const formData = new FormData();
+        formData.append("user_id", user_id);
+        formData.append("amount", amount);
+        return {
+          url: "admin-addfunds",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -775,4 +788,5 @@ export const {
   useStarlineDeclareResultMutation,
   useStarlineCheckWinnerMutation,
   useAddGameMutation,
+  useAdminAddFundsMutation
 } = apiAPISlice;
