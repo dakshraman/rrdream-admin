@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetUsersQuery, useToggleUserMutation } from "@/store/backendSlice/apiAPISlice";
+import { useGetUsersQuery, useToggleUserMutation, useDeleteUserMutation } from "@/store/backendSlice/apiAPISlice";
 import UserViewModal from "../UserViewModal";
 import { toast } from "react-hot-toast";
 
@@ -34,6 +34,7 @@ export default function ManageUsersData() {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [togglingUserId, setTogglingUserId] = useState(null);
+    const [deletingUserId, setDeletingUserId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(100);
     const [windowWidth, setWindowWidth] = useState(
@@ -44,6 +45,7 @@ export default function ManageUsersData() {
         refetchOnMountOrArgChange: true,
     });
     const [toggleUser] = useToggleUserMutation();
+    const [deleteUser] = useDeleteUserMutation();
 
     const users = userData?.users || [];
     const isMobile = windowWidth < 768;
@@ -117,7 +119,7 @@ export default function ManageUsersData() {
             `Are you sure you want to ${action} "${userName}"?`,
         );
 
-        if(!confirmToggle) return;
+        if (!confirmToggle) return;
 
         setTogglingUserId(row.id);
 
@@ -133,6 +135,32 @@ export default function ManageUsersData() {
             console.error("Toggle user error:", err);
         } finally {
             setTogglingUserId(null);
+        }
+    };
+
+    const handleDeleteUser = async (row) => {
+        const userName = row.name || row.phone || `User #${row.id}`;
+
+        const confirmDelete = window.confirm(
+            `Are you sure you want to DELETE "${userName}"? This action cannot be undone.`,
+        );
+
+        if (!confirmDelete) return;
+
+        setDeletingUserId(row.id);
+
+        try {
+            const response = await deleteUser(row.id).unwrap();
+            toast.success(
+                response?.message || `User "${userName}" deleted successfully!`,
+            );
+        } catch (err) {
+            const errorMessage =
+                err?.data?.message || err?.message || `Failed to delete user`;
+            toast.error(errorMessage);
+            console.error("Delete user error:", err);
+        } finally {
+            setDeletingUserId(null);
         }
     };
 
@@ -271,32 +299,34 @@ export default function ManageUsersData() {
             name: "Actions",
             cell: (row) => {
                 const isToggling = togglingUserId === row.id;
+                const isDeleting = deletingUserId === row.id;
+                const isBusy = isToggling || isDeleting;
                 const isActive = isUserActive(row);
 
                 return (
                     <div style={{ display: "flex", gap: "6px" }}>
                         <button
                             onClick={() => handleView(row)}
-                            disabled={isToggling}
+                            disabled={isBusy}
                             style={{
                                 padding: "5px 10px",
                                 backgroundColor: "#3b82f6",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: isToggling ? "not-allowed" : "pointer",
+                                cursor: isBusy ? "not-allowed" : "pointer",
                                 fontSize: "11px",
-                                opacity: isToggling ? 0.6 : 1,
+                                opacity: isBusy ? 0.6 : 1,
                             }}
                         >
                             View
                         </button>
                         <button
                             onClick={() => handleToggleStatus(row)}
-                            disabled={isToggling}
+                            disabled={isBusy}
                             style={{
                                 padding: "5px 10px",
-                                backgroundColor: isToggling
+                                backgroundColor: isBusy
                                     ? "#9ca3af"
                                     : isActive
                                       ? "#ef4444"
@@ -304,17 +334,33 @@ export default function ManageUsersData() {
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: isToggling ? "not-allowed" : "pointer",
+                                cursor: isBusy ? "not-allowed" : "pointer",
                                 fontSize: "11px",
-                                minWidth: "85px",
+                                minWidth: "80px",
                             }}
                         >
                             {isToggling ? "Wait..." : isActive ? "Deactivate" : "Activate"}
                         </button>
+                        <button
+                            onClick={() => handleDeleteUser(row)}
+                            disabled={isBusy}
+                            style={{
+                                padding: "5px 10px",
+                                backgroundColor: isDeleting ? "#9ca3af" : "#7f1d1d",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isBusy ? "not-allowed" : "pointer",
+                                fontSize: "11px",
+                                minWidth: "55px",
+                            }}
+                        >
+                            {isDeleting ? "..." : "Delete"}
+                        </button>
                     </div>
                 );
             },
-            width: "180px",
+            width: "240px",
         },
     ];
 
@@ -366,9 +412,7 @@ export default function ManageUsersData() {
                 />
                 {filterText && (
                     <button
-                        onClick={() => {
-                            setFilterText("");
-                        }}
+                        onClick={() => setFilterText("")}
                         style={{
                             padding: "9px 12px",
                             backgroundColor: "#ef4444",
@@ -477,6 +521,8 @@ export default function ManageUsersData() {
                 {paginatedData.map((row) => {
                     const isActive = isUserActive(row);
                     const isToggling = togglingUserId === row.id;
+                    const isDeleting = deletingUserId === row.id;
+                    const isBusy = isToggling || isDeleting;
 
                     return (
                         <div
@@ -533,14 +579,14 @@ export default function ManageUsersData() {
                             <div
                                 style={{
                                     display: "grid",
-                                    gridTemplateColumns: "1fr 1fr",
+                                    gridTemplateColumns: "1fr 1fr 1fr",
                                     gap: "8px",
                                     marginTop: "12px",
                                 }}
                             >
                                 <button
                                     onClick={() => handleView(row)}
-                                    disabled={isToggling}
+                                    disabled={isBusy}
                                     style={{
                                         padding: "9px 10px",
                                         border: "none",
@@ -549,15 +595,15 @@ export default function ManageUsersData() {
                                         color: "#fff",
                                         fontSize: "12px",
                                         fontWeight: "600",
-                                        cursor: isToggling ? "not-allowed" : "pointer",
-                                        opacity: isToggling ? 0.6 : 1,
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.6 : 1,
                                     }}
                                 >
                                     View
                                 </button>
                                 <button
                                     onClick={() => handleToggleStatus(row)}
-                                    disabled={isToggling}
+                                    disabled={isBusy}
                                     style={{
                                         padding: "9px 10px",
                                         border: "none",
@@ -566,11 +612,28 @@ export default function ManageUsersData() {
                                         color: "#fff",
                                         fontSize: "12px",
                                         fontWeight: "600",
-                                        cursor: isToggling ? "not-allowed" : "pointer",
-                                        opacity: isToggling ? 0.7 : 1,
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.7 : 1,
                                     }}
                                 >
-                                    {isToggling ? "Processing..." : isActive ? "Deactivate" : "Activate"}
+                                    {isToggling ? "Wait..." : isActive ? "Deactivate" : "Activate"}
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteUser(row)}
+                                    disabled={isBusy}
+                                    style={{
+                                        padding: "9px 10px",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        backgroundColor: isDeleting ? "#9ca3af" : "#7f1d1d",
+                                        color: "#fff",
+                                        fontSize: "12px",
+                                        fontWeight: "600",
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.7 : 1,
+                                    }}
+                                >
+                                    {isDeleting ? "..." : "Delete"}
                                 </button>
                             </div>
                         </div>
@@ -695,6 +758,7 @@ export default function ManageUsersData() {
                         border: "1px solid #e5e7eb",
                         boxShadow: "0 10px 24px rgba(15,23,42,0.06)",
                         overflow: "visible",
+                        marginBottom:"74px"
                     }}
                 >
                     {isMobile ? (
@@ -731,7 +795,6 @@ export default function ManageUsersData() {
                                         outline: "none",
                                     }}
                                 />
-
                             </div>
                             {renderMobileContent()}
                             {renderPaginationControls()}

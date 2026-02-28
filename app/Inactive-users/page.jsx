@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetInactiveUsersQuery, useToggleUserMutation } from "@/store/backendSlice/apiAPISlice";
+import { useGetInactiveUsersQuery, useToggleUserMutation, useDeleteUserMutation } from "@/store/backendSlice/apiAPISlice";
 import UserViewModal from "../UserViewModal";
 import { toast } from "react-hot-toast";
 
@@ -34,6 +34,7 @@ export default function ManageInactiveUsersData() {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [activatingUserId, setActivatingUserId] = useState(null);
+    const [deletingUserId, setDeletingUserId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(100);
     const [windowWidth, setWindowWidth] = useState(
@@ -44,6 +45,7 @@ export default function ManageInactiveUsersData() {
         refetchOnMountOrArgChange: true,
     });
     const [toggleUser] = useToggleUserMutation();
+    const [deleteUser] = useDeleteUserMutation();
 
     const users = userData?.users || [];
     const isMobile = windowWidth < 768;
@@ -88,7 +90,7 @@ export default function ManageInactiveUsersData() {
             `Are you sure you want to activate user "${row.name || row.phone}"?`,
         );
 
-        if(!confirmActivate) return;
+        if (!confirmActivate) return;
 
         setActivatingUserId(row.id);
 
@@ -104,6 +106,32 @@ export default function ManageInactiveUsersData() {
             console.error("Activate user error:", err);
         } finally {
             setActivatingUserId(null);
+        }
+    };
+
+    const handleDeleteUser = async (row) => {
+        const userName = row.name || row.phone || `User #${row.id}`;
+
+        const confirmDelete = window.confirm(
+            `Are you sure you want to DELETE "${userName}"? This action cannot be undone.`,
+        );
+
+        if (!confirmDelete) return;
+
+        setDeletingUserId(row.id);
+
+        try {
+            const response = await deleteUser(row.id).unwrap();
+            toast.success(
+                response?.message || `User "${userName}" deleted successfully!`,
+            );
+        } catch (err) {
+            const errorMessage =
+                err?.data?.message || err?.message || "Failed to delete user";
+            toast.error(errorMessage);
+            console.error("Delete user error:", err);
+        } finally {
+            setDeletingUserId(null);
         }
     };
 
@@ -250,44 +278,63 @@ export default function ManageInactiveUsersData() {
             name: "Actions",
             cell: (row) => {
                 const isActivating = activatingUserId === row.id;
+                const isDeleting = deletingUserId === row.id;
+                const isBusy = isActivating || isDeleting;
+
                 return (
                     <div style={{ display: "flex", gap: "6px" }}>
                         <button
                             onClick={() => handleView(row)}
-                            disabled={isActivating}
+                            disabled={isBusy}
                             style={{
                                 padding: "5px 10px",
                                 backgroundColor: "#3b82f6",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: isActivating ? "not-allowed" : "pointer",
+                                cursor: isBusy ? "not-allowed" : "pointer",
                                 fontSize: "11px",
-                                opacity: isActivating ? 0.6 : 1,
+                                opacity: isBusy ? 0.6 : 1,
                             }}
                         >
                             View
                         </button>
                         <button
                             onClick={() => handleActivate(row)}
-                            disabled={isActivating}
+                            disabled={isBusy}
                             style={{
                                 padding: "5px 10px",
                                 backgroundColor: isActivating ? "#86efac" : "#22c55e",
                                 color: "#fff",
                                 border: "none",
                                 borderRadius: "6px",
-                                cursor: isActivating ? "not-allowed" : "pointer",
+                                cursor: isBusy ? "not-allowed" : "pointer",
                                 fontSize: "11px",
-                                minWidth: "88px",
+                                minWidth: "80px",
                             }}
                         >
                             {isActivating ? "Activating..." : "Activate"}
                         </button>
+                        <button
+                            onClick={() => handleDeleteUser(row)}
+                            disabled={isBusy}
+                            style={{
+                                padding: "5px 10px",
+                                backgroundColor: isDeleting ? "#9ca3af" : "#7f1d1d",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                cursor: isBusy ? "not-allowed" : "pointer",
+                                fontSize: "11px",
+                                minWidth: "55px",
+                            }}
+                        >
+                            {isDeleting ? "..." : "Delete"}
+                        </button>
                     </div>
                 );
             },
-            width: "180px",
+            width: "240px",
         },
     ];
 
@@ -437,6 +484,8 @@ export default function ManageInactiveUsersData() {
             <div style={{ display: "grid", gap: "10px", padding: "12px" }}>
                 {paginatedData.map((row) => {
                     const isActivating = activatingUserId === row.id;
+                    const isDeleting = deletingUserId === row.id;
+                    const isBusy = isActivating || isDeleting;
 
                     return (
                         <div
@@ -493,14 +542,14 @@ export default function ManageInactiveUsersData() {
                             <div
                                 style={{
                                     display: "grid",
-                                    gridTemplateColumns: "1fr 1fr",
+                                    gridTemplateColumns: "1fr 1fr 1fr",
                                     gap: "8px",
                                     marginTop: "12px",
                                 }}
                             >
                                 <button
                                     onClick={() => handleView(row)}
-                                    disabled={isActivating}
+                                    disabled={isBusy}
                                     style={{
                                         padding: "9px 10px",
                                         border: "none",
@@ -509,15 +558,15 @@ export default function ManageInactiveUsersData() {
                                         color: "#fff",
                                         fontSize: "12px",
                                         fontWeight: "600",
-                                        cursor: isActivating ? "not-allowed" : "pointer",
-                                        opacity: isActivating ? 0.6 : 1,
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.6 : 1,
                                     }}
                                 >
                                     View
                                 </button>
                                 <button
                                     onClick={() => handleActivate(row)}
-                                    disabled={isActivating}
+                                    disabled={isBusy}
                                     style={{
                                         padding: "9px 10px",
                                         border: "none",
@@ -526,11 +575,28 @@ export default function ManageInactiveUsersData() {
                                         color: "#fff",
                                         fontSize: "12px",
                                         fontWeight: "600",
-                                        cursor: isActivating ? "not-allowed" : "pointer",
-                                        opacity: isActivating ? 0.7 : 1,
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.7 : 1,
                                     }}
                                 >
-                                    {isActivating ? "Activating..." : "Activate"}
+                                    {isActivating ? "Wait..." : "Activate"}
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteUser(row)}
+                                    disabled={isBusy}
+                                    style={{
+                                        padding: "9px 10px",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        backgroundColor: isDeleting ? "#9ca3af" : "#7f1d1d",
+                                        color: "#fff",
+                                        fontSize: "12px",
+                                        fontWeight: "600",
+                                        cursor: isBusy ? "not-allowed" : "pointer",
+                                        opacity: isBusy ? 0.7 : 1,
+                                    }}
+                                >
+                                    {isDeleting ? "..." : "Delete"}
                                 </button>
                             </div>
                         </div>

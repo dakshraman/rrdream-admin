@@ -684,6 +684,14 @@ const mutations = {
       return { url: "admin-addfunds", method: "POST", body: formData };
     },
   },
+  deleteUser: {
+    endpointName: "deleteUser",
+    request: (id) => {
+      const formData = new FormData();
+      formData.append("id", id);
+      return { url: "deleteuser", method: "POST", body: formData };
+    },
+  },
 };
 
 export const useCheckLoginQuery = createQueryHook(queries.checkLogin);
@@ -787,9 +795,11 @@ export const useAddGameMutation = createMutationHook(mutations.addGame);
 export const useAdminAddFundsMutation = createMutationHook(
   mutations.adminAddFunds,
 );
+export const useDeleteUserMutation = createMutationHook(mutations.deleteUser);
 
 export const apiAPISlice = {
   util: {
+
     resetApiState: () => () => {
       resetApiCache();
     },

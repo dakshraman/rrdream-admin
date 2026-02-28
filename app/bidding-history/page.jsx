@@ -303,7 +303,7 @@ export default function BiddingHistory() {
                                 <td style={td()}>{getSessionBadge(row.session)}</td>
                                 <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.open_digit ?? "—"}</td>
                                 <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.open_pana ?? "—"}</td>
-                                <td style={td({ fontWeight: "700", color: "#059669" })}>₹{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
+                                <td style={td({ fontWeight: "700", color: "#059669" })}>{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
                                 <td style={td()}>{getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0)}</td>
                                 <td style={td({ color: "#6b7280" })}>{row.date || formatDate(row.created_at)}</td>
                             </tr>
