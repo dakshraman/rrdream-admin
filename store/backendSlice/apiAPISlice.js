@@ -373,6 +373,10 @@ const queries = {
     endpointName: "getAdmin",
     request: () => ({ url: "getadmin", method: "GET" }),
   },
+  getAdmins: {
+    endpointName: "getAdmins",
+    request: () => ({ url: "admins", method: "GET" }),
+  },
   getWithdrawRequests: {
     endpointName: "getWithdrawRequests",
     request: () => ({ url: "withdraw-requests", method: "GET" }),
@@ -417,6 +421,10 @@ const queries = {
         ...(Object.keys(params).length ? { params } : {}),
       };
     },
+  },
+  getMainGameRates: {
+    endpointName: "getMainGameRates",
+    request: () => ({ url: "getrates", method: "GET" }),
   },
   getBiddingHistoryGali: {
     endpointName: "getBiddingHistoryGali",
@@ -468,6 +476,45 @@ const queries = {
   getStarlineRates: {
     endpointName: "getStarlineRates",
     request: () => ({ url: "starline-rates", method: "GET" }),
+  },
+  getGaliGames: {
+    endpointName: "getGaliGames",
+    request: () => ({ url: "gali-allgames", method: "GET" }),
+  },
+  getGaliRates: {
+    endpointName: "getGaliRates",
+    request: () => ({ url: "gali-rates", method: "GET" }),
+  },
+  getDeclaredResultsGali: {
+    endpointName: "getDeclaredResultsGali",
+    request: (arg = {}) => {
+      const { page = 1, per_page = 10, ...rest } = arg || {};
+      const params = { page, per_page };
+      Object.keys(rest).forEach((key) => {
+        if (rest[key]) params[key] = rest[key];
+      });
+      return { url: "getdeclaredresults-gali", method: "GET", params };
+    },
+  },
+  searchUser: {
+    endpointName: "searchUser",
+    request: (phone) => ({ url: "searchuser", method: "GET", params: { phone } }),
+  },
+  getQR: {
+    endpointName: "getQR",
+    request: () => ({ url: "qr", method: "GET" }),
+  },
+  getAllGames: {
+    endpointName: "getAllGames",
+    request: () => ({ url: "allgames", method: "GET" }),
+  },
+  getGameResults: {
+    endpointName: "getGameResults",
+    request: (params) => ({ url: "getGameResults", method: "GET", params }),
+  },
+  checkSession: {
+    endpointName: "checkSession",
+    request: () => ({ url: "checksession", method: "GET" }),
   },
 };
 
@@ -526,6 +573,46 @@ const mutations = {
       return { url: "deleteresult", method: "POST", body: formData };
     },
   },
+  registerAdmin: {
+    endpointName: "registerAdmin",
+    request: (formData) => ({ url: "admin-register", method: "POST", body: formData }),
+  },
+  updateAdmin: { // Target specific admin
+    endpointName: "updateAdmin",
+    request: ({ id, ...body }) => ({ url: `admin/${id}`, method: "PUT", body }),
+  },
+  replyInquiry: {
+    endpointName: "replyInquiry",
+    request: ({ userId, message }) => ({
+      url: `inquiry/reply/${userId}`,
+      method: "POST",
+      body: { message },
+    }),
+  },
+  clearData: {
+    endpointName: "clearData",
+    request: () => ({ url: "clear", method: "GET" }),
+  },
+  backendLogout: {
+    endpointName: "backendLogout",
+    request: () => ({ url: "logout", method: "POST" }),
+  },
+  deleteAdmin: {
+    endpointName: "deleteAdmin",
+    request: (id) => ({ url: `admin/${id}`, method: "DELETE" }),
+  },
+  updateAdminDetails: { // Target self admin
+    endpointName: "updateAdminDetails",
+    request: (formData) => ({ url: "update-admin", method: "POST", body: formData }),
+  },
+  resetAdminPassword: {
+    endpointName: "resetAdminPassword",
+    request: (formData) => ({ url: "reset-password", method: "POST", body: formData }),
+  },
+  changeUserPassword: {
+    endpointName: "changeUserPassword",
+    request: (formData) => ({ url: "changepassword", method: "POST", body: formData }),
+  },
   updateGame: {
     endpointName: "updateGame",
     request: ({ id, game_name, game_name_hindi, status }) => {
@@ -536,6 +623,18 @@ const mutations = {
       if (status !== undefined) formData.append("status", status);
       return { url: `updategame/${id}`, method: "POST", body: formData };
     },
+  },
+  updateMainGameRates: {
+    endpointName: "updateMainGameRates",
+    request: (body) => ({ url: "updaterates", method: "POST", body }),
+  },
+  editBid: {
+    endpointName: "editBid",
+    request: ({ id, pana, digit }) => ({
+      url: `editbid/${id}`,
+      method: "POST",
+      body: cleanNonEmptyParams({ pana, digit }),
+    }),
   },
   updateGameSchedule: {
     endpointName: "updateGameSchedule",
@@ -656,6 +755,22 @@ const mutations = {
       return { url: "starline-declareresult", method: "POST", body: formData };
     },
   },
+  editStarlineBid: {
+    endpointName: "editStarlineBid",
+    request: ({ id, pana, digit }) => ({
+      url: `starline-editbid/${id}`,
+      method: "POST",
+      body: cleanNonEmptyParams({ pana, digit }),
+    }),
+  },
+  deleteStarlineResult: {
+    endpointName: "deleteStarlineResult",
+    request: (id) => {
+      const formData = new FormData();
+      formData.append("result_id", id);
+      return { url: "starline-deleteResult", method: "POST", body: formData };
+    },
+  },
   starlineCheckWinner: {
     endpointName: "starlineCheckWinner",
     request: ({ result_date, game_id, pana, digit }) => ({
@@ -692,6 +807,84 @@ const mutations = {
       return { url: "deleteuser", method: "POST", body: formData };
     },
   },
+  addGaliGame: {
+    endpointName: "addGaliGame",
+    request: ({ name, name_hindi, open_time, close_time }) => {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("name_hindi", name_hindi);
+      formData.append("open_time", open_time);
+      formData.append("close_time", close_time);
+      return { url: "gali-addgame", method: "POST", body: formData };
+    },
+  },
+  updateGaliGame: {
+    endpointName: "updateGaliGame",
+    request: ({ id, name, name_hindi, open_time, close_time }) => {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("name_hindi", name_hindi);
+      formData.append("open_time", open_time);
+      formData.append("close_time", close_time);
+      return { url: `gali-updategame/${id}`, method: "POST", body: formData };
+    },
+  },
+  toggleGaliGame: {
+    endpointName: "toggleGaliGame",
+    request: (id) => ({ url: `gali-tooglestatus/${id}`, method: "POST" }),
+  },
+  updateGaliRate: {
+    request: ({ id, rate, base }) => {
+      const formData = new FormData();
+      formData.append("id", id); // ← wait, image shows NO id in body
+      formData.append("rate", rate);
+      formData.append("base", base);
+      return { url: "updaterates-gali", method: "POST", body: formData };
+    },
+  },
+  galiDeclareResult: {
+    endpointName: "galiDeclareResult",
+    request: ({ result_date, game_id, pana, digit }) => {
+      const formData = new FormData();
+      formData.append("result_date", result_date);
+      formData.append("game_id", game_id);
+      formData.append("pana", pana);
+      formData.append("digit", digit);
+      return { url: "gali-declareresult", method: "POST", body: formData };
+    },
+  },
+  editGaliBid: {
+    endpointName: "editGaliBid",
+    request: ({ id, pana, digit }) => ({
+      url: `gali-editbid/${id}`,
+      method: "POST",
+      body: cleanNonEmptyParams({ pana, digit }),
+    }),
+  },
+  galiCheckWinner: {
+    endpointName: "galiCheckWinner",
+    request: ({ result_date, game_id, open, close }) => ({
+      url: "gali-checkwinner",
+      method: "POST",
+      params: { result_date, game_id, open, close },
+    }),
+  },
+  deductFunds: {
+    endpointName: "deductFunds",
+    request: ({ user_id, amount }) => ({
+      url: "deductFunds",
+      method: "GET",
+      params: { user_id, amount },
+    }),
+  },
+  uploadQR: {
+    endpointName: "uploadQR",
+    request: (formData) => ({
+      url: "qr",
+      method: "POST",
+      body: formData,
+    }),
+  },
 };
 
 export const useCheckLoginQuery = createQueryHook(queries.checkLogin);
@@ -701,6 +894,7 @@ export const useGetInactiveUsersQuery = createQueryHook(
 );
 export const useGetBannersQuery = createQueryHook(queries.getBanners);
 export const useGetAdminQuery = createQueryHook(queries.getAdmin);
+export const useGetAdminsQuery = createQueryHook(queries.getAdmins);
 export const useGetWithdrawRequestsQuery = createQueryHook(
   queries.getWithdrawRequests,
 );
@@ -716,6 +910,9 @@ export const useGetDeclaredResultsStarlineQuery = createQueryHook(
 );
 export const useGetDeclaredResultsQuery = createQueryHook(
   queries.getDeclaredResults,
+);
+export const useGetMainGameRatesQuery = createQueryHook(
+  queries.getMainGameRates,
 );
 export const useGetBiddingHistoryGaliQuery = createQueryHook(
   queries.getBiddingHistoryGali,
@@ -737,6 +934,11 @@ export const useGetStarlineGamesQuery = createQueryHook(
 export const useGetStarlineRatesQuery = createQueryHook(
   queries.getStarlineRates,
 );
+export const useSearchUserQuery = createQueryHook(queries.searchUser);
+export const useGetQRQuery = createQueryHook(queries.getQR);
+export const useGetAllGamesQuery = createQueryHook(queries.getAllGames);
+export const useGetGameResultsQuery = createQueryHook(queries.getGameResults);
+export const useCheckSessionQuery = createQueryHook(queries.checkSession);
 
 export const useLoginMutation = createMutationHook(mutations.login);
 export const useAddBannerMutation = createMutationHook(mutations.addBanner);
@@ -756,7 +958,15 @@ export const useDeclareResultMutation = createMutationHook(
 export const useDeleteResultMutation = createMutationHook(
   mutations.deleteResult,
 );
+export const useRegisterAdminMutation = createMutationHook(mutations.registerAdmin);
+export const useUpdateAdminMutation = createMutationHook(mutations.updateAdmin);
+export const useDeleteAdminMutation = createMutationHook(mutations.deleteAdmin);
+export const useUpdateAdminDetailsMutation = createMutationHook(mutations.updateAdminDetails);
+export const useResetAdminPasswordMutation = createMutationHook(mutations.resetAdminPassword);
+export const useChangeUserPasswordMutation = createMutationHook(mutations.changeUserPassword);
 export const useUpdateGameMutation = createMutationHook(mutations.updateGame);
+export const useUpdateMainGameRatesMutation = createMutationHook(mutations.updateMainGameRates);
+export const useEditBidMutation = createMutationHook(mutations.editBid);
 export const useUpdateGameScheduleMutation = createMutationHook(
   mutations.updateGameSchedule,
 );
@@ -788,6 +998,12 @@ export const useUpdateStarlineRateMutation = createMutationHook(
 export const useStarlineDeclareResultMutation = createMutationHook(
   mutations.starlineDeclareResult,
 );
+export const useEditStarlineBidMutation = createMutationHook(
+  mutations.editStarlineBid,
+);
+export const useDeleteStarlineResultMutation = createMutationHook(
+  mutations.deleteStarlineResult,
+);
 export const useStarlineCheckWinnerMutation = createMutationHook(
   mutations.starlineCheckWinner,
 );
@@ -797,9 +1013,49 @@ export const useAdminAddFundsMutation = createMutationHook(
 );
 export const useDeleteUserMutation = createMutationHook(mutations.deleteUser);
 
+export const useGetGaliGamesQuery = createQueryHook(queries.getGaliGames);
+export const useGetGaliRatesQuery = createQueryHook(queries.getGaliRates);
+export const useGetDeclaredResultsGaliQuery = createQueryHook(
+  queries.getDeclaredResultsGali,
+);
+
+export const useAddGaliGameMutation = createMutationHook(mutations.addGaliGame);
+export const useUpdateGaliGameMutation = createMutationHook(
+  mutations.updateGaliGame,
+);
+export const useToggleGaliGameMutation = createMutationHook(
+  mutations.toggleGaliGame,
+);
+export const useUpdateGaliRateMutation = createMutationHook(
+  mutations.updateGaliRate,
+);
+export const useGaliDeclareResultMutation = createMutationHook(
+  mutations.galiDeclareResult,
+);
+export const useEditGaliBidMutation = createMutationHook(
+  mutations.editGaliBid,
+);
+export const useGaliCheckWinnerMutation = createMutationHook(
+  mutations.galiCheckWinner,
+);
+export const useDeductFundsMutation = createMutationHook(
+  mutations.deductFunds,
+);
+export const useUploadQRMutation = createMutationHook(
+  mutations.uploadQR,
+);
+export const useReplyInquiryMutation = createMutationHook(
+  mutations.replyInquiry,
+);
+export const useClearDataMutation = createMutationHook(
+  mutations.clearData,
+);
+export const useBackendLogoutMutation = createMutationHook(
+  mutations.backendLogout,
+);
+
 export const apiAPISlice = {
   util: {
-
     resetApiState: () => () => {
       resetApiCache();
     },

@@ -6,7 +6,7 @@ import parse from "html-react-parser";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { apiAPISlice } from "@/store/backendSlice/apiAPISlice";
+import { apiAPISlice, useBackendLogoutMutation } from "@/store/backendSlice/apiAPISlice";
 import { logout } from "@/store/backendSlice/authReducer";
 
 export default function SideNav() {
@@ -15,8 +15,8 @@ export default function SideNav() {
   const dispatch = useDispatch();
   const [openIndex, setOpenIndex] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const Menu = AdminStaticData?.Menu?.items || [];
+  const [backendLogout] = useBackendLogoutMutation();
 
   useEffect(() => {
     const hideBtn = document.querySelector(".hide_menu");
@@ -36,11 +36,16 @@ export default function SideNav() {
     Menu.filter(item => item.Show === "1").forEach((item, index) => {
       const subItems = item.MoreItem || [];
       const isSubActive = subItems.some(sub => pathname === sub.url);
-      if(isSubActive) setOpenIndex(index);
+      if (isSubActive) setOpenIndex(index);
     });
   }, [pathname]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await backendLogout().unwrap();
+    } catch (err) {
+      console.error("Backend logout failed:", err);
+    }
     dispatch(logout());
     dispatch(apiAPISlice.util.resetApiState());
     router.push("/login");

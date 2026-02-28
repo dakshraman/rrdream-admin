@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import DataTable from "react-data-table-component";
-import { useGetBiddingHistoryQuery } from "@/store/backendSlice/apiAPISlice";
+import { useGetBiddingHistoryQuery, useEditBidMutation } from "@/store/backendSlice/apiAPISlice";
+import Swal from "sweetalert2";
 
 const BiddingSkeleton = () => (
     <div style={{
@@ -33,6 +34,10 @@ export default function BiddingHistory() {
     });
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [isMobile, setIsMobile] = useState(false);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState(null);
+    const [editForm, setEditForm] = useState({ pana: "", digit: "" });
+    const [editBid, { isLoading: isEditing }] = useEditBidMutation();
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -122,7 +127,7 @@ export default function BiddingHistory() {
     const lastPage = pagination.last_page || 1;
 
     const formatDate = (dateString) => {
-        if(!dateString) return "N/A";
+        if (!dateString) return "N/A";
         return new Date(dateString).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     };
 
@@ -159,7 +164,7 @@ export default function BiddingHistory() {
     };
 
     const getResultBadge = (winning_amount, isWin) => {
-        if(winning_amount === null || winning_amount === undefined)
+        if (winning_amount === null || winning_amount === undefined)
             return <span style={{ color: "#9ca3af", fontSize: "10px" }}>Pending</span>;
         return (
             <span style={{
@@ -179,6 +184,32 @@ export default function BiddingHistory() {
         setDebouncedSearch("");
     };
     const hasActiveFilters = filters.game_name || filters.game_type || filters.session || filters.search || filters.date !== today;
+
+    const openEditModal = (row) => {
+        setEditTarget(row);
+        setEditForm({
+            pana: row.open_pana || row.close_pana || "",
+            digit: row.open_digit || row.close_digit || ""
+        });
+        setEditModalOpen(true);
+    };
+
+    const handleEditBid = async (e) => {
+        e.preventDefault();
+        try {
+            await editBid({
+                id: editTarget.id,
+                pana: editForm.pana,
+                digit: editForm.digit
+            }).unwrap();
+            Swal.fire('Success', 'Bid updated successfully', 'success');
+            setEditModalOpen(false);
+            setEditTarget(null);
+            refetch();
+        } catch (err) {
+            Swal.fire('Error', err?.data?.message || err?.message || 'Failed to update bid', 'error');
+        }
+    };
 
     const inputStyle = {
         padding: "8px 10px", borderRadius: "8px", border: "1.5px solid #d1d5db",
@@ -306,6 +337,9 @@ export default function BiddingHistory() {
                                 <td style={td({ fontWeight: "700", color: "#059669" })}>{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
                                 <td style={td()}>{getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0)}</td>
                                 <td style={td({ color: "#6b7280" })}>{row.date || formatDate(row.created_at)}</td>
+                                <td style={td()}>
+                                    <button onClick={() => openEditModal(row)} style={{ padding: "4px 8px", fontSize: "11px", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontWeight: "600", color: "#374151" }}>Edit</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -339,6 +373,11 @@ export default function BiddingHistory() {
         { name: "Points", selector: (row) => parseFloat(row.points || 0), sortable: true, width: "90px", cell: (row) => <span style={{ fontWeight: "700", color: "#059669", fontSize: "13px" }}>₹{parseFloat(row.points || 0).toLocaleString('en-IN')}</span> },
         { name: "Result", selector: (row) => row.winning_amount, sortable: true, width: "100px", cell: (row) => getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0) },
         { name: "Date", selector: (row) => row.date || row.created_at, sortable: true, width: "110px", cell: (row) => <span style={{ fontSize: "11px", color: "#6b7280" }}>{row.date || formatDate(row.created_at)}</span> },
+        {
+            name: "Action", width: "80px", cell: (row) => (
+                <button onClick={() => openEditModal(row)} style={{ padding: "6px 12px", fontSize: "11px", backgroundColor: "#f3f4f6", border: "1px solid #e5e7eb", borderRadius: "6px", cursor: "pointer", fontWeight: "600", color: "#374151", transition: "all 0.2s" }} onMouseOver={(e) => { e.target.style.backgroundColor = "#e5e7eb" }} onMouseOut={(e) => { e.target.style.backgroundColor = "#f3f4f6" }}>Edit</button>
+            )
+        },
     ];
 
     const customStyles = {
@@ -366,7 +405,7 @@ export default function BiddingHistory() {
         </div>
     );
 
-    if(isError) {
+    if (isError) {
         return (
             <main style={{ padding: "16px" }}>
                 <div style={{ color: "#dc2626", padding: "30px", textAlign: "center", backgroundColor: "#fef2f2", borderRadius: "12px", border: "1px solid #fecaca" }}>
@@ -457,6 +496,41 @@ export default function BiddingHistory() {
                     />
                 )}
             </div>
+
+            {/* Edit Modal */}
+            {editModalOpen && editTarget && (
+                <div style={{
+                    position: "fixed", inset: 0, zIndex: 9999,
+                    backgroundColor: "rgba(17, 24, 39, 0.6)", backdropFilter: "blur(4px)",
+                    display: "flex", alignItems: "center", justifyContent: "center", padding: "16px"
+                }}>
+                    <div style={{
+                        backgroundColor: "#fff", borderRadius: "16px",
+                        width: "100%", maxWidth: "400px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                    }}>
+                        <div style={{ padding: "20px 24px", borderBottom: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#111827" }}>Edit Bid</h3>
+                            <button onClick={() => setEditModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "20px", color: "#9ca3af" }}>×</button>
+                        </div>
+                        <form onSubmit={handleEditBid} style={{ padding: "24px" }}>
+                            <div style={{ marginBottom: "16px" }}>
+                                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Pana</label>
+                                <input type="number" required value={editForm.pana} onChange={(e) => setEditForm({ ...editForm, pana: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                            </div>
+                            <div style={{ marginBottom: "24px" }}>
+                                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Digit</label>
+                                <input type="number" required value={editForm.digit} onChange={(e) => setEditForm({ ...editForm, digit: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                            </div>
+                            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                                <button type="button" onClick={() => setEditModalOpen(false)} style={{ padding: "10px 16px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#fff", color: "#374151", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}>Cancel</button>
+                                <button type="submit" disabled={isEditing} style={{ padding: "10px 20px", borderRadius: "8px", border: "none", backgroundColor: "#4f46e5", color: "#fff", fontWeight: "600", cursor: isEditing ? "not-allowed" : "pointer", fontSize: "14px", opacity: isEditing ? 0.7 : 1 }}>
+                                    {isEditing ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

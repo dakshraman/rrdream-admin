@@ -3,7 +3,7 @@ import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useGetInquiryUsersQuery, useGetUserInquiriesQuery } from "@/store/backendSlice/apiAPISlice";
+import { useGetInquiryUsersQuery, useGetUserInquiriesQuery, useReplyInquiryMutation } from "@/store/backendSlice/apiAPISlice";
 import { toast } from "react-hot-toast";
 
 // Skeleton component for loading state
@@ -27,7 +27,9 @@ const InquirySkeleton = () => (
 
 // Modal to show user inquiries
 const InquiryModal = ({ userId, userName, onClose }) => {
-    const { data: inquiryData, isLoading, isError, error } = useGetUserInquiriesQuery(userId);
+    const { data: inquiryData, isLoading, isError, error, refetch: refetchInquiries } = useGetUserInquiriesQuery(userId);
+    const [replyInquiry, { isLoading: isReplying }] = useReplyInquiryMutation();
+    const [replyMessage, setReplyMessage] = useState("");
 
     const inquiries = inquiryData?.inquiries || [];
 
@@ -41,6 +43,18 @@ const InquiryModal = ({ userId, userName, onClose }) => {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const handleSendReply = async () => {
+        if (!replyMessage.trim()) return;
+        try {
+            await replyInquiry({ userId, message: replyMessage }).unwrap();
+            toast.success("Reply sent successfully!");
+            setReplyMessage("");
+            refetchInquiries();
+        } catch (err) {
+            toast.error(err?.data?.message || err?.message || "Failed to send reply");
+        }
     };
 
     return (
@@ -184,6 +198,54 @@ const InquiryModal = ({ userId, userName, onClose }) => {
                         </div>
                     )}
                 </div>
+
+                {/* Reply Section */}
+                {!isLoading && !isError && (
+                    <div style={{
+                        padding: "15px 20px",
+                        borderTop: "1px solid #e5e7eb",
+                        display: "flex",
+                        gap: "10px",
+                        alignItems: "center",
+                        backgroundColor: "#f9fafb"
+                    }}>
+                        <input
+                            type="text"
+                            value={replyMessage}
+                            onChange={(e) => setReplyMessage(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSendReply()}
+                            placeholder="Type your reply here..."
+                            style={{
+                                flex: 1,
+                                padding: "10px 14px",
+                                borderRadius: "8px",
+                                border: "1px solid #d1d5db",
+                                fontSize: "14px",
+                                outline: "none"
+                            }}
+                        />
+                        <button
+                            onClick={handleSendReply}
+                            disabled={isReplying || !replyMessage.trim()}
+                            style={{
+                                padding: "10px 20px",
+                                backgroundColor: isReplying || !replyMessage.trim() ? "#9ca3af" : "#4f46e5",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "8px",
+                                cursor: isReplying || !replyMessage.trim() ? "not-allowed" : "pointer",
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                transition: "background-color 0.2s"
+                            }}
+                        >
+                            {isReplying ? "Sending..." : "Send"}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -10,6 +10,14 @@
         "Show": "1"
       },
       {
+        "PageID": 5,
+        "title": "All Admins",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></g></svg>",
+        "url": "/all-admins",
+        "addurl": "",
+        "Show": "1"
+      },
+      {
         "PageID": 1,
         "title": "Active Users",
         "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M12 3a6 6 0 0 0 9 9a9 9 0 1 1-9-9'/><path d='M20 3v4m0 0h-4m4 0l-5 5'/></g></svg>",
@@ -46,6 +54,14 @@
         "title": "Game Management",
         "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><rect width='20' height='14' x='2' y='5' rx='2'/><path d='M2 10h20'/><path d='M7 15h.01'/><path d='M17 15h.01'/></g></svg>",
         "url": "/game-management",
+        "addurl": "",
+        "Show": "1"
+      },
+      {
+        "PageID": 14,
+        "title": "Main Game Rates",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/></g></svg>",
+        "url": "/main-game-rates",
         "addurl": "",
         "Show": "1"
       },
@@ -139,6 +155,69 @@
             "PageID": 28,
             "title": "Starline Winning Prediction",
             "url": "/starline-winning-prediction",
+            "addurl": "",
+            "Show": "0"
+          }
+        ]
+      },
+      {
+        "PageID": 30,
+        "title": "Gali Desawar Management",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'><path d='M3 12h18M12 3v18'/><circle cx='12' cy='12' r='9'/></g></svg>",
+        "url": "#",
+        "addurl": "#",
+        "Show": "1",
+        "MoreItem": [
+          {
+            "PageID": 31,
+            "title": "Gali Desawar Game Name",
+            "url": "/gali-desawar-game-name",
+            "addurl": "/gali-desawar-game-name"
+          },
+          {
+            "PageID": 32,
+            "title": "Gali Desawar Game Rates",
+            "url": "/gali-desawar-game-rates",
+            "addurl": "/gali-desawar-game-rates"
+          },
+          {
+            "PageID": 33,
+            "title": "Gali Desawar Declare Result",
+            "url": "/gali-desawar-declare-result",
+            "addurl": ""
+          },
+          {
+            "PageID": 34,
+            "title": "Gali Desawar Result History",
+            "url": "/gali-desawar-result-history",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 35,
+            "title": "Gali Desawar Bid History",
+            "url": "/bidding-history-gali",
+            "addurl": "",
+            "Show": "1"
+          },
+          {
+            "PageID": 36,
+            "title": "Gali Desawar Self Report",
+            "url": "/gali-desawar-self-report",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 37,
+            "title": "Gali Desawar Winning Report",
+            "url": "/gali-desawar-winning-report",
+            "addurl": "",
+            "Show": "0"
+          },
+          {
+            "PageID": 38,
+            "title": "Gali Desawar Winning Prediction",
+            "url": "/gali-desawar-winning-prediction",
             "addurl": "",
             "Show": "0"
           }

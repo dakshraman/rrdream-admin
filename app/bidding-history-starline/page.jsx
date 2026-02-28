@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import DataTable from "react-data-table-component";
-import { useGetBiddingHistoryStarlineQuery } from "@/store/backendSlice/apiAPISlice";
+import { useGetBiddingHistoryStarlineQuery, useEditStarlineBidMutation } from "@/store/backendSlice/apiAPISlice";
+import Swal from "sweetalert2";
 
 // Starline bid data shape:
 // { id, name (game time e.g. "9:00 PM"), game_type ("SINGLE PANA"), points, pana, digit, created_at }
@@ -42,6 +43,37 @@ export default function BiddingHistoryStarline() {
     }, []);
 
     const { data, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery();
+    const [editStarlineBid, { isLoading: isEditing }] = useEditStarlineBidMutation();
+
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState(null);
+    const [editForm, setEditForm] = useState({ pana: "", digit: "" });
+
+    const openEditModal = (row) => {
+        setEditTarget(row);
+        setEditForm({
+            pana: row.pana || "",
+            digit: row.digit || ""
+        });
+        setEditModalOpen(true);
+    };
+
+    const handleEditBid = async (e) => {
+        e.preventDefault();
+        try {
+            await editStarlineBid({
+                id: editTarget.id,
+                pana: editForm.pana,
+                digit: editForm.digit
+            }).unwrap();
+            Swal.fire('Success', 'Bid updated successfully', 'success');
+            setEditModalOpen(false);
+            setEditTarget(null);
+            refetch();
+        } catch (err) {
+            Swal.fire('Error', err?.data?.message || err?.message || 'Failed to update bid', 'error');
+        }
+    };
 
     // ── data shape: { status: true, biddings: [...] }
     const allBiddings = data?.biddings || [];
@@ -71,8 +103,8 @@ export default function BiddingHistoryStarline() {
             const matchType = gameTypeFilter ? b.game_type?.toLowerCase() === gameTypeFilter.toLowerCase() : true;
             const matchSearch = searchText
                 ? b.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-                  String(b.pana).includes(searchText) ||
-                  String(b.digit).includes(searchText)
+                String(b.pana).includes(searchText) ||
+                String(b.digit).includes(searchText)
                 : true;
             return matchType && matchSearch;
         });
@@ -104,11 +136,11 @@ export default function BiddingHistoryStarline() {
 
     const getGameTypeBadge = (type) => {
         const map = {
-            "single pana":   { bg: "#d1fae5", color: "#047857" },
-            "double pana":   { bg: "#fef3c7", color: "#b45309" },
-            "triple pana":   { bg: "#ede9fe", color: "#6d28d9" },
-            "single":        { bg: "#dbeafe", color: "#1d4ed8" },
-            "jodi":          { bg: "#fce7f3", color: "#be185d" },
+            "single pana": { bg: "#d1fae5", color: "#047857" },
+            "double pana": { bg: "#fef3c7", color: "#b45309" },
+            "triple pana": { bg: "#ede9fe", color: "#6d28d9" },
+            "single": { bg: "#dbeafe", color: "#1d4ed8" },
+            "jodi": { bg: "#fce7f3", color: "#be185d" },
         };
         const key = type?.toLowerCase().replace(/_/g, " ");
         const s = map[key] || { bg: "#f3f4f6", color: "#374151" };
@@ -260,6 +292,9 @@ export default function BiddingHistoryStarline() {
                                 <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.digit ?? "—"}</td>
                                 <td style={td({ fontWeight: "700", color: "#059669" })}>₹{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
                                 <td style={td({ color: "#6b7280" })}>{formatDate(row.created_at)}</td>
+                                <td style={td()}>
+                                    <button onClick={() => openEditModal(row)} style={{ padding: "4px 8px", fontSize: "11px", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontWeight: "600", color: "#374151" }}>Edit</button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -323,6 +358,13 @@ export default function BiddingHistoryStarline() {
             sortable: true,
             width: "160px",
             cell: (row) => <span style={{ fontSize: "12px", color: "#6b7280" }}>{formatDate(row.created_at)}</span>
+        },
+        {
+            name: "Action",
+            width: "80px",
+            cell: (row) => (
+                <button onClick={() => openEditModal(row)} style={{ padding: "6px 12px", fontSize: "11px", backgroundColor: "#fef3c7", border: "1px solid #fde68a", borderRadius: "6px", cursor: "pointer", fontWeight: "600", color: "#b45309", transition: "all 0.2s" }} onMouseOver={(e) => { e.target.style.backgroundColor = "#fde68a" }} onMouseOut={(e) => { e.target.style.backgroundColor = "#fef3c7" }}>Edit</button>
+            )
         },
     ];
 
@@ -478,6 +520,41 @@ export default function BiddingHistoryStarline() {
                     />
                 )}
             </div>
+
+            {/* Edit Modal */}
+            {editModalOpen && editTarget && (
+                <div style={{
+                    position: "fixed", inset: 0, zIndex: 9999,
+                    backgroundColor: "rgba(17, 24, 39, 0.6)", backdropFilter: "blur(4px)",
+                    display: "flex", alignItems: "center", justifyContent: "center", padding: "16px"
+                }}>
+                    <div style={{
+                        backgroundColor: "#fff", borderRadius: "16px",
+                        width: "100%", maxWidth: "400px", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                    }}>
+                        <div style={{ padding: "20px 24px", borderBottom: "1px solid #fcfhbd", backgroundColor: "#fffbeb", borderRadius: "16px 16px 0 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#b45309" }}>⭐ Edit Starline Bid</h3>
+                            <button onClick={() => setEditModalOpen(false)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: "20px", color: "#b45309" }}>×</button>
+                        </div>
+                        <form onSubmit={handleEditBid} style={{ padding: "24px" }}>
+                            <div style={{ marginBottom: "16px" }}>
+                                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Pana</label>
+                                <input type="number" value={editForm.pana} onChange={(e) => setEditForm({ ...editForm, pana: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                            </div>
+                            <div style={{ marginBottom: "24px" }}>
+                                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>Digit</label>
+                                <input type="number" value={editForm.digit} onChange={(e) => setEditForm({ ...editForm, digit: e.target.value })} style={{ width: "100%", padding: "10px 14px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                            </div>
+                            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                                <button type="button" onClick={() => setEditModalOpen(false)} style={{ padding: "10px 16px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#fff", color: "#374151", fontWeight: "600", cursor: "pointer", fontSize: "14px" }}>Cancel</button>
+                                <button type="submit" disabled={isEditing} style={{ padding: "10px 20px", borderRadius: "8px", border: "none", backgroundColor: "#d97706", color: "#fff", fontWeight: "600", cursor: isEditing ? "not-allowed" : "pointer", fontSize: "14px", opacity: isEditing ? 0.7 : 1 }}>
+                                    {isEditing ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

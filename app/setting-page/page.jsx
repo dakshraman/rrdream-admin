@@ -1,12 +1,14 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useGetConfigQuery, useUpdateConfigMutation } from "@/store/backendSlice/apiAPISlice";
+import { useGetConfigQuery, useUpdateConfigMutation, useClearDataMutation } from "@/store/backendSlice/apiAPISlice";
+import Swal from "sweetalert2";
 
 export default function Settings() {
     const { data: configResponse, isLoading, refetch } = useGetConfigQuery(undefined, {
         refetchOnMountOrArgChange: true,
     });
     const [updateConfig, { isLoading: updating }] = useUpdateConfigMutation();
+    const [clearData, { isLoading: isClearing }] = useClearDataMutation();
 
     const [formData, setFormData] = useState({});
     const [activeSection, setActiveSection] = useState('contact');
@@ -127,9 +129,9 @@ export default function Settings() {
         try {
             await updateConfig({ email: config.email, [field]: formData[field] }).unwrap();
             setEditingField(null);
-            alert(`${fieldLabels[field]} updated successfully!`);
+            Swal.fire('Success', `${fieldLabels[field]} updated successfully!`, 'success');
         } catch (err) {
-            alert(err?.data?.message || "Failed to update");
+            Swal.fire('Error', err?.data?.message || "Failed to update", 'error');
         }
     };
 
@@ -143,10 +145,11 @@ export default function Settings() {
         });
         try {
             await updateConfig(updates).unwrap();
-            alert("Settings updated successfully!");
+            Swal.fire('Success', "Settings updated successfully!", 'success');
+            setEditingField(null);
             refetch();
         } catch (err) {
-            alert(err?.data?.message || "Failed to update settings");
+            Swal.fire('Error', err?.data?.message || "Failed to update settings", 'error');
         }
     };
 
@@ -471,7 +474,7 @@ export default function Settings() {
                                 refetch();
                             } catch (err) {
                                 handleInputChange('user_status', currentStatus);
-                                alert("Failed to update");
+                                Swal.fire('Error', "Failed to update", 'error');
                             }
                         }}
                         style={{
@@ -502,9 +505,64 @@ export default function Settings() {
                 </div>
             </div>
 
-
-
-            <style jsx>{`
+            {/* Clear Server Cache Section */}
+            <div style={{
+                backgroundColor: theme.card,
+                borderRadius: isMobile ? "10px" : "12px",
+                padding: isMobile ? "14px" : "20px",
+                marginTop: isMobile ? "12px" : "16px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+            }}>
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px"
+                }}>
+                    <div style={{ flex: 1 }}>
+                        <h3 style={{
+                            fontSize: isMobile ? "13px" : "14px",
+                            fontWeight: "600",
+                            color: theme.text,
+                            margin: "0 0 4px"
+                        }}>
+                            Server Cache
+                        </h3>
+                        <p style={{
+                            fontSize: isMobile ? "11px" : "12px",
+                            color: theme.textMuted,
+                            margin: 0,
+                            lineHeight: "1.4"
+                        }}>
+                            Clear the server cache manually to resolve stale data issues.
+                        </p>
+                    </div>
+                    <button
+                        disabled={isClearing}
+                        onClick={async () => {
+                            try {
+                                const res = await clearData().unwrap();
+                                Swal.fire('Success', res?.message || "Server cache cleared successfully!", 'success');
+                            } catch (err) {
+                                Swal.fire('Error', err?.data?.message || "Failed to clear cache", 'error');
+                            }
+                        }}
+                        style={{
+                            padding: "8px 16px",
+                            borderRadius: "6px",
+                            border: "none",
+                            backgroundColor: theme.danger,
+                            color: "#fff",
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            cursor: isClearing ? "not-allowed" : "pointer",
+                            opacity: isClearing ? 0.7 : 1,
+                        }}
+                    >
+                        {isClearing ? "Clearing..." : "Clear Cache"}
+                    </button>
+                </div>
+            </div>            <style jsx>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }

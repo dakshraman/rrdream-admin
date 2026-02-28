@@ -1,22 +1,21 @@
 'use client';
 import { useState, useEffect } from "react";
 import {
-    useGetStarlineGamesQuery,
-    useStarlineDeclareResultMutation,
-    useStarlineCheckWinnerMutation,
-    useGetDeclaredResultsStarlineQuery,
-    useDeleteStarlineResultMutation
+    useGetGaliGamesQuery,
+    useGaliDeclareResultMutation,
+    useGaliCheckWinnerMutation,
+    useGetDeclaredResultsGaliQuery
 } from "@/store/backendSlice/apiAPISlice";
 import { toast } from "react-hot-toast";
 
-export default function StarlineDeclareResult() {
+export default function GaliDeclareResult() {
     const today = new Date().toISOString().split('T')[0];
 
     const [formData, setFormData] = useState({
         result_date: today,
         game_id: "",
-        pana: "",
-        digit: "",
+        open: "",
+        close: "",
     });
 
     const [selectedGame, setSelectedGame] = useState(null);
@@ -24,18 +23,14 @@ export default function StarlineDeclareResult() {
     const [showWinnersModal, setShowWinnersModal] = useState(false);
     const [winnersData, setWinnersData] = useState(null);
 
-    const { data: gamesResponse, isLoading: gamesLoading } = useGetStarlineGamesQuery();
-    const [starlineDeclareResult, { isLoading: declaring }] = useStarlineDeclareResultMutation();
-    const [starlineCheckWinner, { isLoading: checkingWinners }] = useStarlineCheckWinnerMutation();
-    const { data: declaredResultsData, isLoading: resultsLoading, refetch: refetchResults } = useGetDeclaredResultsStarlineQuery();
-    const [deleteStarlineResult] = useDeleteStarlineResultMutation();
+    const { data: gamesResponse, isLoading: gamesLoading } = useGetGaliGamesQuery();
+    const [galiDeclareResult, { isLoading: declaring }] = useGaliDeclareResultMutation();
+    const [galiCheckWinner, { isLoading: checkingWinners }] = useGaliCheckWinnerMutation();
+    const { data: declaredResultsData, isLoading: resultsLoading, refetch: refetchResults } = useGetDeclaredResultsGaliQuery();
 
+    const gamesList = gamesResponse?.data || gamesResponse?.games || (Array.isArray(gamesResponse) ? gamesResponse : []);
     const declaredResults = declaredResultsData?.data || [];
 
-    // Support { data: [] } or { games: [] } or plain []
-    const gamesList = gamesResponse?.data || gamesResponse?.games || (Array.isArray(gamesResponse) ? gamesResponse : []);
-
-    // Close dropdown on outside click
     useEffect(() => {
         const handler = (e) => {
             if (!e.target.closest('.dropdown-container')) setShowGameDropdown(false);
@@ -57,19 +52,17 @@ export default function StarlineDeclareResult() {
     const validate = () => {
         if (!formData.result_date) { toast.error("Please select a date"); return false; }
         if (!formData.game_id) { toast.error("Please select a game"); return false; }
-        if (!formData.pana) { toast.error("Please enter Pana (3 digits)"); return false; }
-        if (formData.pana.length !== 3) { toast.error("Pana must be exactly 3 digits"); return false; }
-        if (!formData.digit) { toast.error("Please enter Digit (0-9)"); return false; }
-        if (!/^[0-9]$/.test(formData.digit)) { toast.error("Digit must be 0-9"); return false; }
+        if (!formData.open) { toast.error("Please enter Open value"); return false; }
+        if (!formData.close) { toast.error("Please enter Close value"); return false; }
         return true;
     };
 
     const handleDeclareResult = async () => {
         if (!validate()) return;
         try {
-            const res = await starlineDeclareResult(formData).unwrap();
+            const res = await galiDeclareResult(formData).unwrap();
             toast.success(res?.message || "Result declared successfully!");
-            setFormData({ result_date: today, game_id: "", pana: "", digit: "" });
+            setFormData({ result_date: today, game_id: "", open: "", close: "" });
             setSelectedGame(null);
             refetchResults();
         } catch (err) {
@@ -80,8 +73,8 @@ export default function StarlineDeclareResult() {
     const handleCheckWinners = async () => {
         if (!validate()) return;
         try {
-            const res = await starlineCheckWinner(formData).unwrap();
-            console.log("the res", res)
+            const res = await galiCheckWinner(formData).unwrap();
+            console.log("the res", res);
             setWinnersData(res);
             setShowWinnersModal(true);
         } catch (err) {
@@ -89,20 +82,9 @@ export default function StarlineDeclareResult() {
         }
     };
 
-    const handleDeleteResult = async (resultId) => {
-        if (!window.confirm("Are you sure you want to delete this result?")) return;
-        try {
-            const res = await deleteStarlineResult(resultId).unwrap();
-            toast.success(res?.message || "Result deleted successfully");
-            refetchResults();
-        } catch (err) {
-            toast.error(err?.data?.message || err?.message || "Failed to delete result");
-        }
-    };
-
     const theme = {
-        primary: "#6366f1",
-        primaryLight: "#eef2ff",
+        primary: "#ea580c",
+        primaryLight: "#fff7ed",
         text: "#1f2937",
         textMuted: "#6b7280",
         border: "#e5e7eb",
@@ -113,7 +95,7 @@ export default function StarlineDeclareResult() {
     return (
         <main style={{ padding: "16px", minHeight: "100vh", backgroundColor: "#f8fafc" }}>
             <h1 style={{ fontSize: "18px", fontWeight: "600", color: theme.text, margin: "0 0 16px" }}>
-                Starline Declare Result
+                Gali Desavar Declare Result
             </h1>
 
             <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "20px", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
@@ -123,12 +105,12 @@ export default function StarlineDeclareResult() {
                     <div style={{
                         border: `1px solid ${theme.border}`, borderRadius: "6px",
                         padding: "12px 14px", cursor: "pointer", position: "relative", backgroundColor: "#fff",
-                    }} onClick={() => document.getElementById('sl-date-input').showPicker?.()}>
+                    }} onClick={() => document.getElementById('gali-date-input').showPicker?.()}>
                         <span style={{ color: formData.result_date ? theme.primary : theme.textMuted, fontSize: "14px" }}>
                             {formData.result_date ? `Select Date: ${formData.result_date}` : "Select Date"}
                         </span>
                         <input
-                            id="sl-date-input"
+                            id="gali-date-input"
                             type="date"
                             value={formData.result_date}
                             onChange={(e) => handleInputChange('result_date', e.target.value)}
@@ -194,12 +176,18 @@ export default function StarlineDeclareResult() {
                                                         )}
                                                     </div>
                                                 </div>
-                                                {game.time && (
-                                                    <span style={{
-                                                        fontSize: "11px", color: "#059669",
-                                                        backgroundColor: "#d1fae5", padding: "3px 6px", borderRadius: "3px",
-                                                    }}>{game.time}</span>
-                                                )}
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
+                                                    {game.open_time && (
+                                                        <span style={{ fontSize: "11px", color: "#059669", backgroundColor: "#d1fae5", padding: "2px 6px", borderRadius: "3px" }}>
+                                                            Open: {game.open_time}
+                                                        </span>
+                                                    )}
+                                                    {game.close_time && (
+                                                        <span style={{ fontSize: "11px", color: "#dc2626", backgroundColor: "#fee2e2", padding: "2px 6px", borderRadius: "3px" }}>
+                                                            Close: {game.close_time}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         );
                                     })
@@ -208,32 +196,30 @@ export default function StarlineDeclareResult() {
                         )}
                     </div>
 
-                    {/* Pana + Digit */}
+                    {/* Open + Close */}
                     <div style={{ display: "flex", gap: "14px" }}>
                         <input
                             type="text"
-                            placeholder="Pana (3 digits)"
-                            value={formData.pana}
-                            maxLength={3}
+                            placeholder="Open"
+                            value={formData.open}
                             onChange={(e) => {
                                 const v = e.target.value;
-                                if (v === '' || /^\d+$/.test(v)) handleInputChange('pana', v);
+                                if (v === '' || /^\d+$/.test(v)) handleInputChange('open', v);
                             }}
                             style={{ flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "12px 14px", fontSize: "14px", outline: "none" }}
-                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)"; }}
+                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(234,88,12,0.1)"; }}
                             onBlur={(e) => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = "none"; }}
                         />
                         <input
                             type="text"
-                            placeholder="Digit (0-9)"
-                            value={formData.digit}
-                            maxLength={1}
+                            placeholder="Close"
+                            value={formData.close}
                             onChange={(e) => {
                                 const v = e.target.value;
-                                if (v === '' || /^[0-9]$/.test(v)) handleInputChange('digit', v);
+                                if (v === '' || /^\d+$/.test(v)) handleInputChange('close', v);
                             }}
                             style={{ flex: 1, border: `1px solid ${theme.border}`, borderRadius: "6px", padding: "12px 14px", fontSize: "14px", outline: "none" }}
-                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(99,102,241,0.1)"; }}
+                            onFocus={(e) => { e.target.style.borderColor = theme.primary; e.target.style.boxShadow = "0 0 0 2px rgba(234,88,12,0.1)"; }}
                             onBlur={(e) => { e.target.style.borderColor = theme.border; e.target.style.boxShadow = "none"; }}
                         />
                     </div>
@@ -241,7 +227,7 @@ export default function StarlineDeclareResult() {
                     {/* Buttons */}
                     <div style={{ display: "flex", gap: "14px", marginTop: "6px" }}>
                         <button onClick={handleDeclareResult} disabled={declaring} style={{
-                            flex: 1, backgroundColor: declaring ? "#a5b4fc" : theme.primary,
+                            flex: 1, backgroundColor: declaring ? "#fdba74" : theme.primary,
                             color: "#fff", border: "none", borderRadius: "6px",
                             padding: "12px 18px", fontSize: "14px", fontWeight: "600",
                             cursor: declaring ? "not-allowed" : "pointer",
@@ -307,7 +293,7 @@ export default function StarlineDeclareResult() {
                                                     {winner.user_name || winner.username || `User #${winner.user_id}`}
                                                 </div>
                                                 <div style={{ fontSize: "12px", color: theme.textMuted }}>
-                                                    {winner.game_type || 'N/A'} • Digit: {winner.digit || winner.number || 'N/A'}
+                                                    {winner.game_type || 'N/A'} • Open: {winner.open ?? 'N/A'} • Close: {winner.close ?? 'N/A'}
                                                 </div>
                                             </div>
                                             <div style={{ fontSize: "16px", fontWeight: "700", color: theme.success }}>
@@ -359,9 +345,8 @@ export default function StarlineDeclareResult() {
                                 <tr style={{ backgroundColor: theme.primaryLight, textAlign: "left", color: theme.primary }}>
                                     <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Result Date</th>
                                     <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Game Name</th>
-                                    <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Pana</th>
-                                    <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Digit</th>
-                                    <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}`, width: "80px", textAlign: "center" }}>Action</th>
+                                    <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Open Digit</th>
+                                    <th style={{ padding: "12px 14px", fontWeight: "600", borderBottom: `2px solid ${theme.border}` }}>Close Digit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -370,15 +355,8 @@ export default function StarlineDeclareResult() {
                                         <tr key={`${gIdx}-${rIdx}`} style={{ borderBottom: `1px solid ${theme.border}` }}>
                                             <td style={{ padding: "12px 14px", color: theme.text }}>{resultGroup.result_date}</td>
                                             <td style={{ padding: "12px 14px", color: theme.text, fontWeight: "500" }}>{resultGroup.game_name}</td>
-                                            <td style={{ padding: "12px 14px", color: theme.text, fontFamily: "monospace", fontSize: "14px", fontWeight: "600" }}>{res.pana}</td>
-                                            <td style={{ padding: "12px 14px", color: theme.text, fontFamily: "monospace", fontSize: "14px", fontWeight: "600" }}>{res.digit}</td>
-                                            <td style={{ padding: "12px 14px", textAlign: "center" }}>
-                                                <button onClick={() => handleDeleteResult(res.id)} style={{
-                                                    backgroundColor: "#fee2e2", color: theme.danger, border: "none", borderRadius: "4px", padding: "6px 12px", fontSize: "12px", fontWeight: "600", cursor: "pointer", display: "inline-block", transition: "all 0.2s"
-                                                }} onMouseOver={(e) => e.target.style.backgroundColor = "#fecaca"} onMouseOut={(e) => e.target.style.backgroundColor = "#fee2e2"}>
-                                                    Delete
-                                                </button>
-                                            </td>
+                                            <td style={{ padding: "12px 14px", color: theme.text, fontFamily: "monospace", fontSize: "14px", fontWeight: "600" }}>{res.open}</td>
+                                            <td style={{ padding: "12px 14px", color: theme.text, fontFamily: "monospace", fontSize: "14px", fontWeight: "600" }}>{res.close}</td>
                                         </tr>
                                     ))
                                 ))}
