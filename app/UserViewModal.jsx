@@ -157,7 +157,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
     useEffect(() => {
         if (!isMobileView) return;
 
-        const mobileTabs = ["transactions", "winning", "bidding"];
+        const mobileTabs = ["transactions", "funds", "withdrawals", "winning", "bidding"];
         if (!mobileTabs.includes(activeTab)) {
             setActiveTab("transactions");
         }
@@ -407,27 +407,49 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                 <EmptyState message="No winning history found" />
             ) : (
                 <div style={{ marginTop: "16px" }}>
-                    {winningHistory.map((win, index) => (
-                        <div key={index} style={{
-                            padding: "12px",
-                            backgroundColor: "#dcfce7",
-                            borderRadius: "8px",
-                            marginBottom: "8px",
-                            border: "1px solid #bbf7d0"
-                        }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                                <span style={{ fontWeight: "600", color: "#166534" }}>
-                                    {win.game_name || "Win"}
-                                </span>
-                                <span style={{ fontWeight: "700", color: "#22c55e" }}>
-                                    +{formatCurrency(win.amount)}
-                                </span>
+                    {winningHistory.map((win, index) => {
+                        const winningAmount = win.win_points ?? win.amount ?? 0;
+                        const playedNumber = win.pana || win.jodi || win.digit || "N/A";
+                        const playedLabel = win.pana ? "Pana" : win.jodi ? "Jodi" : win.digit ? "Digit" : "Number";
+
+                        return (
+                            <div key={index} style={{
+                                padding: "12px",
+                                backgroundColor: "#dcfce7",
+                                borderRadius: "8px",
+                                marginBottom: "8px",
+                                border: "1px solid #bbf7d0"
+                            }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", gap: "8px" }}>
+                                    <span style={{ fontWeight: "700", color: "#14532d" }}>
+                                        {win.game_name || "Win"}
+                                    </span>
+                                    <span style={{ fontWeight: "700", color: "#15803d" }}>
+                                        +{formatCurrency(winningAmount)}
+                                    </span>
+                                </div>
+
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px", color: "#166534" }}>
+                                    <span><strong>Type:</strong> {win.game_type || "N/A"}</span>
+                                    <span><strong>Session:</strong> {win.session || "N/A"}</span>
+                                </div>
+
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px", color: "#166534" }}>
+                                    <span><strong>{playedLabel}:</strong> {playedNumber}</span>
+                                    <span><strong>Points:</strong> {win.points ?? "N/A"}</span>
+                                </div>
+
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "12px", color: "#166534" }}>
+                                    <span><strong>Rate:</strong> {win.rate ?? "N/A"}</span>
+                                    <span><strong>Bid Date:</strong> {win.bid_date || "N/A"}</span>
+                                </div>
+
+                                <div style={{ fontSize: "12px", color: "#166534" }}>
+                                    <strong>Result Date:</strong> {win.result_date || formatDate(win.created_at)}
+                                </div>
                             </div>
-                            <div style={{ fontSize: "12px", color: "#166534" }}>
-                                {formatDate(win.created_at)}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </>
@@ -637,6 +659,20 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                             Transactions
                                         </TabButton>
                                         <TabButton
+                                            active={activeTab === "funds"}
+                                            onClick={() => setActiveTab("funds")}
+                                            count={fundRequests.length}
+                                        >
+                                            Fund Requests
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "withdrawals"}
+                                            onClick={() => setActiveTab("withdrawals")}
+                                            count={withdrawals.length}
+                                        >
+                                            Withdrawal History
+                                        </TabButton>
+                                        <TabButton
                                             active={activeTab === "winning"}
                                             onClick={() => setActiveTab("winning")}
                                             count={winningHistory.length}
@@ -671,14 +707,14 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                             onClick={() => setActiveTab("funds")}
                                             count={fundRequests.length}
                                         >
-                                            Funds
+                                            Fund Requests
                                         </TabButton>
                                         <TabButton
                                             active={activeTab === "withdrawals"}
                                             onClick={() => setActiveTab("withdrawals")}
                                             count={withdrawals.length}
                                         >
-                                            Withdrawals
+                                            Withdrawal History
                                         </TabButton>
                                         <TabButton
                                             active={activeTab === "bidding"}
