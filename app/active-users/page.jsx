@@ -189,6 +189,7 @@ export default function ManageUsersData() {
         const startIndex = (currentPage - 1) * rowsPerPage;
         return filteredData.slice(startIndex, startIndex + rowsPerPage);
     }, [filteredData, currentPage, rowsPerPage]);
+    const getSerialNumber = (index) => (currentPage - 1) * rowsPerPage + index + 1;
 
     const showFrom = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
     const showTo = Math.min(currentPage * rowsPerPage, totalRows);
@@ -197,7 +198,8 @@ export default function ManageUsersData() {
     const columns = [
         {
             name: "S.No",
-            selector: (row, index) => (currentPage - 1) * rowsPerPage + index + 1,
+            selector: (_, index) => getSerialNumber(index),
+            cell: (_, index) => <span>{getSerialNumber(index)}</span>,
             sortable: false,
             width: "40px",
         },
@@ -518,7 +520,7 @@ export default function ManageUsersData() {
 
         return (
             <div style={{ display: "grid", gap: "10px", padding: "12px" }}>
-                {paginatedData.map((row) => {
+                {paginatedData.map((row, index) => {
                     const isActive = isUserActive(row);
                     const isToggling = togglingUserId === row.id;
                     const isDeleting = deletingUserId === row.id;
@@ -551,7 +553,7 @@ export default function ManageUsersData() {
                                         {row.name || "N/A"}
                                     </p>
                                     <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#6b7280" }}>
-                                        ID: #{row.id} | {row.phone || "N/A"}
+                                        Sr No: {getSerialNumber(index)} | {row.phone || "N/A"}
                                     </p>
                                 </div>
                                 <span
