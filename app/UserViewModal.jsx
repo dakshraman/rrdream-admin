@@ -184,8 +184,6 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
     const avatarBgColor = user.status ? "#4f46e5" : "#9ca3af";
     const statusBgColor = user.status ? "#dcfce7" : "#fef2f2";
     const statusTextColor = user.status ? "#166534" : "#dc2626";
-    const actionButtonBg = isInactive ? "#22c55e" : "#4f46e5";
-    const actionButtonText = isInactive ? " User" : "Edit User";
 
     const renderInfoTab = () => (
         <>
@@ -454,18 +452,6 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
             )}
         </>
     );
-
-    const handleAction = () => {
-        if (isInactive) {
-            // Activate user logic
-            console.log("Activating user:", userId);
-            // Add your activation API call here
-        } else {
-            // Edit user logic
-            console.log("Editing user:", userId);
-            // Add your edit logic here
-        }
-    };
 
     return (
         <div style={{
@@ -747,50 +733,6 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                     )}
                 </div>
 
-                {/* Footer Actions */}
-                {!isLoading && !isError && user && user.id && (
-                    <div style={{
-                        display: "flex",
-                        gap: "12px",
-                        padding: "16px 24px",
-                        borderTop: "1px solid #e5e7eb",
-                        backgroundColor: "#f9fafb",
-                        flexShrink: 0
-                    }}>
-                        <button
-                            onClick={onClose}
-                            style={{
-                                flex: 1,
-                                padding: "12px",
-                                backgroundColor: "#fff",
-                                color: "#374151",
-                                border: "1px solid #d1d5db",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            }}
-                        >
-                            Close
-                        </button>
-                        <button
-                            onClick={handleAction}
-                            style={{
-                                flex: 1,
-                                padding: "12px",
-                                backgroundColor: actionButtonBg,
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: "8px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            }}
-                        >
-                            {actionButtonText}
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
     );
