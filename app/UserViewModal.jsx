@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useGetUserByIdQuery } from "@/store/backendSlice/apiAPISlice";
@@ -85,8 +85,24 @@ const EmptyState = ({ message }) => (
     </div>
 );
 
+const UserSummaryRow = ({ label, value }) => (
+    <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "10px 0",
+        borderBottom: "1px solid #e5e7eb"
+    }}>
+        <span style={{ color: "#6b7280", fontSize: "13px" }}>{label}</span>
+        <span style={{ fontWeight: "600", fontSize: "13px", color: "#111827" }}>
+            {value || "N/A"}
+        </span>
+    </div>
+);
+
 export default function UserViewModal({ userId, onClose, variant = "default" }) {
     const [activeTab, setActiveTab] = useState("info");
+    const [isMobileView, setIsMobileView] = useState(false);
 
     const { data: userData, isLoading, isError } = useGetUserByIdQuery(userId, {
         skip: !userId,
@@ -111,15 +127,41 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
     const transactions = responseData?.transactions || [];
     const fundRequests = responseData?.fund_requests || [];
     const withdrawals = responseData?.withdrawal || [];
-    const bets = responseData?.bets || [];
+    const biddingHistory = responseData?.bidding_history || responseData?.bets || [];
     const winningHistory = responseData?.winning_history || [];
 
     console.log("Extracted user:", user);
     console.log("Transactions:", transactions);
     console.log("Fund Requests:", fundRequests);
     console.log("Withdrawals:", withdrawals);
-    console.log("Bets:", bets);
+    console.log("Bidding History:", biddingHistory);
     console.log("Winning History:", winningHistory);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const mediaQuery = window.matchMedia("(max-width: 768px)");
+        const updateView = () => setIsMobileView(mediaQuery.matches);
+
+        updateView();
+
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener("change", updateView);
+            return () => mediaQuery.removeEventListener("change", updateView);
+        }
+
+        mediaQuery.addListener(updateView);
+        return () => mediaQuery.removeListener(updateView);
+    }, []);
+
+    useEffect(() => {
+        if (!isMobileView) return;
+
+        const mobileTabs = ["transactions", "winning", "bidding"];
+        if (!mobileTabs.includes(activeTab)) {
+            setActiveTab("transactions");
+        }
+    }, [activeTab, isMobileView]);
 
     const formatDate = (dateString) => {
         if (!dateString) return "N/A";
@@ -305,34 +347,55 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
         </>
     );
 
-    const renderBetsTab = () => (
+    const renderBiddingTab = () => (
         <>
-            {bets.length === 0 ? (
-                <EmptyState message="No bets found" />
+            {biddingHistory.length === 0 ? (
+                <EmptyState message="No bidding history found" />
             ) : (
                 <div style={{ marginTop: "16px" }}>
-                    {bets.map((bet, index) => (
-                        <div key={index} style={{
-                            padding: "12px",
-                            backgroundColor: "#f9fafb",
-                            borderRadius: "8px",
-                            marginBottom: "8px",
-                            border: "1px solid #e5e7eb"
-                        }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                                <span style={{ fontWeight: "600", color: "#111827" }}>
-                                    {bet.game_name || "Game"}
-                                </span>
-                                <span style={{ fontWeight: "700", color: "#4f46e5" }}>
-                                    {formatCurrency(bet.amount)}
-                                </span>
+                    {biddingHistory.map((bet, index) => {
+                        const bidLabel = bet.pana ? "Pana" : bet.jodi ? "Jodi" : bet.digit ? "Digit" : "Bid";
+                        const bidValue = bet.pana || bet.jodi || bet.digit || "N/A";
+
+                        return (
+                            <div key={index} style={{
+                                padding: "12px",
+                                backgroundColor: "#f9fafb",
+                                borderRadius: "8px",
+                                marginBottom: "8px",
+                                border: "1px solid #e5e7eb"
+                            }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                                    <span style={{ fontWeight: "600", color: "#111827" }}>
+                                        {bet.game_id || bet.game_name || "Game"}
+                                    </span>
+                                    <span style={{
+                                        fontWeight: "700",
+                                        color: "#4f46e5",
+                                        backgroundColor: "#eef2ff",
+                                        padding: "2px 8px",
+                                        borderRadius: "999px",
+                                        fontSize: "11px"
+                                    }}>
+                                        {bet.game_type || "N/A"}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
+                                    <strong>Session:</strong> {bet.session || "N/A"}
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
+                                    <strong>{bidLabel}:</strong> {bidValue}
+                                </div>
+                                <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
+                                    <strong>Points:</strong> {bet.points ?? "N/A"}
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#6b7280" }}>
+                                    <span>Bid Date: {bet.bid_date || "N/A"}</span>
+                                    <span>{formatDate(bet.created_at)}</span>
+                                </div>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#6b7280" }}>
-                                <span>Number: {bet.number || "N/A"}</span>
-                                <span>{formatDate(bet.created_at)}</span>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </>
@@ -391,17 +454,18 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
             bottom: 0,
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             display: "flex",
-            alignItems: "center",
+            alignItems: isMobileView ? "stretch" : "center",
             justifyContent: "center",
             zIndex: 1000,
-            padding: "20px"
+            padding: isMobileView ? "0" : "20px"
         }} onClick={onClose}>
             <div style={{
                 backgroundColor: "#fff",
-                borderRadius: "16px",
+                borderRadius: isMobileView ? "0" : "16px",
                 width: "100%",
-                maxWidth: "600px",
-                maxHeight: "90vh",
+                maxWidth: isMobileView ? "100vw" : "600px",
+                height: isMobileView ? "100vh" : "auto",
+                maxHeight: isMobileView ? "100vh" : "90vh",
                 overflow: "hidden",
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 display: "flex",
@@ -474,65 +538,86 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                         </div>
                     ) : (
                         <>
-                            {/* User Avatar & Name */}
                             <div style={{
-                                textAlign: "center",
-                                marginBottom: "20px",
-                                paddingBottom: "20px",
-                                borderBottom: "1px solid #e5e7eb"
+                                backgroundColor: "#f8fafc",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: "10px",
+                                padding: "0 12px",
+                                marginBottom: "16px"
                             }}>
-                                <div style={{
-                                    width: "80px",
-                                    height: "80px",
-                                    borderRadius: "50%",
-                                    backgroundColor: avatarBgColor,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "#fff",
-                                    fontWeight: "bold",
-                                    fontSize: "32px",
-                                    margin: "0 auto 16px",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-                                }}>
-                                    {(user.name || "U").charAt(0).toUpperCase()}
-                                </div>
-                                <h3 style={{ margin: "0 0 8px", fontSize: "20px", fontWeight: "700", color: "#111827" }}>
-                                    {user.name || "N/A"}
-                                </h3>
-                                <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
-                                    <span style={{
-                                        backgroundColor: statusBgColor,
-                                        color: statusTextColor,
-                                        padding: "4px 16px",
-                                        borderRadius: "20px",
-                                        fontSize: "12px",
-                                        fontWeight: "600"
-                                    }}>
-                                        {user.status ? "Active" : "Inactive"}
-                                    </span>
-                                    <span style={{
-                                        backgroundColor: "#eef2ff",
-                                        color: "#4f46e5",
-                                        padding: "4px 16px",
-                                        borderRadius: "20px",
-                                        fontSize: "12px",
-                                        fontWeight: "600"
-                                    }}>
-                                        {formatCurrency(user.funds)}
-                                    </span>
-                                    <span style={{
-                                        backgroundColor: "#fef3c7",
-                                        color: "#b45309",
-                                        padding: "4px 16px",
-                                        borderRadius: "20px",
-                                        fontSize: "12px",
-                                        fontWeight: "600"
-                                    }}>
-                                        {user.login_count || 0} Logins
-                                    </span>
+                                <UserSummaryRow label="User Name" value={user.name} />
+                                <UserSummaryRow label="Mobile" value={user.phone} />
+                                <UserSummaryRow label="Password" value={user.pass} />
+                                <div style={{ padding: "10px 0" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span style={{ color: "#6b7280", fontSize: "13px" }}>Funds</span>
+                                        <span style={{ fontWeight: "700", fontSize: "13px", color: "#4f46e5" }}>
+                                            {formatCurrency(user.funds)}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+
+                            {!isMobileView && (
+                                <div style={{
+                                    textAlign: "center",
+                                    marginBottom: "20px",
+                                    paddingBottom: "20px",
+                                    borderBottom: "1px solid #e5e7eb"
+                                }}>
+                                    <div style={{
+                                        width: "80px",
+                                        height: "80px",
+                                        borderRadius: "50%",
+                                        backgroundColor: avatarBgColor,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "#fff",
+                                        fontWeight: "bold",
+                                        fontSize: "32px",
+                                        margin: "0 auto 16px",
+                                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                                    }}>
+                                        {(user.name || "U").charAt(0).toUpperCase()}
+                                    </div>
+                                    <h3 style={{ margin: "0 0 8px", fontSize: "20px", fontWeight: "700", color: "#111827" }}>
+                                        {user.name || "N/A"}
+                                    </h3>
+                                    <div style={{ display: "flex", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
+                                        <span style={{
+                                            backgroundColor: statusBgColor,
+                                            color: statusTextColor,
+                                            padding: "4px 16px",
+                                            borderRadius: "20px",
+                                            fontSize: "12px",
+                                            fontWeight: "600"
+                                        }}>
+                                            {user.status ? "Active" : "Inactive"}
+                                        </span>
+                                        <span style={{
+                                            backgroundColor: "#eef2ff",
+                                            color: "#4f46e5",
+                                            padding: "4px 16px",
+                                            borderRadius: "20px",
+                                            fontSize: "12px",
+                                            fontWeight: "600"
+                                        }}>
+                                            {formatCurrency(user.funds)}
+                                        </span>
+                                        <span style={{
+                                            backgroundColor: "#fef3c7",
+                                            color: "#b45309",
+                                            padding: "4px 16px",
+                                            borderRadius: "20px",
+                                            fontSize: "12px",
+                                            fontWeight: "600"
+                                        }}>
+                                            {user.login_count || 0} Logins
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Tabs */}
                             <div style={{
@@ -542,47 +627,75 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 overflowX: "auto",
                                 paddingBottom: "8px"
                             }}>
-                                <TabButton
-                                    active={activeTab === "info"}
-                                    onClick={() => setActiveTab("info")}
-                                >
-                                    Info
-                                </TabButton>
-                                <TabButton
-                                    active={activeTab === "transactions"}
-                                    onClick={() => setActiveTab("transactions")}
-                                    count={transactions.length}
-                                >
-                                    Transactions
-                                </TabButton>
-                                <TabButton
-                                    active={activeTab === "funds"}
-                                    onClick={() => setActiveTab("funds")}
-                                    count={fundRequests.length}
-                                >
-                                    Funds
-                                </TabButton>
-                                <TabButton
-                                    active={activeTab === "withdrawals"}
-                                    onClick={() => setActiveTab("withdrawals")}
-                                    count={withdrawals.length}
-                                >
-                                    Withdrawals
-                                </TabButton>
-                                <TabButton
-                                    active={activeTab === "bets"}
-                                    onClick={() => setActiveTab("bets")}
-                                    count={bets.length}
-                                >
-                                    Bets
-                                </TabButton>
-                                <TabButton
-                                    active={activeTab === "winning"}
-                                    onClick={() => setActiveTab("winning")}
-                                    count={winningHistory.length}
-                                >
-                                    Wins
-                                </TabButton>
+                                {isMobileView ? (
+                                    <>
+                                        <TabButton
+                                            active={activeTab === "transactions"}
+                                            onClick={() => setActiveTab("transactions")}
+                                            count={transactions.length}
+                                        >
+                                            Transactions
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "winning"}
+                                            onClick={() => setActiveTab("winning")}
+                                            count={winningHistory.length}
+                                        >
+                                            Winning
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "bidding"}
+                                            onClick={() => setActiveTab("bidding")}
+                                            count={biddingHistory.length}
+                                        >
+                                            Bidding History
+                                        </TabButton>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TabButton
+                                            active={activeTab === "info"}
+                                            onClick={() => setActiveTab("info")}
+                                        >
+                                            Info
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "transactions"}
+                                            onClick={() => setActiveTab("transactions")}
+                                            count={transactions.length}
+                                        >
+                                            Transactions
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "funds"}
+                                            onClick={() => setActiveTab("funds")}
+                                            count={fundRequests.length}
+                                        >
+                                            Funds
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "withdrawals"}
+                                            onClick={() => setActiveTab("withdrawals")}
+                                            count={withdrawals.length}
+                                        >
+                                            Withdrawals
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "bidding"}
+                                            onClick={() => setActiveTab("bidding")}
+                                            count={biddingHistory.length}
+                                        >
+                                            Bidding History
+                                        </TabButton>
+                                        <TabButton
+                                            active={activeTab === "winning"}
+                                            onClick={() => setActiveTab("winning")}
+                                            count={winningHistory.length}
+                                        >
+                                            Wins
+                                        </TabButton>
+                                    </>
+                                )}
                             </div>
 
                             {/* Tab Content */}
@@ -591,7 +704,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 {activeTab === "transactions" && renderTransactionsTab()}
                                 {activeTab === "funds" && renderFundRequestsTab()}
                                 {activeTab === "withdrawals" && renderWithdrawalsTab()}
-                                {activeTab === "bets" && renderBetsTab()}
+                                {activeTab === "bidding" && renderBiddingTab()}
                                 {activeTab === "winning" && renderWinningTab()}
                             </div>
                         </>
