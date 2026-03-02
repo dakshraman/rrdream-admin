@@ -640,7 +640,7 @@ const mutations = {
     endpointName: "updateGameSchedule",
     request: ({ id, open_time, close_time }) => ({
       url: `game-schedules/${id}`,
-      method: "PUT",
+      method: "POST",
       params: { open_time, close_time },
     }),
   },
