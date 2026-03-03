@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/SaraAdmin-main
 /.pnp
 .pnp.*
 .yarn/*

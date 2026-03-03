@@ -1,7 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import {
   XAxis,
@@ -16,14 +15,36 @@ import {
   useGetWithdrawRequestsQuery,
   useGetFundRequestsQuery,
   useGetProfitQuery,
-  useGetBiddingHistoryQuery,
   useGetConfigQuery,
 } from "@/store/backendSlice/apiAPISlice";
 
+const parseAmount = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const formatRupees = (value) => `₹${parseAmount(value).toLocaleString("en-IN")}`;
+
+const normalizeProfitPeriod = (period = {}) => ({
+  bidProfit: parseAmount(period.bid_profit),
+  fundsProfit: parseAmount(period.funds_profit),
+  totalBids: parseAmount(period.total_bids),
+  totalDeposits: parseAmount(period.total_deposits),
+  totalWinAmount: parseAmount(period.total_win_amount),
+  totalWithdrawals: parseAmount(period.total_withdrawals),
+});
+
+const profitMetricConfig = [
+  { key: "bidProfit", label: "Bid Profit" },
+  { key: "fundsProfit", label: "Funds Profit" },
+  { key: "totalBids", label: "Total Bids" },
+  { key: "totalDeposits", label: "Total Deposits" },
+  { key: "totalWinAmount", label: "Win Amount" },
+  { key: "totalWithdrawals", label: "Withdrawals" },
+];
+
 export default function Dashboard() {
-  const router = useRouter();
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [hoveredBet, setHoveredBet] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("7D");
   const [windowWidth, setWindowWidth] = useState(1200);
 
@@ -44,9 +65,8 @@ export default function Dashboard() {
   const { data: withdrawData, isLoading: withdrawLoading } = useGetWithdrawRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
   const { data: fundData, isLoading: fundLoading } = useGetFundRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
   const { data: profitData, isLoading: profitLoading } = useGetProfitQuery({}, { refetchOnMountOrArgChange: true });
-  const { data: biddingData, isLoading: biddingLoading } = useGetBiddingHistoryQuery({ page: 1, per_page: 10 }, { refetchOnMountOrArgChange: true });
 
-  const isLoading = usersLoading || configLoading || withdrawLoading || fundLoading || profitLoading || biddingLoading;
+  const isLoading = usersLoading || configLoading || withdrawLoading || fundLoading || profitLoading;
 
   // Process Users Data
   // usersData: {message: '...', users: Array(88)}
@@ -108,95 +128,49 @@ export default function Dashboard() {
   // Process Profit Data
   // profitData: {today: {bid_profit, funds_profit, total_bids, total_deposits, total_win_amount, total_withdrawals}, this_month: {...}, this_year: {...}}
   const profitStats = useMemo(() => {
-    if (!profitData) return { dailyData: [], totalProfit: 0, totalBets: 0 };
-
-    const today = profitData.today || {};
-    const thisMonth = profitData.this_month || {};
-    const thisYear = profitData.this_year || {};
+    const today = normalizeProfitPeriod(profitData?.today);
+    const thisMonth = normalizeProfitPeriod(profitData?.this_month);
+    const thisYear = normalizeProfitPeriod(profitData?.this_year);
 
     // Build chart data from the 3 periods
     const dailyData = [
       {
         day: "Today",
-        amount: parseFloat(today.total_bids || 0),
-        profit: parseFloat(today.bid_profit || 0),
+        amount: today.totalBids,
+        profit: today.bidProfit,
       },
       {
         day: "Month",
-        amount: parseFloat(thisMonth.total_bids || 0),
-        profit: parseFloat(thisMonth.bid_profit || 0),
+        amount: thisMonth.totalBids,
+        profit: thisMonth.bidProfit,
       },
       {
         day: "Year",
-        amount: parseFloat(thisYear.total_bids || 0),
-        profit: parseFloat(thisYear.bid_profit || 0),
+        amount: thisYear.totalBids,
+        profit: thisYear.bidProfit,
       },
     ];
 
     // Use this_month for summary stats
-    const totalProfit = parseFloat(thisMonth.bid_profit || 0);
-    const totalBets = parseFloat(thisMonth.total_bids || 0);
+    const totalProfit = thisMonth.bidProfit;
+    const totalBets = thisMonth.totalBids;
 
-    return { dailyData, totalProfit, totalBets, today, thisMonth, thisYear };
+    const periodBreakdown = [
+      { key: "today", label: "Today", values: today },
+      { key: "this_month", label: "This Month", values: thisMonth },
+      { key: "this_year", label: "This Year", values: thisYear },
+    ];
+
+    return {
+      dailyData,
+      totalProfit,
+      totalBets,
+      today,
+      thisMonth,
+      thisYear,
+      periodBreakdown,
+    };
   }, [profitData]);
-
-  // Process Bidding History for Recent Bets
-  // biddingData: {status: true, data: Array(10), pagination: {}}
-  // each bid: {id, username, game_name, game_type, points, date, session, open_digit, open_pana, close_digit, close_pana}
-  const recentBets = useMemo(() => {
-    const bids = biddingData?.data || biddingData?.data?.bids || biddingData?.bids || [];
-
-    if (!Array.isArray(bids)) return [];
-
-    return bids.slice(0, 4).map((bid) => {
-      const userName = bid.username || bid.user?.name || bid.user_name || bid.name || "Unknown";
-      const initials = userName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-
-      const createdAt = bid.date ? new Date(bid.date) : new Date();
-      const timeDiff = Math.floor((new Date() - createdAt) / 60000);
-      const timeAgo =
-        timeDiff < 1
-          ? "Just now"
-          : timeDiff < 60
-            ? `${timeDiff} min ago`
-            : timeDiff < 1440
-              ? `${Math.floor(timeDiff / 60)}h ago`
-              : `${Math.floor(timeDiff / 1440)}d ago`;
-
-      // points is the bet amount
-      const amount = parseFloat(bid.points || bid.amount || 0);
-
-      // status mapping: bids don't have explicit win/loss in listing, show session info
-      const statusLabel = bid.status === 1 || bid.status === "win"
-        ? "Win"
-        : bid.status === 0 || bid.status === "loss"
-          ? "Loss"
-          : bid.session || "Open";
-
-      const statusType = bid.status === 1 || bid.status === "win"
-        ? "Win"
-        : bid.status === 0 || bid.status === "loss"
-          ? "Loss"
-          : "Pending";
-
-      return {
-        user: userName,
-        game: bid.game_name || bid.game_type || "Game",
-        gameType: bid.game_type || "",
-        amount,
-        status: statusType,
-        statusLabel,
-        time: timeAgo,
-        avatar: initials || "??",
-        session: bid.session || "",
-      };
-    });
-  }, [biddingData]);
 
   // Dashboard Stats
   const dashboardStats = useMemo(
@@ -221,13 +195,13 @@ export default function Dashboard() {
       },
       {
         label: "Total Bets (Month)",
-        value: `₹${profitStats.totalBets.toLocaleString()}`,
-        change: `Today: ₹${parseFloat(profitData?.today?.total_bids || 0).toLocaleString()}`,
+        value: formatRupees(profitStats.totalBets),
+        change: `Today: ${formatRupees(profitStats.today.totalBids)}`,
         positive: true,
       },
       {
         label: "Total Profit (Month)",
-        value: `₹${profitStats.totalProfit.toLocaleString()}`,
+        value: formatRupees(profitStats.totalProfit),
         change: profitStats.totalProfit > 0 ? "+ve" : "-ve",
         positive: profitStats.totalProfit >= 0,
       },
@@ -299,12 +273,13 @@ export default function Dashboard() {
     return "repeat(5, 1fr)";
   };
 
-  const getChartGridColumns = () => {
+  const getBottomStatsColumns = () => {
     if (isMobile) return "1fr";
-    return "2fr 1fr";
+    if (isTablet) return "repeat(2, 1fr)";
+    return "repeat(3, 1fr)";
   };
 
-  const getBottomStatsColumns = () => {
+  const getProfitGridColumns = () => {
     if (isMobile) return "1fr";
     if (isTablet) return "repeat(2, 1fr)";
     return "repeat(3, 1fr)";
@@ -434,12 +409,9 @@ export default function Dashboard() {
             ))}
         </div>
 
-        {/* Chart + Recent Bets */}
+        {/* Chart */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: getChartGridColumns(),
-            gap: isMobile ? "14px" : "20px",
             marginTop: isMobile ? "14px" : "20px",
           }}
         >
@@ -564,123 +536,73 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Recent Bets */}
+        {/* Profit Breakdown */}
+        <div style={{ marginTop: isMobile ? "14px" : "20px" }}>
           <div style={getLargeCardStyle()}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: isMobile ? "10px" : "14px",
-              }}
-            >
-              <h4 style={{ margin: 0, color: textDark, fontSize: isMobile ? "14px" : "16px", fontWeight: "600" }}>
-                Recent Bets
+            <div style={{ marginBottom: isMobile ? "12px" : "16px" }}>
+              <h4 style={{ margin: "0 0 2px 0", color: textDark, fontSize: isMobile ? "14px" : "16px", fontWeight: "600" }}>
+                Profit Breakdown
               </h4>
-              <span
-                onClick={() => router.push("/bidding-history")}
-                style={{ fontSize: isMobile ? "10px" : "12px", color: primaryRed, fontWeight: "600", cursor: "pointer" }}
-              >
-                View All
-              </span>
+              <p style={{ margin: 0, color: textMuted, fontSize: isMobile ? "10px" : "12px" }}>
+                Today, this month, and this year values from getprofit
+              </p>
             </div>
 
-            {biddingLoading ? (
-              <div style={{ textAlign: "center", padding: isMobile ? "20px" : "30px", color: textMuted, fontSize: isMobile ? "11px" : "13px" }}>
-                Loading recent bets...
-              </div>
-            ) : recentBets.length === 0 ? (
-              <div style={{ textAlign: "center", padding: isMobile ? "20px" : "30px", color: textMuted, fontSize: isMobile ? "11px" : "13px" }}>
-                No recent bets found
+            {profitLoading ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: isMobile ? "20px" : "30px",
+                  color: textMuted,
+                  fontSize: isMobile ? "11px" : "13px",
+                }}
+              >
+                Loading profit breakdown...
               </div>
             ) : (
-              recentBets.map((bet, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: isMobile ? "8px" : "10px",
-                    marginBottom: isMobile ? "6px" : "8px",
-                    borderRadius: isMobile ? "8px" : "10px",
-                    background: hoveredBet === i ? lighterRed : "transparent",
-                    transition: "all 0.2s ease",
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={() => !isMobile && setHoveredBet(i)}
-                  onMouseLeave={() => !isMobile && setHoveredBet(null)}
-                  onClick={() => isMobile && setHoveredBet(hoveredBet === i ? null : i)}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "10px", flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: getProfitGridColumns(),
+                  gap: isMobile ? "10px" : "14px",
+                }}
+              >
+                {profitStats.periodBreakdown.map((period) => (
+                  <div
+                    key={period.key}
+                    style={{
+                      background: lighterRed,
+                      border: `1px solid ${borderColor}`,
+                      borderRadius: isMobile ? "10px" : "12px",
+                      padding: isMobile ? "10px" : "12px",
+                    }}
+                  >
+                    <h5 style={{ margin: "0 0 8px 0", fontSize: isMobile ? "12px" : "13px", fontWeight: "700", color: textDark }}>
+                      {period.label}
+                    </h5>
                     <div
                       style={{
-                        width: isMobile ? "32px" : "36px",
-                        height: isMobile ? "32px" : "36px",
-                        background: `linear-gradient(135deg, ${primaryRed} 0%, ${darkRed} 100%)`,
-                        borderRadius: isMobile ? "8px" : "10px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "white",
-                        fontSize: isMobile ? "10px" : "11px",
-                        fontWeight: "600",
-                        boxShadow: "0 4px 12px rgba(220, 38, 38, 0.25)",
-                        flexShrink: 0,
+                        display: "grid",
+                        gridTemplateColumns: isSmallMobile ? "1fr" : "repeat(2, 1fr)",
+                        gap: isMobile ? "6px 10px" : "8px 12px",
                       }}
                     >
-                      {bet.avatar}
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <strong
-                        style={{
-                          fontSize: isMobile ? "11px" : "13px",
-                          color: textDark,
-                          display: "block",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {bet.user}
-                      </strong>
-                      <p
-                        style={{
-                          color: textMuted,
-                          margin: "2px 0 0 0",
-                          fontSize: isMobile ? "9px" : "11px",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {bet.game} • {bet.time}
-                      </p>
+                      {profitMetricConfig.map((metric) => (
+                        <div key={metric.key}>
+                          <div style={{ color: textMuted, fontSize: isMobile ? "9px" : "10px", marginBottom: "2px" }}>
+                            {metric.label}
+                          </div>
+                          <div style={{ color: textDark, fontSize: isMobile ? "11px" : "12px", fontWeight: "600" }}>
+                            {formatRupees(period.values[metric.key])}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-
-                  <div style={{ textAlign: "right", flexShrink: 0, marginLeft: "8px" }}>
-                    <p style={{ margin: "0 0 3px 0", fontWeight: "600", fontSize: isMobile ? "11px" : "13px", color: textDark }}>
-                      ₹{bet.amount.toLocaleString()}
-                    </p>
-                    <span
-                      style={{
-                        fontSize: isMobile ? "8px" : "10px",
-                        fontWeight: "600",
-                        padding: isMobile ? "2px 6px" : "3px 8px",
-                        borderRadius: "12px",
-                        background:
-                          bet.status === "Win" ? successBg : bet.status === "Loss" ? dangerBg : warningBg,
-                        color:
-                          bet.status === "Win" ? success : bet.status === "Loss" ? danger : warning,
-                      }}
-                    >
-                      {bet.statusLabel}
-                    </span>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>
