@@ -179,6 +179,32 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
         return `₹${parseFloat(amount || 0).toLocaleString('en-IN')}`;
     };
 
+    const hasValue = (value) => value !== undefined && value !== null && String(value).trim() !== "";
+
+    const normalizeGameType = (value) =>
+        String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/_/g, " ")
+            .replace(/\s+/g, " ");
+
+    const getBidDisplayRows = (bet) => {
+        const gameType = normalizeGameType(bet?.game_type);
+        const rows = [];
+
+        if (gameType === "double digit") {
+            rows.push({ label: "Jodi", value: hasValue(bet?.jodi) ? bet.jodi : "N/A" });
+            return rows;
+        }
+
+        if (hasValue(bet?.pana)) rows.push({ label: "Pana", value: bet.pana });
+        if (hasValue(bet?.digit)) rows.push({ label: "Digit", value: bet.digit });
+        if (rows.length === 0 && hasValue(bet?.jodi)) rows.push({ label: "Jodi", value: bet.jodi });
+        if (rows.length === 0) rows.push({ label: "Bid", value: "N/A" });
+
+        return rows;
+    };
+
     const isInactive = variant === "inactive" || user.status === 0;
     const headerBgColor = isInactive ? "#fef2f2" : "#f9fafb";
     const avatarBgColor = user.status ? "#4f46e5" : "#9ca3af";
@@ -352,8 +378,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
             ) : (
                 <div style={{ marginTop: "16px" }}>
                     {biddingHistory.map((bet, index) => {
-                        const bidLabel = bet.pana ? "Pana" : bet.jodi ? "Jodi" : bet.digit ? "Digit" : "Bid";
-                        const bidValue = bet.pana || bet.jodi || bet.digit || "N/A";
+                        const bidRows = getBidDisplayRows(bet);
 
                         return (
                             <div key={index} style={{
@@ -381,9 +406,11 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                                 <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
                                     <strong>Session:</strong> {bet.session || "N/A"}
                                 </div>
-                                <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
-                                    <strong>{bidLabel}:</strong> {bidValue}
-                                </div>
+                                {bidRows.map((row) => (
+                                    <div key={row.label} style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
+                                        <strong>{row.label}:</strong> {row.value}
+                                    </div>
+                                ))}
                                 <div style={{ fontSize: "12px", color: "#4b5563", marginBottom: "6px" }}>
                                     <strong>Points:</strong> {bet.points ?? "N/A"}
                                 </div>
