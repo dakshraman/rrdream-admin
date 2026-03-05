@@ -205,6 +205,45 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
         return rows;
     };
 
+    const getWinningDisplayInfo = (win) => {
+        const gameType = normalizeGameType(win?.game_type);
+
+        if (gameType === "double digit") {
+            return {
+                label: "Jodi",
+                value: hasValue(win?.jodi)
+                    ? win.jodi
+                    : hasValue(win?.digit)
+                        ? win.digit
+                        : hasValue(win?.number)
+                            ? win.number
+                            : "N/A",
+            };
+        }
+
+        if (
+            gameType === "single pana" ||
+            gameType === "double pana" ||
+            gameType === "triple pana"
+        ) {
+            return {
+                label: "Pana",
+                value: hasValue(win?.pana)
+                    ? win.pana
+                    : hasValue(win?.digit)
+                        ? win.digit
+                        : "N/A",
+            };
+        }
+
+        if (hasValue(win?.pana)) return { label: "Pana", value: win.pana };
+        if (hasValue(win?.jodi)) return { label: "Jodi", value: win.jodi };
+        if (hasValue(win?.digit)) return { label: "Digit", value: win.digit };
+        if (hasValue(win?.number)) return { label: "Number", value: win.number };
+
+        return { label: "Number", value: "N/A" };
+    };
+
     const isInactive = variant === "inactive" || user.status === 0;
     const headerBgColor = isInactive ? "#fef2f2" : "#f9fafb";
     const avatarBgColor = user.status ? "#4f46e5" : "#9ca3af";
@@ -434,8 +473,7 @@ export default function UserViewModal({ userId, onClose, variant = "default" }) 
                 <div style={{ marginTop: "16px" }}>
                     {winningHistory.map((win, index) => {
                         const winningAmount = win.win_points ?? win.amount ?? 0;
-                        const playedNumber = win.pana || win.jodi || win.digit || "N/A";
-                        const playedLabel = win.pana ? "Pana" : win.jodi ? "Jodi" : win.digit ? "Digit" : "Number";
+                        const { label: playedLabel, value: playedNumber } = getWinningDisplayInfo(win);
 
                         return (
                             <div key={index} style={{

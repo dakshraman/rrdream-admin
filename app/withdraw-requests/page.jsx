@@ -321,6 +321,44 @@ const getStatusMeta = (status) => {
     return { label: status || "N/A", bg: "#f3f4f6", color: "#374151" };
 };
 
+const hasTextValue = (value) =>
+    value !== undefined && value !== null && String(value).trim() !== "";
+
+const getTransferKeys = (transferTo) => {
+    const normalized = String(transferTo || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[-\s]+/g, "_");
+
+    if (!normalized) return [];
+
+    const keys = [normalized];
+
+    if (normalized === "gpay" || normalized === "googlepay") {
+        keys.push("google_pay");
+    }
+    if (normalized === "phonepe" || normalized === "phone_pay") {
+        keys.push("phone_pay");
+    }
+    if (normalized === "account_number") {
+        keys.push("acccount_number");
+    }
+
+    return [...new Set(keys)];
+};
+
+const getTransferDestinationValue = (row) => {
+    const user = row?.user || {};
+    const keys = getTransferKeys(row?.transfer_to);
+
+    for (const key of keys) {
+        const value = user?.[key];
+        if (hasTextValue(value)) return String(value);
+    }
+
+    return "N/A";
+};
+
 const WithdrawItemSkeleton = () => (
     <div className="wr-item">
         <div className="wr-row">
@@ -362,11 +400,13 @@ export default function WithdrawRequests() {
 
             if (!filterText) return true;
             const query = filterText.toLowerCase();
+            const transferValue = getTransferDestinationValue(item).toLowerCase();
             return (
                 (item.user?.name || "").toLowerCase().includes(query) ||
                 (item.user?.phone || "").toString().includes(query) ||
                 (item.id || "").toString().includes(query) ||
-                (item.transfer_to || "").toLowerCase().includes(query)
+                (item.transfer_to || "").toLowerCase().includes(query) ||
+                transferValue.includes(query)
             );
         });
     }, [withdrawRequests, filterText, statusFilter]);
@@ -517,6 +557,7 @@ export default function WithdrawRequests() {
                             const status = getStatusMeta(row.status);
                             const isPending = (row.status || "").toLowerCase() === "pending";
                             const isProcessing = processingId === row.id;
+                            const transferDestinationValue = getTransferDestinationValue(row);
 
                             return (
                                 <article className="wr-item" key={row.id}>
@@ -533,6 +574,7 @@ export default function WithdrawRequests() {
                                     <div className="wr-meta">
                                         <span className="wr-amount">Rs {formatAmount(row.amount)}</span>
                                         <span>Transfer To: <strong>{row.transfer_to || "N/A"}</strong></span>
+                                        <span>Transfer Value: <strong>{transferDestinationValue}</strong></span>
                                         <span>Created: <strong>{formatDateTime(row.created_at)}</strong></span>
                                     </div>
 
