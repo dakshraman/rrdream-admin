@@ -108,7 +108,22 @@ const parseSuccess = async (response) => {
   return response.text();
 };
 
-const getToken = () => backendStore.getState()?.auth?.token;
+const normalizeAuthToken = (value) => {
+  if (value === undefined || value === null) return null;
+
+  let token = String(value).trim();
+  if (!token) return null;
+
+  // Handle tokens accidentally stored as `"token"` or `'token'`.
+  token = token.replace(/^['"]+|['"]+$/g, "").trim();
+  // Prevent sending `Bearer Bearer <token>` when the backend/login response
+  // already included the scheme.
+  token = token.replace(/^Bearer\s+/i, "").trim();
+
+  return token || null;
+};
+
+const getToken = () => normalizeAuthToken(backendStore.getState()?.auth?.token);
 
 const forceLogoutIfNeeded = (errorStatus, endpointName) => {
   const token = getToken();
@@ -398,7 +413,14 @@ const queries = {
   },
   getBiddingHistoryStarline: {
     endpointName: "getBiddingHistoryStarline",
-    request: () => ({ url: "starline-getbid", method: "GET" }),
+    request: (arg = {}) => {
+      const { page = 1, per_page = 10, ...rest } = arg || {};
+      const params = { page, per_page };
+      Object.keys(rest).forEach((key) => {
+        if (rest[key]) params[key] = rest[key];
+      });
+      return { url: "getbiddinghistory-starline", method: "GET", params };
+    },
   },
   getDeclaredResultsStarline: {
     endpointName: "getDeclaredResultsStarline",

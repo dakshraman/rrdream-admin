@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import DataTable from "react-data-table-component";
@@ -27,6 +28,7 @@ const BiddingSkeleton = () => (
 
 export default function BiddingHistoryStarline() {
     const today = new Date().toISOString().split('T')[0];
+    const token = useSelector((state) => state.auth?.token);
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [gameTypeFilter, setGameTypeFilter] = useState('');
@@ -42,7 +44,10 @@ export default function BiddingHistoryStarline() {
         return () => window.removeEventListener('resize', check);
     }, []);
 
-    const { data, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery();
+    const { data, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery(undefined, {
+        skip: !token,
+        refetchOnMountOrArgChange: true,
+    });
     const [editStarlineBid, { isLoading: isEditing }] = useEditStarlineBidMutation();
 
     const [editModalOpen, setEditModalOpen] = useState(false);
