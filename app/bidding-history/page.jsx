@@ -85,15 +85,28 @@ export default function BiddingHistory() {
         return options.sort((a, b) => a.localeCompare(b));
     };
 
-    // ── QUERY 1: Fetch all filter values for dropdowns (once, no filters) ──
-    const { data: allDataResponse } = useGetBiddingHistoryQuery(
-        { page: 1, per_page: 100, date: "", game_name: "", game_type: "", session: "", search: "" },
-        { refetchOnMountOrArgChange: false }
+    const matchesOptionFilter = (rowValue, selectedValue) => {
+        if (!selectedValue) return true;
+        return normalizeOptionKey(rowValue) === normalizeOptionKey(selectedValue);
+    };
+
+    // ── QUERY 1: Fetch option source rows for the selected date ──
+    const { data: filterOptionsResponse } = useGetBiddingHistoryQuery(
+        {
+            page: 1,
+            per_page: 1000,
+            date: filters.date,
+            game_name: "",
+            game_type: "",
+            session: "",
+            search: "",
+        },
+        { refetchOnMountOrArgChange: true }
     );
-    const allFilterRows = useMemo(() => {
-        const rows = allDataResponse?.data;
+    const dateScopedFilterRows = useMemo(() => {
+        const rows = filterOptionsResponse?.data;
         return Array.isArray(rows) ? rows : [];
-    }, [allDataResponse]);
+    }, [filterOptionsResponse]);
 
     // ── QUERY 2: Filtered table data ──
     const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters, {
@@ -102,24 +115,74 @@ export default function BiddingHistory() {
 
     const biddingHistory = responseData?.data || [];
     const filterSourceRows = useMemo(() => {
-        if (allFilterRows.length > 0) return allFilterRows;
+        if (dateScopedFilterRows.length > 0) return dateScopedFilterRows;
         return Array.isArray(biddingHistory) ? biddingHistory : [];
-    }, [allFilterRows, biddingHistory]);
+    }, [dateScopedFilterRows, biddingHistory]);
+
+    const gameNameSourceRows = useMemo(
+        () => filterSourceRows.filter((row) =>
+            matchesOptionFilter(row?.game_type, filters.game_type) &&
+            matchesOptionFilter(row?.session, filters.session)
+        ),
+        [filterSourceRows, filters.game_type, filters.session]
+    );
+
+    const gameTypeSourceRows = useMemo(
+        () => filterSourceRows.filter((row) =>
+            matchesOptionFilter(row?.game_name, filters.game_name) &&
+            matchesOptionFilter(row?.session, filters.session)
+        ),
+        [filterSourceRows, filters.game_name, filters.session]
+    );
+
+    const sessionSourceRows = useMemo(
+        () => filterSourceRows.filter((row) =>
+            matchesOptionFilter(row?.game_name, filters.game_name) &&
+            matchesOptionFilter(row?.game_type, filters.game_type)
+        ),
+        [filterSourceRows, filters.game_name, filters.game_type]
+    );
 
     const gameNameOptions = useMemo(
-        () => getUniqueOptions(filterSourceRows, "game_name"),
-        [filterSourceRows]
+        () => getUniqueOptions(gameNameSourceRows, "game_name"),
+        [gameNameSourceRows]
     );
 
     const gameTypeOptions = useMemo(
-        () => getUniqueOptions(filterSourceRows, "game_type"),
-        [filterSourceRows]
+        () => getUniqueOptions(gameTypeSourceRows, "game_type"),
+        [gameTypeSourceRows]
     );
 
     const sessionOptions = useMemo(
-        () => getUniqueOptions(filterSourceRows, "session"),
-        [filterSourceRows]
+        () => getUniqueOptions(sessionSourceRows, "session"),
+        [sessionSourceRows]
     );
+
+    useEffect(() => {
+        setFilters((prev) => {
+            const next = { ...prev };
+            let changed = false;
+
+            if (prev.game_name && !gameNameOptions.some((option) => normalizeOptionKey(option) === normalizeOptionKey(prev.game_name))) {
+                next.game_name = "";
+                changed = true;
+            }
+
+            if (prev.game_type && !gameTypeOptions.some((option) => normalizeOptionKey(option) === normalizeOptionKey(prev.game_type))) {
+                next.game_type = "";
+                changed = true;
+            }
+
+            if (prev.session && !sessionOptions.some((option) => normalizeOptionKey(option) === normalizeOptionKey(prev.session))) {
+                next.session = "";
+                changed = true;
+            }
+
+            if (!changed) return prev;
+            next.page = 1;
+            return next;
+        });
+    }, [gameNameOptions, gameTypeOptions, sessionOptions]);
 
     const pagination = responseData?.pagination || {};
     const totalRows = pagination.total || 0;
