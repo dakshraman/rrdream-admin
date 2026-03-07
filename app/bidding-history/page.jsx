@@ -131,6 +131,30 @@ export default function BiddingHistory() {
         return new Date(dateString).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     };
 
+    const normalizeSessionKey = (value) =>
+        String(value ?? "")
+            .trim()
+            .toLowerCase();
+
+    const hasBidValue = (value) =>
+        value !== undefined && value !== null && String(value).trim() !== "";
+
+    const getBidDisplayValues = (row) => {
+        const sessionKey = normalizeSessionKey(row?.session);
+        const isCloseSession = sessionKey === "close";
+        const digit = isCloseSession
+            ? (hasBidValue(row?.close_digit) ? row.close_digit : row?.digit)
+            : (hasBidValue(row?.open_digit) ? row.open_digit : row?.digit);
+        const pana = isCloseSession
+            ? (hasBidValue(row?.close_pana) ? row.close_pana : row?.pana)
+            : (hasBidValue(row?.open_pana) ? row.open_pana : row?.pana);
+
+        return {
+            digit: hasBidValue(digit) ? digit : "—",
+            pana: hasBidValue(pana) ? pana : "—",
+        };
+    };
+
     const getGameTypeBadge = (type) => {
         const map = {
             "single": { bg: "#dbeafe", color: "#1d4ed8" },
@@ -186,10 +210,11 @@ export default function BiddingHistory() {
     const hasActiveFilters = filters.game_name || filters.game_type || filters.session || filters.search || filters.date !== today;
 
     const openEditModal = (row) => {
+        const bidValues = getBidDisplayValues(row);
         setEditTarget(row);
         setEditForm({
-            pana: row.open_pana || row.close_pana || "",
-            digit: row.open_digit || row.close_digit || ""
+            pana: bidValues.pana === "—" ? "" : String(bidValues.pana),
+            digit: bidValues.digit === "—" ? "" : String(bidValues.digit)
         });
         setEditModalOpen(true);
     };
@@ -301,47 +326,51 @@ export default function BiddingHistory() {
                             <th style={th}>Game</th>
                             <th style={th}>Type</th>
                             <th style={th}>Session</th>
-                            <th style={th}>O.Digit</th>
-                            <th style={th}>O.Pana</th>
+                            <th style={th}>Digit</th>
+                            <th style={th}>Pana</th>
                             <th style={th}>Points</th>
                             <th style={th}>Result</th>
                             <th style={th}>Date</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {biddingHistory.map((row, index) => (
-                            <tr key={row.id || index} style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f9fafb" }}>
-                                <td style={td({ color: "#9ca3af", fontWeight: "600" })}>
-                                    {((filters.page - 1) * filters.per_page) + index + 1}
-                                </td>
-                                <td style={td()}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                        <div style={{
-                                            width: "26px", height: "26px", borderRadius: "50%",
-                                            backgroundColor: "#4f46e5", display: "flex", alignItems: "center",
-                                            justifyContent: "center", color: "#fff", fontWeight: "700",
-                                            fontSize: "10px", flexShrink: 0
-                                        }}>
-                                            {(row.username || row.user?.name || "U").charAt(0).toUpperCase()}
+                        {biddingHistory.map((row, index) => {
+                            const bidValues = getBidDisplayValues(row);
+
+                            return (
+                                <tr key={row.id || index} style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f9fafb" }}>
+                                    <td style={td({ color: "#9ca3af", fontWeight: "600" })}>
+                                        {((filters.page - 1) * filters.per_page) + index + 1}
+                                    </td>
+                                    <td style={td()}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                            <div style={{
+                                                width: "26px", height: "26px", borderRadius: "50%",
+                                                backgroundColor: "#4f46e5", display: "flex", alignItems: "center",
+                                                justifyContent: "center", color: "#fff", fontWeight: "700",
+                                                fontSize: "10px", flexShrink: 0
+                                            }}>
+                                                {(row.username || row.user?.name || "U").charAt(0).toUpperCase()}
+                                            </div>
+                                            <span style={{ fontWeight: "600", fontSize: "11px", color: "#111827" }}>
+                                                {row.username || row.user?.name || "N/A"}
+                                            </span>
                                         </div>
-                                        <span style={{ fontWeight: "600", fontSize: "11px", color: "#111827" }}>
-                                            {row.username || row.user?.name || "N/A"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td style={td({ fontWeight: "700", color: "#111827" })}>{row.game_name || "N/A"}</td>
-                                <td style={td()}>{getGameTypeBadge(row.game_type)}</td>
-                                <td style={td()}>{getSessionBadge(row.session)}</td>
-                                <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.open_digit ?? "—"}</td>
-                                <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.open_pana ?? "—"}</td>
-                                <td style={td({ fontWeight: "700", color: "#059669" })}>{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
-                                <td style={td()}>{getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0)}</td>
-                                <td style={td({ color: "#6b7280" })}>{row.date || formatDate(row.created_at)}</td>
-                                <td style={td()}>
-                                    <button onClick={() => openEditModal(row)} style={{ padding: "4px 8px", fontSize: "11px", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontWeight: "600", color: "#374151" }}>Edit</button>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+                                    <td style={td({ fontWeight: "700", color: "#111827" })}>{row.game_name || "N/A"}</td>
+                                    <td style={td()}>{getGameTypeBadge(row.game_type)}</td>
+                                    <td style={td()}>{getSessionBadge(row.session)}</td>
+                                    <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{bidValues.digit}</td>
+                                    <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{bidValues.pana}</td>
+                                    <td style={td({ fontWeight: "700", color: "#059669" })}>{parseFloat(row.points || 0).toLocaleString('en-IN')}</td>
+                                    <td style={td()}>{getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0)}</td>
+                                    <td style={td({ color: "#6b7280" })}>{row.date || formatDate(row.created_at)}</td>
+                                    <td style={td()}>
+                                        <button onClick={() => openEditModal(row)} style={{ padding: "4px 8px", fontSize: "11px", backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontWeight: "600", color: "#374151" }}>Edit</button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -368,8 +397,20 @@ export default function BiddingHistory() {
         { name: "Game", selector: (row) => row.game_name, sortable: true, width: "130px", cell: (row) => <span style={{ fontWeight: "600", color: "#111827", fontSize: "12px" }}>{row.game_name || "N/A"}</span> },
         { name: "Type", selector: (row) => row.game_type, sortable: true, width: "120px", cell: (row) => getGameTypeBadge(row.game_type) },
         { name: "Session", selector: (row) => row.session, sortable: true, width: "90px", cell: (row) => getSessionBadge(row.session) },
-        { name: "Open Digit", selector: (row) => row.open_digit, sortable: true, width: "95px", cell: (row) => <span style={{ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "14px" }}>{row.open_digit ?? "—"}</span> },
-        { name: "Open Pana", selector: (row) => row.open_pana, sortable: true, width: "95px", cell: (row) => <span style={{ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "14px" }}>{row.open_pana ?? "—"}</span> },
+        {
+            name: "Digit",
+            selector: (row) => getBidDisplayValues(row).digit,
+            sortable: true,
+            width: "95px",
+            cell: (row) => <span style={{ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "14px" }}>{getBidDisplayValues(row).digit}</span>
+        },
+        {
+            name: "Pana",
+            selector: (row) => getBidDisplayValues(row).pana,
+            sortable: true,
+            width: "95px",
+            cell: (row) => <span style={{ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "14px" }}>{getBidDisplayValues(row).pana}</span>
+        },
         { name: "Points", selector: (row) => parseFloat(row.points || 0), sortable: true, width: "90px", cell: (row) => <span style={{ fontWeight: "700", color: "#059669", fontSize: "13px" }}>₹{parseFloat(row.points || 0).toLocaleString('en-IN')}</span> },
         { name: "Result", selector: (row) => row.winning_amount, sortable: true, width: "100px", cell: (row) => getResultBadge(row.winning_amount, row.is_win || row.winning_amount > 0) },
         { name: "Date", selector: (row) => row.date || row.created_at, sortable: true, width: "110px", cell: (row) => <span style={{ fontSize: "11px", color: "#6b7280" }}>{row.date || formatDate(row.created_at)}</span> },
