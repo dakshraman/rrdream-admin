@@ -7,8 +7,8 @@ import DataTable from "react-data-table-component";
 import { useGetBiddingHistoryStarlineQuery, useEditStarlineBidMutation } from "@/store/backendSlice/apiAPISlice";
 import Swal from "sweetalert2";
 
-// Starline bid data shape:
-// { id, name (game time e.g. "9:00 PM"), game_type ("SINGLE PANA"), points, pana, digit, created_at }
+// Latest starline bid response example (2026-03):
+// { id, game_name, game_type, digit, pana, points, username, date }
 
 const BiddingSkeleton = () => (
     <div style={{
@@ -18,6 +18,7 @@ const BiddingSkeleton = () => (
     }}>
         <Skeleton width={40} height={20} />
         <Skeleton width={60} height={20} />
+        <Skeleton width={90} height={20} />
         <Skeleton width={90} height={24} borderRadius={6} />
         <Skeleton width={70} height={24} borderRadius={6} />
         <Skeleton width={50} height={20} />
@@ -27,7 +28,6 @@ const BiddingSkeleton = () => (
 );
 
 export default function BiddingHistoryStarline() {
-    const today = new Date().toISOString().split('T')[0];
     const token = useSelector((state) => state.auth?.token);
 
     const [activeFilter, setActiveFilter] = useState('all');
@@ -80,8 +80,41 @@ export default function BiddingHistoryStarline() {
         }
     };
 
-    // ── data shape: { status: true, biddings: [...] }
-    const allBiddings = data?.biddings || [];
+    const pickBidsArray = (response) => {
+        if (!response) return [];
+        if (Array.isArray(response)) return response;
+        if (Array.isArray(response?.data?.data)) return response.data.data;
+        if (Array.isArray(response?.data)) return response.data;
+        if (Array.isArray(response?.biddings)) return response.biddings;
+        if (Array.isArray(response?.bids)) return response.bids;
+        return [];
+    };
+
+    const normalizeBid = (bid) => {
+        const displayDate = bid?.date || bid?.created_at || bid?.createdAt || bid?.timestamp || null;
+        const displayGameName = bid?.game_name || bid?.name || bid?.game || "";
+        const displayPana = bid?.pana ?? bid?.open_pana ?? bid?.close_pana ?? null;
+        const displayDigit = bid?.digit ?? bid?.open_digit ?? bid?.close_digit ?? null;
+        const displayUsername = bid?.username || bid?.user_name || bid?.user || "";
+        const displayPoints = bid?.points ?? bid?.point ?? 0;
+        const displayGameType = bid?.game_type || bid?.type || "";
+
+        return {
+            ...bid,
+            game_name: displayGameName,
+            game_type: displayGameType,
+            pana: displayPana,
+            digit: displayDigit,
+            username: displayUsername,
+            points: displayPoints,
+            created_at: displayDate,
+        };
+    };
+
+    const allBiddings = useMemo(
+        () => pickBidsArray(data).map(normalizeBid),
+        [data]
+    );
 
     // ── Date filter
     const dateFiltered = useMemo(() => {
@@ -104,13 +137,21 @@ export default function BiddingHistoryStarline() {
 
     // ── Game type filter + search
     const filteredBiddings = useMemo(() => {
+        const lowerSearch = searchText.trim().toLowerCase();
+
         return dateFiltered.filter(b => {
-            const matchType = gameTypeFilter ? b.game_type?.toLowerCase() === gameTypeFilter.toLowerCase() : true;
-            const matchSearch = searchText
-                ? b.name?.toLowerCase().includes(searchText.toLowerCase()) ||
-                String(b.pana).includes(searchText) ||
-                String(b.digit).includes(searchText)
+            const matchType = gameTypeFilter
+                ? b.game_type?.toLowerCase() === gameTypeFilter.toLowerCase()
                 : true;
+
+            const matchSearch = lowerSearch
+                ? (b.game_name?.toLowerCase().includes(lowerSearch) ||
+                    b.username?.toLowerCase().includes(lowerSearch) ||
+                    String(b.pana ?? "").includes(searchText) ||
+                    String(b.digit ?? "").includes(searchText) ||
+                    String(b.id ?? "").includes(searchText))
+                : true;
+
             return matchType && matchSearch;
         });
     }, [dateFiltered, gameTypeFilter, searchText]);
@@ -144,6 +185,7 @@ export default function BiddingHistoryStarline() {
             "single pana": { bg: "#d1fae5", color: "#047857" },
             "double pana": { bg: "#fef3c7", color: "#b45309" },
             "triple pana": { bg: "#ede9fe", color: "#6d28d9" },
+            "single digit": { bg: "#e0f2fe", color: "#0369a1" },
             "single": { bg: "#dbeafe", color: "#1d4ed8" },
             "jodi": { bg: "#fce7f3", color: "#be185d" },
         };
@@ -216,7 +258,7 @@ export default function BiddingHistoryStarline() {
                 <label style={{ fontSize: "10px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase" }}>Search</label>
                 <input
                     type="text"
-                    placeholder="Search game, pana, digit..."
+                    placeholder="Search game, user, pana, digit..."
                     value={searchText}
                     onChange={(e) => { setSearchText(e.target.value); setPage(1); }}
                     style={{ ...inputStyle, marginTop: "3px" }}
@@ -273,16 +315,18 @@ export default function BiddingHistoryStarline() {
 
         return (
             <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "550px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "700px" }}>
                     <thead>
                         <tr>
                             <th style={th}>#</th>
                             <th style={th}>Game</th>
+                            <th style={th}>User</th>
                             <th style={th}>Type</th>
                             <th style={th}>Pana</th>
                             <th style={th}>Digit</th>
                             <th style={th}>Points</th>
                             <th style={th}>Date</th>
+                            <th style={th}>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -291,7 +335,8 @@ export default function BiddingHistoryStarline() {
                                 <td style={td({ color: "#9ca3af", fontWeight: "600" })}>
                                     {((currentPage - 1) * perPage) + index + 1}
                                 </td>
-                                <td style={td({ fontWeight: "700", color: "#111827" })}>{row.name || "N/A"}</td>
+                                <td style={td({ fontWeight: "700", color: "#111827" })}>{row.game_name || "N/A"}</td>
+                                <td style={td({ color: "#374151", fontWeight: "600" })}>{row.username || "—"}</td>
                                 <td style={td()}>{getGameTypeBadge(row.game_type)}</td>
                                 <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.pana ?? "—"}</td>
                                 <td style={td({ fontWeight: "700", color: "#4f46e5", fontFamily: "monospace", fontSize: "13px" })}>{row.digit ?? "—"}</td>
@@ -324,10 +369,17 @@ export default function BiddingHistoryStarline() {
         },
         {
             name: "Game Name",
-            selector: (row) => row.name,
+            selector: (row) => row.game_name,
             sortable: true,
             width: "130px",
-            cell: (row) => <span style={{ fontWeight: "700", color: "#111827", fontSize: "13px" }}>{row.name || "N/A"}</span>
+            cell: (row) => <span style={{ fontWeight: "700", color: "#111827", fontSize: "13px" }}>{row.game_name || "N/A"}</span>
+        },
+        {
+            name: "User",
+            selector: (row) => row.username,
+            sortable: true,
+            width: "150px",
+            cell: (row) => <span style={{ fontWeight: "600", color: "#374151" }}>{row.username || "—"}</span>
         },
         {
             name: "Type",
