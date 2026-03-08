@@ -92,6 +92,23 @@ export default function DeclareResult() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    const sendAutoResultNotification = async ({ title, body }) => {
+        try {
+            const response = await fetch("/api/notifications/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, body }),
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => null);
+                console.error("Auto FCM send failed:", payload?.message || response.statusText);
+            }
+        } catch (err) {
+            console.error("Auto FCM send error:", err);
+        }
+    };
+
     const validate = () => {
         if (!formData.result_date) { alert("Please select a date"); return false; }
         if (!formData.game_id) { alert("Please select a game"); return false; }
@@ -106,7 +123,18 @@ export default function DeclareResult() {
     const handleDeclareResult = async () => {
         if (!validate()) return;
         try {
-            await declareResult(formData).unwrap();
+            const payload = { ...formData };
+            await declareResult(payload).unwrap();
+
+            const gameName =
+                selectedGame?.product_name ||
+                selectedGame?.game_name_hindi ||
+                `Game #${payload.game_id}`;
+
+            void sendAutoResultNotification({
+                title: `${gameName} Result Declared`,
+                body: `${payload.session} result: ${payload.pana}-${payload.digit} (${payload.result_date})`,
+            });
         } catch (err) {}
     };
 

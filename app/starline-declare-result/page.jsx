@@ -64,11 +64,40 @@ export default function StarlineDeclareResult() {
         return true;
     };
 
+    const sendAutoResultNotification = async ({ title, body }) => {
+        try {
+            const response = await fetch("/api/notifications/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, body }),
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => null);
+                console.error("Auto FCM send failed:", payload?.message || response.statusText);
+            }
+        } catch (err) {
+            console.error("Auto FCM send error:", err);
+        }
+    };
+
     const handleDeclareResult = async () => {
         if (!validate()) return;
         try {
-            const res = await starlineDeclareResult(formData).unwrap();
+            const payload = { ...formData };
+            const res = await starlineDeclareResult(payload).unwrap();
             toast.success(res?.message || "Result declared successfully!");
+
+            const gameName =
+                selectedGame?.name ||
+                selectedGame?.product_name ||
+                `Starline #${payload.game_id}`;
+
+            void sendAutoResultNotification({
+                title: `${gameName} Starline Result Declared`,
+                body: `Result: ${payload.pana}-${payload.digit} (${payload.result_date})`,
+            });
+
             setFormData({ result_date: today, game_id: "", pana: "", digit: "" });
             setSelectedGame(null);
             refetchResults();

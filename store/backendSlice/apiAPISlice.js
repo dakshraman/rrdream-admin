@@ -7,6 +7,25 @@ import { logout } from "./authReducer";
 import { getQueryClient, resetApiCache } from "../queryClient";
 
 const normalizeBaseUrl = (url) => (url.endsWith("/") ? url : `${url}/`);
+const isAbsoluteUrl = (url) => /^https?:\/\//i.test(String(url || ""));
+const stripLeadingSlashes = (value) => String(value || "").replace(/^\/+/, "");
+
+const normalizeEndpointPath = (baseUrl, endpointPath) => {
+  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  const rawPath = stripLeadingSlashes(endpointPath);
+  const baseHasApiSuffix = /\/api\/$/i.test(normalizedBaseUrl);
+  const pathHasApiPrefix = /^api(\/|$|\?)/i.test(rawPath);
+
+  if (baseHasApiSuffix && pathHasApiPrefix) {
+    return rawPath.replace(/^api\/?/i, "");
+  }
+
+  if (!baseHasApiSuffix && !pathHasApiPrefix) {
+    return `api/${rawPath}`;
+  }
+
+  return rawPath;
+};
 
 const configuredPublicApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
@@ -168,7 +187,10 @@ const executeRequest = async (requestLike, { endpointName }) => {
   const apiBaseUrl = getApiBaseUrl();
 
   const runOnce = async (nextRequest) => {
-    const fullUrl = `${apiBaseUrl}${appendParamsToUrl(nextRequest.url, nextRequest.params)}`;
+    const requestUrl = appendParamsToUrl(nextRequest.url, nextRequest.params);
+    const fullUrl = isAbsoluteUrl(requestUrl)
+      ? requestUrl
+      : `${apiBaseUrl}${normalizeEndpointPath(apiBaseUrl, requestUrl)}`;
     const headers = new Headers(nextRequest.headers || {});
     headers.set("Accept", "application/json");
 
@@ -866,13 +888,27 @@ const mutations = {
   },
   galiDeclareResult: {
     endpointName: "galiDeclareResult",
-    request: ({ result_date, game_id, pana, digit }) => {
+    request: ({ result_date, game_id, open, close, pana, digit }) => {
+      const resolvedOpen = open ?? pana;
+      const resolvedClose = close ?? digit;
       const formData = new FormData();
       formData.append("result_date", result_date);
       formData.append("game_id", game_id);
-      formData.append("pana", pana);
-      formData.append("digit", digit);
-      return { url: "gali-declareresult", method: "POST", body: formData };
+      formData.append("open", resolvedOpen);
+      formData.append("close", resolvedClose);
+
+      return {
+        url: "api/gali-declareresult",
+        method: "POST",
+        // Keep parity with SaraAdmin-main (query params) and also send body for strict backends.
+        params: {
+          result_date,
+          game_id,
+          open: resolvedOpen,
+          close: resolvedClose,
+        },
+        body: formData,
+      };
     },
   },
   editGaliBid: {

@@ -57,11 +57,40 @@ export default function GaliDeclareResult() {
         return true;
     };
 
+    const sendAutoResultNotification = async ({ title, body }) => {
+        try {
+            const response = await fetch("/api/notifications/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, body }),
+            });
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => null);
+                console.error("Auto FCM send failed:", payload?.message || response.statusText);
+            }
+        } catch (err) {
+            console.error("Auto FCM send error:", err);
+        }
+    };
+
     const handleDeclareResult = async () => {
         if (!validate()) return;
         try {
-            const res = await galiDeclareResult(formData).unwrap();
+            const payload = { ...formData };
+            const res = await galiDeclareResult(payload).unwrap();
             toast.success(res?.message || "Result declared successfully!");
+
+            const gameName =
+                selectedGame?.name ||
+                selectedGame?.product_name ||
+                `Gali #${payload.game_id}`;
+
+            void sendAutoResultNotification({
+                title: `${gameName} Gali Desawar Result Declared`,
+                body: `Open: ${payload.open} | Close: ${payload.close} (${payload.result_date})`,
+            });
+
             setFormData({ result_date: today, game_id: "", open: "", close: "" });
             setSelectedGame(null);
             refetchResults();
