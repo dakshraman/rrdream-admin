@@ -182,7 +182,7 @@ export default function NotificationsPage() {
                 style={inputStyle}
               />
               <p style={helperStyle}>
-                Upload from this device. Supported: PNG, JPG, WEBP, GIF (max 5MB).
+                Upload from this device. Supported: PNG, JPG, WEBP, GIF (max 1MB).
               </p>
               {imageFile && (
                 <p style={{ ...helperStyle, color: "#111827" }}>

@@ -16,7 +16,7 @@ const FCM_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
 const DEFAULT_BROADCAST_TOPIC = process.env.FCM_BROADCAST_TOPIC || "all-users";
 const ANDROID_PACKAGE_NAME =
   process.env.FCM_ANDROID_PACKAGE_NAME || "com.rr.dream";
-const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 1 * 1024 * 1024;
 const IMAGE_RETENTION_MS = 24 * 60 * 60 * 1000;
 const NOTIFICATION_IMAGE_DIR = path.join(
   process.cwd(),
@@ -166,7 +166,7 @@ const saveUploadedImage = async (file, request) => {
   if (!file.size) return "";
 
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
-    throw new Error("Image size must be 5MB or less.");
+    throw new Error("Image size must be 1MB or less for Android notifications.");
   }
 
   const mimeType = String(file.type || "").toLowerCase();
