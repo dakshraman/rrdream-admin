@@ -39,7 +39,7 @@ export default function DeclareResult() {
         refetch: refetchDeclaredResults
     } = useGetDeclaredResultsQuery(
         undefined,
-        { refetchOnMountOrArgChange: true }
+        { }
     );
 
     const gamesList = gamesResponse?.games || gamesResponse?.data || [];

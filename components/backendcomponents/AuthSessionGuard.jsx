@@ -20,8 +20,7 @@ export default function AuthSessionGuard({ children }) {
   const { isLoading, isSuccess, isError, error } =
     useCheckLoginQuery(undefined, {
       skip: !token,
-      refetchOnMountOrArgChange: true,
-      pollingInterval: 30000,
+      pollingInterval: 5 * 60_000, // every 5 min — 401s are caught per-request already
     });
   const authErrorStatus = error?.status;
   const hasAuthError =

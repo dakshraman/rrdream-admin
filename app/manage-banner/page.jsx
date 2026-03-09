@@ -66,9 +66,7 @@ export default function ManageBannersData() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
-    const { data: bannerData, isLoading, isError, error, refetch } = useGetBannersQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: bannerData, isLoading, isError, error, refetch } = useGetBannersQuery(undefined);
     console.log(" the bannerData", bannerData)
     const [addBanner, { isLoading: isAdding }] = useAddBannerMutation();
     const [deleteBanner] = useDeleteBannerMutation();

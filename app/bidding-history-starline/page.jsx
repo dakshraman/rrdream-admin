@@ -45,8 +45,7 @@ export default function BiddingHistoryStarline() {
     }, []);
 
     const { data, isLoading, isError, error, refetch } = useGetBiddingHistoryStarlineQuery(undefined, {
-        skip: !token,
-        refetchOnMountOrArgChange: true,
+        skip: !token
     });
     const [editStarlineBid, { isLoading: isEditing }] = useEditStarlineBidMutation();
 

@@ -249,7 +249,7 @@ export default function AddFund() {
     const [lastSuccess, setLastSuccess]       = useState(null);
 
     const { data: userData, isLoading: usersLoading } =
-        useGetUsersQuery(undefined, { refetchOnMountOrArgChange: true });
+        useGetUsersQuery(undefined);
 
     const [adminAddFunds, { isLoading: isSubmitting }] = useAdminAddFundsMutation();
 

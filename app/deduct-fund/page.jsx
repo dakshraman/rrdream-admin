@@ -249,7 +249,7 @@ export default function DeductFund() {
     const [lastSuccess, setLastSuccess]       = useState(null);
 
     const { data: userData, isLoading: usersLoading } =
-        useGetUsersQuery(undefined, { refetchOnMountOrArgChange: true });
+        useGetUsersQuery(undefined);
 
     const [deductFunds, { isLoading: isSubmitting }] = useDeductFundsMutation();
 

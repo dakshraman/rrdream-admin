@@ -60,11 +60,11 @@ export default function Dashboard() {
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
   const isDesktop = windowWidth >= 1024;
 
-  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery(undefined, { refetchOnMountOrArgChange: true });
-  const { data: configData, isLoading: configLoading } = useGetConfigQuery(undefined, { refetchOnMountOrArgChange: true });
-  const { data: withdrawData, isLoading: withdrawLoading } = useGetWithdrawRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
-  const { data: fundData, isLoading: fundLoading } = useGetFundRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
-  const { data: profitData, isLoading: profitLoading } = useGetProfitQuery({}, { refetchOnMountOrArgChange: true });
+  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery(undefined);
+  const { data: configData, isLoading: configLoading } = useGetConfigQuery(undefined);
+  const { data: withdrawData, isLoading: withdrawLoading } = useGetWithdrawRequestsQuery(undefined);
+  const { data: fundData, isLoading: fundLoading } = useGetFundRequestsQuery(undefined);
+  const { data: profitData, isLoading: profitLoading } = useGetProfitQuery({});
 
   const isLoading = usersLoading || configLoading || withdrawLoading || fundLoading || profitLoading;
 

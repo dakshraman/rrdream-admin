@@ -388,7 +388,7 @@ export default function WithdrawRequests() {
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const { data: withdrawData, isLoading, isError, error, refetch } =
-        useGetWithdrawRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
+        useGetWithdrawRequestsQuery(undefined);
     const [updateWithdrawStatus] = useUpdateWithdrawStatusMutation();
 
     const withdrawRequests = withdrawData?.withdraw_requests || [];

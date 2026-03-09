@@ -41,9 +41,7 @@ export default function ManageInactiveUsersData() {
         typeof window !== "undefined" ? window.innerWidth : 1200,
     );
 
-    const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery(undefined);
     const [toggleUser] = useToggleUserMutation();
     const [deleteUser] = useDeleteUserMutation();
 

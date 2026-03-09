@@ -354,7 +354,7 @@ export default function FundRequests() {
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const { data: fundData, isLoading, isError, error, refetch } =
-        useGetFundRequestsQuery(undefined, { refetchOnMountOrArgChange: true });
+        useGetFundRequestsQuery(undefined);
     const [approveFundRequest] = useApproveFundRequestMutation();
     const [rejectFundRequest] = useRejectFundRequestMutation();
 

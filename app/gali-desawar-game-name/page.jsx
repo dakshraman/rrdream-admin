@@ -344,9 +344,7 @@ export default function GaliGameName() {
     const [togglingId, setTogglingId] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
-    const { data: gamesData, isLoading, isError, error } = useGetGaliGamesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: gamesData, isLoading, isError, error } = useGetGaliGamesQuery(undefined);
     const [toggleGaliGame] = useToggleGaliGameMutation();
 
     const games = gamesData?.data || gamesData?.games || (Array.isArray(gamesData) ? gamesData : []);

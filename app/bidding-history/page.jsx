@@ -101,7 +101,7 @@ export default function BiddingHistory() {
             session: "",
             search: "",
         },
-        { refetchOnMountOrArgChange: true }
+        { }
     );
     const dateScopedFilterRows = useMemo(() => {
         const rows = filterOptionsResponse?.data;
@@ -109,9 +109,7 @@ export default function BiddingHistory() {
     }, [filterOptionsResponse]);
 
     // ── QUERY 2: Filtered table data ──
-    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: responseData, isLoading, isError, error, refetch } = useGetBiddingHistoryQuery(filters);
 
     const biddingHistory = responseData?.data || [];
     const filterSourceRows = useMemo(() => {

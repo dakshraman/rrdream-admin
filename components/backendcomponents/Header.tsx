@@ -1,30 +1,25 @@
 "use client"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-// import { useCheckLoginQuery } from "../../store/backendSlice/authAPISlice";
+import { useDispatch } from "react-redux"
+import { useRouter } from "next/navigation"
+import { apiAPISlice, useBackendLogoutMutation } from "@/store/backendSlice/apiAPISlice"
+import { logout } from "@/store/backendSlice/authReducer"
 
 export default function Header() {
-    const [userName, setUserName] = useState("");
-    const [userRole, setUserRole] = useState("");
-    const [profileImage, setProfileImage] = useState("");
-    // const { data: checkData, isSuccess, refetch } = useCheckLoginQuery(undefined, {
-    //     refetchOnMountOrArgChange: true,
-    //     pollingInterval: 10000,
-    // });
-    // useEffect(() => {
-    //     const user = checkData?.user;
-    //     if (user) {
-    //         setUserName(user.FullName || "");
-    //         setUserRole(user.Role || "");
-    //         setProfileImage(user.ProfileImage || "");
-    //     }
-    // }, [checkData]);
-    const getInitials = (name: any) => {
-        if (!name) return "U";
-        const words = name.trim().split(" ");
-        if (words.length === 1) return words[0][0].toUpperCase();
-        return (words[0][0] + words[words.length - 1][0]).toUpperCase();
-    };
+    const dispatch = useDispatch()
+    const router = useRouter()
+    const [backendLogout] = useBackendLogoutMutation() as [(...args: any[]) => Promise<any>, any]
+
+    const handleLogout = async () => {
+        try {
+            await backendLogout()
+        } catch {
+            // ignore backend logout errors; local logout always proceeds
+        }
+        ;(dispatch as any)(logout())
+        ;(dispatch as any)(apiAPISlice.util.resetApiState())
+        router.push("/login")
+    }
+
     return (
         <>
             <link rel="stylesheet" href="/admin-assets/fonts/font.css" />
@@ -32,33 +27,43 @@ export default function Header() {
                 <div className="header-wrapper">
                     <div className="colA">
                         <a href="/dashboard" className="logo">
-                            <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px",marginLeft:"39px" }} />
+                            <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px", marginLeft: "39px" }} />
                         </a>
                     </div>
                     <div className="colB">
                         <ul>
                             <li>
-                                <div className="dropdown-wrap inline-flex align-center">
-                                    <div className="user-ico">
-                                        {/* {profileImage ? (
-                                            <img src={`/OnlineImages/AuthImages/${profileImage}`} alt={userName || "User"} className="user-image" />
-                                        ) : (
-                                            <div className="user-ico"><span>{getInitials(userName)}</span></div>
-                                        )} */}
-                                        <div className="user-ico"><span>{getInitials(userName)}</span></div>
-                                    </div>
-                                    <div data-dropdown className="admin_de">
-                                        <span className="title">{userName || "Guest"}</span>
-                                        <span className="design-ekgrgb">{userRole || "Role"}</span>
-                                    </div>
-                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        background: "#dc2626",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "8px",
+                                        padding: "8px 18px",
+                                        fontSize: "14px",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        transition: "background 0.2s",
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = "#b91c1c")}
+                                    onMouseLeave={e => (e.currentTarget.style.background = "#dc2626")}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                        <polyline points="16 17 21 12 16 7" />
+                                        <line x1="21" y1="12" x2="9" y2="12" />
+                                    </svg>
+                                    Logout
+                                </button>
                             </li>
-                            {/* <li><a href="https://www.prettifycreative.com" data-dialog="byokkl" className="logo" target="_blank"><img src="/admin-assets/img/realtydigi-logo.png" alt="" /></a></li> */}
                         </ul>
                     </div>
                 </div>
             </header>
-            {/* <Overlay /> */}
         </>
     )
 }

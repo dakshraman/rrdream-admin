@@ -15,9 +15,7 @@ import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
 export default function ManageAdminData() {
-    const { data, isLoading, isError, error, refetch } = useGetAdminsQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data, isLoading, isError, error, refetch } = useGetAdminsQuery(undefined);
 
     const [registerAdmin, { isLoading: isRegistering }] = useRegisterAdminMutation();
     const [deleteAdmin] = useDeleteAdminMutation();

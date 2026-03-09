@@ -16,8 +16,13 @@ const nextConfig: NextConfig = {
     ];
   },
   reactStrictMode: true,
-  // swcMinify: true,
+  compress: true, // enable gzip/brotli compression
   output: "standalone",
+
+  // Tree-shake large icon/chart packages — cuts JS bundle size significantly
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts"],
+  },
 
   typescript: {
     ignoreBuildErrors: true,

@@ -19,9 +19,7 @@ export default function GaliGameRates() {
     const [formValues, setFormValues] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
-    const { data: ratesData, isLoading, isError, error } = useGetGaliRatesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: ratesData, isLoading, isError, error } = useGetGaliRatesQuery(undefined);
     const [updateGaliRate] = useUpdateGaliRateMutation();
 
     const rates = ratesData?.data || (Array.isArray(ratesData) ? ratesData : []);

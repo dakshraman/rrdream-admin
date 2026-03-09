@@ -44,9 +44,7 @@ export default function DeclaredResultsStarline() {
         return () => clearTimeout(timer);
     }, [debouncedSearch]);
 
-    const { data: responseData, isLoading, isError, error, refetch } = useGetDeclaredResultsStarlineQuery(filters, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: responseData, isLoading, isError, error, refetch } = useGetDeclaredResultsStarlineQuery(filters);
 
     const declaredResults = responseData?.data?.data || [];
     const pagination = responseData?.data?.pagination || {};

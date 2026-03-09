@@ -375,9 +375,7 @@ export default function StarlineGameName() {
     const [togglingId, setTogglingId]   = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
-    const { data: gamesData, isLoading, isError, error } = useGetStarlineGamesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: gamesData, isLoading, isError, error } = useGetStarlineGamesQuery(undefined);
     const [toggleStarlineGame] = useToggleStarlineGameMutation();
 
     const games = gamesData?.data || gamesData?.games || (Array.isArray(gamesData) ? gamesData : []);

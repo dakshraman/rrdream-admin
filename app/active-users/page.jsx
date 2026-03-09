@@ -41,9 +41,7 @@ export default function ManageUsersData() {
         typeof window !== "undefined" ? window.innerWidth : 1200,
     );
 
-    const { data: userData, isLoading, isError, error } = useGetUsersQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: userData, isLoading, isError, error } = useGetUsersQuery(undefined);
     const [toggleUser] = useToggleUserMutation();
     const [deleteUser] = useDeleteUserMutation();
 
@@ -776,8 +774,40 @@ export default function ManageUsersData() {
                                 <div style={{ fontSize: "16px", fontWeight: "700", color: "#111827" }}>
                                     Active Users
                                 </div>
-                                <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                                    Total Active: <strong style={{ color: "#111827" }}>{filteredData.length}</strong> | Funds: <strong style={{ color: "#111827" }}>{formatCurrency(totalFunds)}</strong>
+
+                                <div
+                                    style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                                        gap: "8px",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            border: "1px solid #dbeafe",
+                                            background: "#eff6ff",
+                                            borderRadius: "10px",
+                                            padding: "8px 10px",
+                                        }}
+                                    >
+                                        <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Active Users</p>
+                                        <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#1d4ed8" }}>
+                                            {filteredData.length}
+                                        </p>
+                                    </div>
+                                    <div
+                                        style={{
+                                            border: "1px solid #d1fae5",
+                                            background: "#f0fdf4",
+                                            borderRadius: "10px",
+                                            padding: "8px 10px",
+                                        }}
+                                    >
+                                        <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Total Active Funds</p>
+                                        <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#047857" }}>
+                                            {formatCurrency(totalFunds)}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <input

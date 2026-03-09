@@ -257,9 +257,7 @@ export default function ManageInquiriesData() {
     const [selectedUserName, setSelectedUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
 
-    const { data: usersData, isLoading, isError, error } = useGetInquiryUsersQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: usersData, isLoading, isError, error } = useGetInquiryUsersQuery(undefined);
 
     const users = usersData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(100);

@@ -14,7 +14,6 @@ type Permission = {
 export function usePagePermission() {
   const pathname = usePathname();
   const { data: checkData, isSuccess, refetch } = useCheckLoginQuery(undefined, {
-    refetchOnMountOrArgChange: true,
     pollingInterval: 10000,
   });
 

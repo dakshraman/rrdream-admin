@@ -312,9 +312,7 @@ function AddGameModal({ open, onClose }) {
 // MAIN PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 export default function GameManagement() {
-    const { data: scheduleData, isLoading, isError, error, refetch } = useGetGameSchedulesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: scheduleData, isLoading, isError, error, refetch } = useGetGameSchedulesQuery(undefined);
     const [updateGame,           { isLoading: isUpdatingGame }] = useUpdateGameMutation();
     const [updateGameSchedule,   { isLoading: isUpdating }]     = useUpdateGameScheduleMutation();
     const [toggleScheduleStatus, { isLoading: isToggling }]     = useToggleScheduleStatusMutation();

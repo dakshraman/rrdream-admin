@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import "../public/admin-assets/styles/style.css";
 import MainHeaderFooter from "@/components/backendcomponents/MainHeaderFooter";
 import AuthSessionGuard from "@/components/backendcomponents/AuthSessionGuard";
-import NextTopLoader from "nextjs-toploader";
 import Loader from "@/app/loading";
 import '../public/admin-assets/fonts/font.css';
 import { Toaster } from 'react-hot-toast';
@@ -18,7 +17,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <html lang="en">
       <body cz-shortcut-listen="true">
         <ReduxProvider>
-          <Loader />
           <AuthSessionGuard>
             <MainHeaderFooter />
             <Suspense fallback={<Loader />}>

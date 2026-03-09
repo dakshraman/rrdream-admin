@@ -4,9 +4,7 @@ import { useGetConfigQuery, useUpdateConfigMutation, useClearDataMutation } from
 import Swal from "sweetalert2";
 
 export default function Settings() {
-    const { data: configResponse, isLoading, refetch } = useGetConfigQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: configResponse, isLoading, refetch } = useGetConfigQuery(undefined);
     const [updateConfig, { isLoading: updating }] = useUpdateConfigMutation();
     const [clearData, { isLoading: isClearing }] = useClearDataMutation();
 

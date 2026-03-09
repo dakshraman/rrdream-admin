@@ -8,6 +8,8 @@ const createQueryClient = () =>
       queries: {
         retry: false,
         refetchOnWindowFocus: false,
+        staleTime: 30_000, // 30s — use cache on navigation, refetch in background
+        gcTime: 5 * 60_000, // 5 min garbage collection
       },
       mutations: {
         retry: false,

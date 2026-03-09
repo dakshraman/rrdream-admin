@@ -9,9 +9,7 @@ import {
 import Swal from "sweetalert2";
 
 export default function MainGameRates() {
-    const { data: ratesData, isLoading, isError, error, refetch } = useGetMainGameRatesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: ratesData, isLoading, isError, error, refetch } = useGetMainGameRatesQuery(undefined);
 
     const [updateMainGameRates, { isLoading: isUpdating }] = useUpdateMainGameRatesMutation();
 

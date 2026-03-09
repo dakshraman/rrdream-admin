@@ -19,9 +19,7 @@ export default function StarlineGameRates() {
     const [formValues, setFormValues] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
-    const { data: ratesData, isLoading, isError, error } = useGetStarlineRatesQuery(undefined, {
-        refetchOnMountOrArgChange: true,
-    });
+    const { data: ratesData, isLoading, isError, error } = useGetStarlineRatesQuery(undefined);
     const [updateStarlineRate] = useUpdateStarlineRateMutation();
 
     const rates = ratesData?.data || (Array.isArray(ratesData) ? ratesData : []);
