@@ -129,7 +129,7 @@ export default function SideNav() {
                         </button>
                       ) : (
                         <Link
-                          href={item.url || "#"}
+                          to={item.url || "/"}
                           className={isActive ? "active" : ""}
                           onClick={closeMobileMenu}
                         >
@@ -145,7 +145,7 @@ export default function SideNav() {
                         {subItems.map((sub, i) => (
                           <li key={i}>
                             <Link
-                              href={sub.url}
+                              to={sub.url}
                               className={pathname === sub.url ? "active" : ""}
                               onClick={closeMobileMenu}
                             >
