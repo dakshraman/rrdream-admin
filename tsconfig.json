@@ -35,10 +35,6 @@
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "next.config.ts",
-    "app/layout.tsx",
-    "app/page.jsx",
-    "app/api"
+    "dist"
   ]
 }
