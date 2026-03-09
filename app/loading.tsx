@@ -11,7 +11,7 @@ export default function Loader() {
 
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1200); // smooth & fast
+    }, 100); // smooth & fast
 
     return () => clearTimeout(timer);
   }, [pathname]);
@@ -63,4 +63,4 @@ const styles = {
     color: "#991b1b",
     letterSpacing: "0.3px",
   },
-};
+} as const;
