@@ -1,6 +1,7 @@
-const mysql = require('mysql2');
+import mysql2 from 'mysql2';
+
 // Create connection pool
-const db = mysql.createPool({
+const db = mysql2.createPool({
   host: 'localhost',
   port: 3306,
   user: 'root',
@@ -19,5 +20,6 @@ db.getConnection((err, connection) => {
     connection.release(); // release the connection back to pool
   }
 });
-module.exports = db;
+
+export default db;
 

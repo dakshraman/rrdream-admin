@@ -1,6 +1,4 @@
-'use client';
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useLoginMutation } from "../../store/backendSlice/authAPISlice";
 import { useDispatch } from "react-redux";
@@ -11,7 +9,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
-  const router = useRouter();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [loginMutation, { isLoading }] = useLoginMutation();

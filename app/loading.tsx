@@ -1,9 +1,8 @@
-"use client";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useLocation } from "react-router-dom";
 
 export default function Loader() {
-  const pathname = usePathname();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -14,7 +13,7 @@ export default function Loader() {
     }, 1200); // smooth & fast
 
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [location.pathname]);
 
   if (!loading) return null;
 
@@ -30,7 +29,7 @@ export default function Loader() {
 
 const styles = {
   overlay: {
-    position: "fixed",
+    position: "fixed" as const,
     inset: 0,
     backgroundColor: "rgba(255, 245, 245, 0.9)",
     display: "flex",
@@ -44,7 +43,7 @@ const styles = {
     padding: "32px 48px",
     borderRadius: "16px",
     boxShadow: "0 10px 30px rgba(220, 38, 38, 0.15)",
-    textAlign: "center",
+    textAlign: "center" as const,
   },
 
   spinner: {

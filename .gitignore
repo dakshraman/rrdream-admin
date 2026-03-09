@@ -14,9 +14,12 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# next.js (removed - project migrated to Vite)
+# /.next/
+# /out/
+
+# vite
+/dist/
 
 # production
 /build
@@ -36,9 +39,8 @@ yarn-error.log*
 *-firebase-adminsdk-*.json
 uploads/fcm-close-reminders-state.json
 
-# vercel
-.vercel
+# vercel (removed - project no longer deployed on Vercel)
+# .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts

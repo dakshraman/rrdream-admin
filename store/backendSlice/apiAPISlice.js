@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { backendStore } from "../backendStore";
@@ -28,19 +26,16 @@ const normalizeEndpointPath = (baseUrl, endpointPath) => {
 };
 
 const configuredPublicApiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
 
 const serverApiBaseUrl =
   configuredPublicApiBaseUrl ||
-  process.env.API_URL ||
   "https://game.rrdream.in/api/";
 
 const browserApiBaseUrl = configuredPublicApiBaseUrl || "/api/";
 
 const getApiBaseUrl = () =>
-  normalizeBaseUrl(
-    typeof window === "undefined" ? serverApiBaseUrl : browserApiBaseUrl,
-  );
+  normalizeBaseUrl(browserApiBaseUrl);
 
 const normalizeUsersResponse = (response) => {
   if (Array.isArray(response)) {

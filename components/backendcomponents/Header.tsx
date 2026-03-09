@@ -1,6 +1,4 @@
-"use client"
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 // import { useCheckLoginQuery } from "../../store/backendSlice/authAPISlice";
 
 export default function Header() {
