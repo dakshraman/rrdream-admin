@@ -18,7 +18,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/OnlineImages': {
-        target: 'http://localhost:3002',
+        target: process.env.ONLINE_IMAGES_URL || 'http://localhost:3002',
         changeOrigin: true,
       },
     },
