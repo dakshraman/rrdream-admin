@@ -213,20 +213,10 @@ const executeRequest = async (requestLike, { endpointName }) => {
       }
     }
 
-    console.log(
-      `%c[API Request] ${method} ${fullUrl}`,
-      "color: #00bcd4; font-weight: bold;",
-    );
-
     let response;
     try {
       response = await fetch(fullUrl, fetchOptions);
     } catch (networkError) {
-      console.log(
-        `%c[API Error] ${nextRequest.url}`,
-        "color: #f44336; font-weight: bold;",
-        networkError,
-      );
       throw {
         status: "FETCH_ERROR",
         data: null,
@@ -236,21 +226,11 @@ const executeRequest = async (requestLike, { endpointName }) => {
 
     if (!response.ok) {
       const error = await buildError(response);
-      console.log(
-        `%c[API Error] ${nextRequest.url}`,
-        "color: #f44336; font-weight: bold;",
-        error,
-      );
       forceLogoutIfNeeded(error.status, endpointName);
       throw error;
     }
 
     const data = await parseSuccess(response);
-    console.log(
-      `%c[API Success] ${nextRequest.url} (status: ${response.status})`,
-      "color: #4caf50; font-weight: bold;",
-      data,
-    );
 
     return { data, status: response.status, request: nextRequest };
   };
@@ -260,10 +240,6 @@ const executeRequest = async (requestLike, { endpointName }) => {
     method === "GET" && result.status === 200 && result.data === null;
 
   if (shouldRetryEmptyResponse) {
-    console.log(
-      `%c[API Retry Empty] ${request.url} (status: ${result.status})`,
-      "color: #ff9800; font-weight: bold;",
-    );
     result = await runOnce(withRetryBustParam(request));
   }
 
