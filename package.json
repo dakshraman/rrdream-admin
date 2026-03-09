@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3003",
-    "build": "next build",
-    "start": "next start -p 3003"
+    "dev": "vite --port 3003",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 3003",
+    "start": "vite preview --port 3003"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^39.0.2",
@@ -29,9 +30,6 @@
     "lucide-react": "^0.562.0",
     "multer": "^2.0.2",
     "mysql2": "^3.14.4",
-    "next": "^16.0.7",
-    "next-auth": "^4.24.13",
-    "nextjs-toploader": "^3.8.16",
     "nodemailer": "^7.0.6",
     "react": "^19.2.1",
     "react-data-table-component": "^7.7.0",
@@ -40,6 +38,7 @@
     "react-loading-skeleton": "^3.5.0",
     "react-range": "^1.10.0",
     "react-redux": "^9.2.0",
+    "react-router-dom": "^7.5.3",
     "react-select": "^5.10.2",
     "recharts": "^3.1.2",
     "redux-persist": "^6.0.0",
@@ -55,9 +54,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "@vitejs/plugin-react": "^4.5.2",
+    "typescript": "^5",
+    "vite": "^6.3.5"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "description": "RDream Admin Panel built with React + Vite",
   "main": "index.js",
   "keywords": [],
   "author": "",

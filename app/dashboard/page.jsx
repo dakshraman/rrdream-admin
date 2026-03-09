@@ -1,6 +1,3 @@
-"use client";
-export const dynamic = "force-dynamic";
-
 import { useMemo, useState, useEffect } from "react";
 import {
   XAxis,
