@@ -30,7 +30,8 @@ const UserSkeleton = () => (
 );
 
 export default function ManageUsersData() {
-    const [filterText, setFilterText] = useState("");
+    const [searchInput, setSearchInput] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [togglingUserId, setTogglingUserId] = useState(null);
@@ -41,11 +42,20 @@ export default function ManageUsersData() {
         typeof window !== "undefined" ? window.innerWidth : 1200,
     );
 
-    const { data: userData, isLoading, isError, error } = useGetUsersQuery(undefined);
+    const { data: userData, isLoading, isError, error } = useGetUsersQuery({
+        page: currentPage,
+        per_page: rowsPerPage,
+        search: debouncedSearch,
+    });
     const [toggleUser] = useToggleUserMutation();
     const [deleteUser] = useDeleteUserMutation();
 
     const users = userData?.users || [];
+    const pagination = userData?.pagination || {};
+    const summary = userData?.summary || {};
+    const hasServerPagination =
+        Number.isFinite(Number(pagination?.total)) &&
+        Number.isFinite(Number(pagination?.last_page));
     const isMobile = windowWidth < 768;
 
     useEffect(() => {
@@ -78,7 +88,6 @@ export default function ManageUsersData() {
             normalizeSearchValue(field).includes(text),
         );
     };
-
     const formatCurrency = (amount) =>
         `Rs ${parseFloat(amount || 0).toLocaleString("en-IN")}`;
 
@@ -162,20 +171,36 @@ export default function ManageUsersData() {
         }
     };
 
-    const filteredData = useMemo(
-        () =>
-            users
-                .filter((item) => isUserActive(item))
-                .filter((item) => matchesSearch(item, filterText)),
-        [users, filterText],
-    );
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setDebouncedSearch(searchInput.trim());
+        }, 300);
+        return () => clearTimeout(timeout);
+    }, [searchInput]);
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [filterText]);
+    }, [searchInput, debouncedSearch, rowsPerPage]);
 
-    const totalRows = filteredData.length;
-    const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+    const locallyFilteredUsers = useMemo(() => {
+        if (hasServerPagination) {
+            return users;
+        }
+
+        return users
+            .filter((item) => isUserActive(item))
+            .filter((item) => matchesSearch(item, searchInput));
+    }, [hasServerPagination, users, searchInput]);
+
+    const totalRows = hasServerPagination
+        ? Number(pagination?.total || 0)
+        : locallyFilteredUsers.length;
+    const totalPages = hasServerPagination
+        ? Number(pagination?.last_page || 1)
+        : Math.max(1, Math.ceil(totalRows / rowsPerPage));
+    const currentPageFromApi = hasServerPagination
+        ? Number(pagination?.current_page || currentPage)
+        : currentPage;
 
     useEffect(() => {
         if (currentPage > totalPages) {
@@ -183,15 +208,19 @@ export default function ManageUsersData() {
         }
     }, [currentPage, totalPages]);
 
-    const paginatedData = useMemo(() => {
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        return filteredData.slice(startIndex, startIndex + rowsPerPage);
-    }, [filteredData, currentPage, rowsPerPage]);
-    const getSerialNumber = (index) => (currentPage - 1) * rowsPerPage + index + 1;
-
-    const showFrom = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
-    const showTo = Math.min(currentPage * rowsPerPage, totalRows);
-    const totalFunds = filteredData.reduce((sum, user) => sum + parseFloat(user.funds || 0), 0);
+    const paginatedData = hasServerPagination
+        ? users
+        : locallyFilteredUsers.slice(
+              (currentPage - 1) * rowsPerPage,
+              currentPage * rowsPerPage,
+          );
+    const showFrom = totalRows === 0 ? 0 : (currentPageFromApi - 1) * rowsPerPage + 1;
+    const showTo = Math.min((currentPageFromApi - 1) * rowsPerPage + paginatedData.length, totalRows);
+    const getSerialNumber = (index) => showFrom + index;
+    const totalFunds =
+        Number.isFinite(Number(summary?.total_funds))
+            ? Number(summary.total_funds)
+            : locallyFilteredUsers.reduce((sum, user) => sum + parseFloat(user.funds || 0), 0);
 
     const columns = [
         {
@@ -375,7 +404,7 @@ export default function ManageUsersData() {
             >
                 <div style={{ border: "1px solid #dbeafe", background: "#eff6ff", borderRadius: "10px", padding: "8px 10px" }}>
                     <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Active Users</p>
-                    <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#1d4ed8" }}>{filteredData.length}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#1d4ed8" }}>{totalRows}</p>
                 </div>
                 <div style={{ border: "1px solid #d1fae5", background: "#f0fdf4", borderRadius: "10px", padding: "8px 10px" }}>
                     <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Total Active Funds</p>
@@ -395,8 +424,8 @@ export default function ManageUsersData() {
                     className="active-users-search-input"
                     type="text"
                     placeholder="Search by name, phone or ID..."
-                    value={filterText}
-                    onChange={(e) => setFilterText(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     style={{
                         padding: "9px 12px",
                         width: "100%",
@@ -410,9 +439,9 @@ export default function ManageUsersData() {
                         backgroundColor: "#fff",
                     }}
                 />
-                {filterText && (
+                {searchInput && (
                     <button
-                        onClick={() => setFilterText("")}
+                        onClick={() => setSearchInput("")}
                         style={{
                             padding: "9px 12px",
                             backgroundColor: "#ef4444",
@@ -508,7 +537,7 @@ export default function ManageUsersData() {
             );
         }
 
-        if (filteredData.length === 0) {
+        if (paginatedData.length === 0) {
             return (
                 <div style={{ textAlign: "center", padding: "28px 16px", color: "#6b7280" }}>
                     <p style={{ margin: 0, fontWeight: "600" }}>No users found</p>
@@ -792,7 +821,7 @@ export default function ManageUsersData() {
                                     >
                                         <p style={{ margin: 0, fontSize: "11px", color: "#6b7280" }}>Active Users</p>
                                         <p style={{ margin: "2px 0 0", fontSize: "18px", fontWeight: "700", color: "#1d4ed8" }}>
-                                            {filteredData.length}
+                                            {totalRows}
                                         </p>
                                     </div>
                                     <div
@@ -814,8 +843,8 @@ export default function ManageUsersData() {
                                     className="active-users-search-input"
                                     type="text"
                                     placeholder="Search by name, phone or ID..."
-                                    value={filterText}
-                                    onChange={(e) => setFilterText(e.target.value)}
+                                    value={searchInput}
+                                    onChange={(e) => setSearchInput(e.target.value)}
                                     style={{
                                         padding: "10px 12px",
                                         width: "100%",

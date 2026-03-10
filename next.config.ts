@@ -6,15 +6,10 @@ const nextConfig: NextConfig = {
       {
         source: "/OnlineImages/:path*",
         destination: "http://localhost:3002/OnlineImages/:path*",
-      },
-      {
-        source: "/api/:path*",
-        destination: process.env.API_URL
-          ? `${process.env.API_URL}/:path*`
-          : "https://game.rrdream.in/api/:path*",
       }
     ];
   },
+  // `/api/*` is handled by `app/api/[...path]/route.js` for timeout/retry guards.
   reactStrictMode: true,
   compress: true, // enable gzip/brotli compression
   output: "standalone",

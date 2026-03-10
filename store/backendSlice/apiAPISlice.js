@@ -42,6 +42,21 @@ const getApiBaseUrl = () =>
     typeof window === "undefined" ? serverApiBaseUrl : browserApiBaseUrl,
   );
 
+const DEFAULT_REQUEST_TIMEOUT_MS = Number.isFinite(
+  Number.parseInt(
+    process.env.NEXT_PUBLIC_API_TIMEOUT_MS || process.env.API_TIMEOUT_MS || "20000",
+    10,
+  ),
+)
+  ? Number.parseInt(
+      process.env.NEXT_PUBLIC_API_TIMEOUT_MS || process.env.API_TIMEOUT_MS || "20000",
+      10,
+    )
+  : 20000;
+
+const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+const RETRYABLE_TRANSPORT_STATUSES = new Set(["FETCH_ERROR", "TIMEOUT_ERROR"]);
+
 const normalizeUsersResponse = (response) => {
   if (Array.isArray(response)) {
     return { users: response };
@@ -170,6 +185,8 @@ const withRetryBustParam = (request) => ({
   cache: "no-store",
 });
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const normalizeRequest = (requestLike) => {
   if (typeof requestLike === "string") {
     return { url: requestLike, method: "GET" };
@@ -199,11 +216,25 @@ const executeRequest = async (requestLike, { endpointName }) => {
       headers.set("Authorization", `Bearer ${token}`);
     }
 
+    const timeoutMs =
+      Number.isFinite(Number.parseInt(nextRequest.timeoutMs, 10)) &&
+      Number.parseInt(nextRequest.timeoutMs, 10) > 0
+        ? Number.parseInt(nextRequest.timeoutMs, 10)
+        : DEFAULT_REQUEST_TIMEOUT_MS;
+
+    const controller = new AbortController();
+    const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+
     const fetchOptions = {
       method,
       headers,
       credentials: "same-origin",
+      signal: controller.signal,
     };
+
+    if (nextRequest.cache) {
+      fetchOptions.cache = nextRequest.cache;
+    }
 
     if (nextRequest.body !== undefined) {
       if (
@@ -221,11 +252,16 @@ const executeRequest = async (requestLike, { endpointName }) => {
     try {
       response = await fetch(fullUrl, fetchOptions);
     } catch (networkError) {
+      const abortedByTimeout = networkError?.name === "AbortError";
       throw {
-        status: "FETCH_ERROR",
+        status: abortedByTimeout ? "TIMEOUT_ERROR" : "FETCH_ERROR",
         data: null,
-        message: networkError?.message || "Network error",
+        message: abortedByTimeout
+          ? `Request timed out after ${timeoutMs}ms`
+          : networkError?.message || "Network error",
       };
+    } finally {
+      clearTimeout(timeoutHandle);
     }
 
     if (!response.ok) {
@@ -238,7 +274,21 @@ const executeRequest = async (requestLike, { endpointName }) => {
     return { data, status: response.status, request: nextRequest };
   };
 
-  let result = await runOnce(request);
+  let result;
+  try {
+    result = await runOnce(request);
+  } catch (error) {
+    const shouldRetryOnError =
+      method === "GET" &&
+      (RETRYABLE_STATUSES.has(error?.status) ||
+        RETRYABLE_TRANSPORT_STATUSES.has(error?.status));
+
+    if (!shouldRetryOnError) throw error;
+
+    await sleep(150);
+    result = await runOnce(withRetryBustParam(request));
+  }
+
   const shouldRetryEmptyResponse =
     method === "GET" && result.status === 200 && result.data === null;
 
@@ -368,12 +418,26 @@ const queries = {
   },
   getUsers: {
     endpointName: "getUsers",
-    request: () => ({ url: "getallusers", method: "GET" }),
+    request: (arg = {}) => {
+      const { page = 1, per_page = 100, search = "" } = arg || {};
+      return {
+        url: "getallusers",
+        method: "GET",
+        params: cleanNonEmptyParams({ page, per_page, search }),
+      };
+    },
     transformResponse: normalizeUsersResponse,
   },
   getInactiveUsers: {
     endpointName: "getInactiveUsers",
-    request: () => ({ url: "get-inactiveusers", method: "GET" }),
+    request: (arg = {}) => {
+      const { page = 1, per_page = 100, search = "" } = arg || {};
+      return {
+        url: "get-inactiveusers",
+        method: "GET",
+        params: cleanNonEmptyParams({ page, per_page, search }),
+      };
+    },
     transformResponse: normalizeUsersResponse,
   },
   getBanners: {
