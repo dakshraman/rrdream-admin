@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  // `/api/*` is handled by `app/api/[...path]/route.js` for timeout/retry guards.
   reactStrictMode: true,
   compress: true, // enable gzip/brotli compression
   output: "standalone",

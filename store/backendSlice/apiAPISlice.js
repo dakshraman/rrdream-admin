@@ -29,18 +29,13 @@ const normalizeEndpointPath = (baseUrl, endpointPath) => {
 
 const configuredPublicApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
-
-const serverApiBaseUrl =
+const resolvedApiBaseUrl =
   configuredPublicApiBaseUrl ||
+  process.env.BACKEND_API_URL ||
   process.env.API_URL ||
   "https://game.rrdream.in/api/";
 
-const browserApiBaseUrl = configuredPublicApiBaseUrl || "/api/";
-
-const getApiBaseUrl = () =>
-  normalizeBaseUrl(
-    typeof window === "undefined" ? serverApiBaseUrl : browserApiBaseUrl,
-  );
+const getApiBaseUrl = () => normalizeBaseUrl(resolvedApiBaseUrl);
 
 const DEFAULT_REQUEST_TIMEOUT_MS = Number.isFinite(
   Number.parseInt(
@@ -54,8 +49,9 @@ const DEFAULT_REQUEST_TIMEOUT_MS = Number.isFinite(
     )
   : 20000;
 
-const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
 const RETRYABLE_TRANSPORT_STATUSES = new Set(["FETCH_ERROR", "TIMEOUT_ERROR"]);
+const RETRY_DELAY_MS = 600;
 
 const normalizeUsersResponse = (response) => {
   if (Array.isArray(response)) {
@@ -122,7 +118,11 @@ const buildError = async (response) => {
   return {
     status: response.status,
     data,
-    message: data?.message || response.statusText || "Request failed",
+    message:
+      data?.message ||
+      (response.status === 429
+        ? "Too many requests. Please wait a moment and retry."
+        : response.statusText || "Request failed"),
   };
 };
 
@@ -285,12 +285,14 @@ const executeRequest = async (requestLike, { endpointName }) => {
 
     if (!shouldRetryOnError) throw error;
 
-    await sleep(150);
+    await sleep(RETRY_DELAY_MS);
     result = await runOnce(withRetryBustParam(request));
   }
 
   const shouldRetryEmptyResponse =
-    method === "GET" && result.status === 200 && result.data === null;
+    method === "GET" &&
+    result.status === 200 &&
+    result.data === null;
 
   if (shouldRetryEmptyResponse) {
     result = await runOnce(withRetryBustParam(request));
