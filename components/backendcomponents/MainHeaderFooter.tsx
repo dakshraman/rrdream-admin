@@ -1,12 +1,11 @@
-'use client';
 import Header from "./Header";
 import SideNav from "./SideNav";
-import { usePathname } from 'next/navigation';
+import { useLocation } from 'react-router-dom';
 
 export default function MainHeaderFooter() {
-  const pathname = usePathname();
+  const location = useLocation();
   const hideLayout = ['/login'];
-  const shouldHideLayout = hideLayout.some(path => pathname.startsWith(path));
+  const shouldHideLayout = hideLayout.some(path => location.pathname.startsWith(path));
 
   return (
     <>

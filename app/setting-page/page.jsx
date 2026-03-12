@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect } from "react";
 import { useGetConfigQuery, useUpdateConfigMutation, useClearDataMutation } from "@/store/backendSlice/apiAPISlice";
 import Swal from "sweetalert2";
@@ -173,7 +172,7 @@ export default function Settings() {
                     }}></div>
                     <p style={{ color: theme.textMuted }}>Loading settings...</p>
                 </div>
-                <style jsx>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
             </main>
         );
     }
@@ -560,7 +559,7 @@ export default function Settings() {
                         {isClearing ? "Clearing..." : "Clear Cache"}
                     </button>
                 </div>
-            </div>            <style jsx>{`
+            </div>            <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -580,3 +579,4 @@ export default function Settings() {
         </main>
     );
 }
+

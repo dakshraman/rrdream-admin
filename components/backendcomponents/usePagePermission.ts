@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useLocation } from "react-router-dom";
 import AdminStaticData from "@/components/backendcomponents/AdminStaticData.json";
 import { useCheckLoginQuery } from "../../store/backendSlice/authAPISlice";
 
@@ -12,8 +12,10 @@ type Permission = {
 };
 
 export function usePagePermission() {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
   const { data: checkData, isSuccess, refetch } = useCheckLoginQuery(undefined, {
+    refetchOnMountOrArgChange: true,
     pollingInterval: 10000,
   });
 

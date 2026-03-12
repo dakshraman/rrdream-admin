@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";

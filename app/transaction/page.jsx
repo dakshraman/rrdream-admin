@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
@@ -546,7 +544,7 @@ export default function TransactionsPage() {
             </div>
 
             {/* CSS for spin animation */}
-            <style jsx>{`
+            <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }

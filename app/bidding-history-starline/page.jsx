@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
@@ -614,3 +613,4 @@ export default function BiddingHistoryStarline() {
         </main>
     );
 }
+

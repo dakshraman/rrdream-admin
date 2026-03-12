@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect } from "react";
 import {
     useGetGamesQuery,
@@ -787,7 +786,7 @@ export default function DeclareResult() {
                 </div>
             )}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -837,3 +836,4 @@ export default function DeclareResult() {
         </main>
     );
 }
+

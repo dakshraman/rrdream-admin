@@ -1,4 +1,3 @@
-'use client';
 import { Fragment, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import Skeleton from "react-loading-skeleton";
@@ -19,7 +18,7 @@ export default function GaliGameRates() {
     const [formValues, setFormValues] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
-    const { data: ratesData, isLoading, isError, error } = useGetGaliRatesQuery(undefined);
+    const { data: ratesData, isLoading, isError, error, refetch } = useGetGaliRatesQuery(undefined);
     const [updateGaliRate] = useUpdateGaliRateMutation();
 
     const rates = ratesData?.data || (Array.isArray(ratesData) ? ratesData : []);
@@ -85,7 +84,7 @@ export default function GaliGameRates() {
                 }}>
                     <h3 style={{ marginBottom: "10px" }}>Error loading rates</h3>
                     <p>{error?.data?.message || error?.message || "Something went wrong"}</p>
-                    <button onClick={() => window.location.reload()} style={{
+                    <button onClick={() => refetch()} style={{
                         marginTop: "15px", padding: "10px 20px", background: "#dc2626",
                         color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer",
                     }}>Retry</button>
@@ -96,7 +95,7 @@ export default function GaliGameRates() {
 
     return (
         <>
-            <style jsx global>{`
+            <style>{`
                 @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
                 .rate-input-gali { transition: border-color 0.2s, box-shadow 0.2s; }
                 .rate-input-gali::-webkit-outer-spin-button,

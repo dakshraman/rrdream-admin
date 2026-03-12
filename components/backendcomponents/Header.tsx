@@ -1,12 +1,11 @@
-"use client"
 import { useDispatch } from "react-redux"
-import { useRouter } from "next/navigation"
+import { useNavigate, Link } from "react-router-dom"
 import { apiAPISlice, useBackendLogoutMutation } from "@/store/backendSlice/apiAPISlice"
 import { logout } from "@/store/backendSlice/authReducer"
 
 export default function Header() {
     const dispatch = useDispatch()
-    const router = useRouter()
+    const navigate = useNavigate()
     const [backendLogout] = useBackendLogoutMutation() as [(...args: any[]) => Promise<any>, any]
 
     const handleLogout = async () => {
@@ -17,7 +16,7 @@ export default function Header() {
         }
         ;(dispatch as any)(logout())
         ;(dispatch as any)(apiAPISlice.util.resetApiState())
-        router.push("/login")
+        navigate("/login")
     }
 
     return (
@@ -26,9 +25,9 @@ export default function Header() {
             <header>
                 <div className="header-wrapper">
                     <div className="colA">
-                        <a href="/dashboard" className="logo">
+                        <Link to="/dashboard" className="logo">
                             <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px", marginLeft: "39px" }} />
-                        </a>
+                        </Link>
                     </div>
                     <div className="colB">
                         <ul>

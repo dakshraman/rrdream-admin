@@ -1,4 +1,3 @@
-'use client';
 import { useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
@@ -42,7 +41,7 @@ export default function ManageInactiveUsersData() {
         typeof window !== "undefined" ? window.innerWidth : 1200,
     );
 
-    const { data: userData, isLoading, isError, error } = useGetInactiveUsersQuery({
+    const { data: userData, isLoading, isError, error, refetch } = useGetInactiveUsersQuery({
         page: currentPage,
         per_page: rowsPerPage,
         search: debouncedSearch,
@@ -707,7 +706,7 @@ export default function ManageInactiveUsersData() {
                     <h3 style={{ marginBottom: "10px" }}>Error loading inactive users</h3>
                     <p>{error?.data?.message || error?.message || "Something went wrong"}</p>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => refetch()}
                         style={{
                             marginTop: "15px",
                             padding: "10px 20px",
@@ -727,7 +726,7 @@ export default function ManageInactiveUsersData() {
 
     return (
         <>
-            <style jsx>{`
+            <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -846,3 +845,4 @@ export default function ManageInactiveUsersData() {
         </>
     );
 }
+

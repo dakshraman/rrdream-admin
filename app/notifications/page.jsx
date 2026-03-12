@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -288,3 +286,4 @@ export default function NotificationsPage() {
     </main>
   );
 }
+

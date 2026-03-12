@@ -1,4 +1,3 @@
-'use client';
 import { useState } from "react";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
@@ -257,7 +256,7 @@ export default function ManageInquiriesData() {
     const [selectedUserName, setSelectedUserName] = useState("");
     const [showModal, setShowModal] = useState(false);
 
-    const { data: usersData, isLoading, isError, error } = useGetInquiryUsersQuery(undefined);
+    const { data: usersData, isLoading, isError, error, refetch } = useGetInquiryUsersQuery(undefined);
 
     const users = usersData?.users || [];
     const [rowsPerPage, setRowsPerPage] = useState(100);
@@ -465,7 +464,7 @@ export default function ManageInquiriesData() {
                     <h3 style={{ marginBottom: "10px" }}>Error loading users</h3>
                     <p>{error?.data?.message || error?.message || "Something went wrong"}</p>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => refetch()}
                         style={{
                             marginTop: "15px",
                             padding: "10px 20px",
@@ -486,7 +485,7 @@ export default function ManageInquiriesData() {
     return (
         <>
             {/* CSS for spinner animation */}
-            <style jsx>{`
+            <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }

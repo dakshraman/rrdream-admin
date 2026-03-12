@@ -1,11 +1,7 @@
-"use client";
+import React, { useEffect, useState, Suspense } from "react";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-
-const CKEditorComponent = dynamic(
-  () => import("@ckeditor/ckeditor5-react").then((mod) => mod.CKEditor),
-  { ssr: false }
+const CKEditorComponent = React.lazy(() =>
+  import("@ckeditor/ckeditor5-react").then((mod) => ({ default: mod.CKEditor }))
 );
 
 export default function CKEditorClient({
@@ -26,13 +22,15 @@ export default function CKEditorClient({
   if (!editorInstance) return <p>Loading editor...</p>;
 
   return (
-    <CKEditorComponent
-      editor={editorInstance}
-      data={value}
-      onChange={(event: any, editor: any) => {
-        const data = editor.getData();
-        onChange(data);
-      }}
-    />
+    <Suspense fallback={<p>Loading editor...</p>}>
+      <CKEditorComponent
+        editor={editorInstance}
+        data={value}
+        onChange={(event: any, editor: any) => {
+          const data = editor.getData();
+          onChange(data);
+        }}
+      />
+    </Suspense>
   );
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { backendStore } from "../backendStore";
@@ -28,30 +26,16 @@ const normalizeEndpointPath = (baseUrl, endpointPath) => {
 };
 
 const configuredPublicApiBaseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL;
-const resolvedApiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+
+const serverApiBaseUrl =
   configuredPublicApiBaseUrl ||
-  process.env.BACKEND_API_URL ||
-  process.env.API_URL ||
   "https://game.rrdream.in/api/";
 
-const getApiBaseUrl = () => normalizeBaseUrl(resolvedApiBaseUrl);
+const browserApiBaseUrl = configuredPublicApiBaseUrl || "/api/";
 
-const DEFAULT_REQUEST_TIMEOUT_MS = Number.isFinite(
-  Number.parseInt(
-    process.env.NEXT_PUBLIC_API_TIMEOUT_MS || process.env.API_TIMEOUT_MS || "20000",
-    10,
-  ),
-)
-  ? Number.parseInt(
-      process.env.NEXT_PUBLIC_API_TIMEOUT_MS || process.env.API_TIMEOUT_MS || "20000",
-      10,
-    )
-  : 20000;
-
-const RETRYABLE_STATUSES = new Set([502, 503, 504]);
-const RETRYABLE_TRANSPORT_STATUSES = new Set(["FETCH_ERROR", "TIMEOUT_ERROR"]);
-const RETRY_DELAY_MS = 600;
+const getApiBaseUrl = () =>
+  normalizeBaseUrl(browserApiBaseUrl);
 
 const normalizeUsersResponse = (response) => {
   if (Array.isArray(response)) {
@@ -185,8 +169,6 @@ const withRetryBustParam = (request) => ({
   cache: "no-store",
 });
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const normalizeRequest = (requestLike) => {
   if (typeof requestLike === "string") {
     return { url: requestLike, method: "GET" };
@@ -216,25 +198,12 @@ const executeRequest = async (requestLike, { endpointName }) => {
       headers.set("Authorization", `Bearer ${token}`);
     }
 
-    const timeoutMs =
-      Number.isFinite(Number.parseInt(nextRequest.timeoutMs, 10)) &&
-      Number.parseInt(nextRequest.timeoutMs, 10) > 0
-        ? Number.parseInt(nextRequest.timeoutMs, 10)
-        : DEFAULT_REQUEST_TIMEOUT_MS;
-
-    const controller = new AbortController();
-    const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
-
     const fetchOptions = {
       method,
       headers,
       credentials: "same-origin",
-      signal: controller.signal,
+      cache: method === "GET" ? "no-store" : nextRequest.cache,
     };
-
-    if (nextRequest.cache) {
-      fetchOptions.cache = nextRequest.cache;
-    }
 
     if (nextRequest.body !== undefined) {
       if (
@@ -252,16 +221,11 @@ const executeRequest = async (requestLike, { endpointName }) => {
     try {
       response = await fetch(fullUrl, fetchOptions);
     } catch (networkError) {
-      const abortedByTimeout = networkError?.name === "AbortError";
       throw {
-        status: abortedByTimeout ? "TIMEOUT_ERROR" : "FETCH_ERROR",
+        status: "FETCH_ERROR",
         data: null,
-        message: abortedByTimeout
-          ? `Request timed out after ${timeoutMs}ms`
-          : networkError?.message || "Network error",
+        message: networkError?.message || "Network error",
       };
-    } finally {
-      clearTimeout(timeoutHandle);
     }
 
     if (!response.ok) {
@@ -271,28 +235,13 @@ const executeRequest = async (requestLike, { endpointName }) => {
     }
 
     const data = await parseSuccess(response);
+
     return { data, status: response.status, request: nextRequest };
   };
 
-  let result;
-  try {
-    result = await runOnce(request);
-  } catch (error) {
-    const shouldRetryOnError =
-      method === "GET" &&
-      (RETRYABLE_STATUSES.has(error?.status) ||
-        RETRYABLE_TRANSPORT_STATUSES.has(error?.status));
-
-    if (!shouldRetryOnError) throw error;
-
-    await sleep(RETRY_DELAY_MS);
-    result = await runOnce(withRetryBustParam(request));
-  }
-
+  let result = await runOnce(request);
   const shouldRetryEmptyResponse =
-    method === "GET" &&
-    result.status === 200 &&
-    result.data === null;
+    method === "GET" && result.status === 200 && result.data === null;
 
   if (shouldRetryEmptyResponse) {
     result = await runOnce(withRetryBustParam(request));
