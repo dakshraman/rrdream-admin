@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect } from "react";
 import { useGetConfigQuery, useUpdateConfigMutation, useClearDataMutation } from "@/store/backendSlice/apiAPISlice";
 import Swal from "sweetalert2";
@@ -580,3 +579,4 @@ export default function Settings() {
         </main>
     );
 }
+

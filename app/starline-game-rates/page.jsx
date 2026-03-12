@@ -1,4 +1,3 @@
-'use client';
 import { Fragment, useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import Skeleton from "react-loading-skeleton";

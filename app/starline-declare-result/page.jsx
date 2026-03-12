@@ -1,4 +1,3 @@
-'use client';
 import { useState, useEffect } from "react";
 import {
     useGetStarlineGamesQuery,
@@ -437,3 +436,4 @@ function Spinner({ color = "#fff" }) {
         }} />
     );
 }
+

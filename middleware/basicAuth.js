@@ -1,5 +1,4 @@
-
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Basic ')) {
     return res.status(401).json({ message: 'Missing or invalid authorization header' });
@@ -16,8 +15,3 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 };
-
-
-
-
-

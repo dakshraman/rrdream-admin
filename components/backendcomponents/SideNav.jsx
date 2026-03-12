@@ -1,17 +1,16 @@
-'use client';
-
 import { useEffect, useState } from "react";
 import AdminStaticData from "./AdminStaticData.json";
 import parse from "html-react-parser";
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { apiAPISlice, useBackendLogoutMutation } from "@/store/backendSlice/apiAPISlice";
 import { logout } from "@/store/backendSlice/authReducer";
+import "./SideNav.css";
 
 export default function SideNav() {
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathname = location.pathname;
   const dispatch = useDispatch();
   const [openIndex, setOpenIndex] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -48,7 +47,7 @@ export default function SideNav() {
     }
     dispatch(logout());
     dispatch(apiAPISlice.util.resetApiState());
-    router.push("/login");
+    navigate("/login");
   };
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -130,7 +129,7 @@ export default function SideNav() {
                         </button>
                       ) : (
                         <Link
-                          href={item.url || "#"}
+                          to={item.url || "/"}
                           className={isActive ? "active" : ""}
                           onClick={closeMobileMenu}
                         >
@@ -146,7 +145,7 @@ export default function SideNav() {
                         {subItems.map((sub, i) => (
                           <li key={i}>
                             <Link
-                              href={sub.url}
+                              to={sub.url}
                               className={pathname === sub.url ? "active" : ""}
                               onClick={closeMobileMenu}
                             >
@@ -184,167 +183,6 @@ export default function SideNav() {
           </div>
         </div>
       </aside>
-
-      <style jsx>{`
-        /* ── Dropdown Arrow ── */
-        .dropdown-arrow {
-          margin-left: auto;
-          transition: transform 0.25s ease;
-          flex-shrink: 0;
-        }
-        .dropdown-arrow.open {
-          transform: rotate(180deg);
-        }
-
-        /* ── nav-link-btn resets so it looks identical to <a> ── */
-        .nav-link-btn {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          width: 100%;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0 8px;
-          text-align: left;
-          color: inherit;
-          font: inherit;
-          height: 44px;
-        }
-        .nav-link-btn.active {
-          /* match your existing .active styles */
-          color: var(--primary-a, #4f46e5);
-          font-weight: 600;
-        }
-
-        /* ── Dropdown animation ── */
-        .aside-dropdown {
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 0.3s ease;
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-        .aside-dropdown.open {
-          max-height: 600px; /* large enough for all items */
-        }
-
-        /* ── Hamburger Button - mobile only ── */
-        .mobile-menu-toggle {
-          display: none;
-          position: fixed;
-          top: 4%;
-          left: 10px;
-          transform: translateY(-50%);
-          z-index: 1000;
-          background: transparent;
-          border: none;
-          width: 35px;
-          height: 35px;
-          border-radius: 5px;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          padding: 6px;
-        }
-        .mobile-menu-toggle span {
-          display: block;
-          width: 20px;
-          height: 2.5px;
-          background: black;
-          border-radius: 2px;
-          transition: 0.3s;
-        }
-
-        /* ── Mobile Close Button ── */
-        .mobile-close-btn {
-          display: none;
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          background: transparent;
-          border: none;
-          font-size: 32px;
-          color: var(--general-c);
-          cursor: pointer;
-          z-index: 1001;
-          width: 40px;
-          height: 40px;
-          line-height: 1;
-        }
-
-        /* ── Mobile Overlay ── */
-        .mobile-overlay {
-          display: none;
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 998;
-        }
-
-        /* ── Mobile breakpoint ── */
-        @media (max-width: 767px) {
-          .mobile-menu-toggle {
-            display: flex;
-          }
-          .mobile-close-btn {
-            display: block;
-          }
-          .mobile-overlay {
-            display: block;
-          }
-
-          aside {
-            position: fixed;
-            left: -100%;
-            top: 0;
-            bottom: 0;
-            width: 280px;
-            height: 100vh;
-            z-index: 999;
-            transition: left 0.3s ease-in-out;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
-            overflow-y: auto;
-          }
-          aside.mobile-open {
-            left: 0;
-          }
-          aside .aside-wrap {
-            padding: 60px 0 20px;
-          }
-          aside .aside-col > ul > li {
-            display: block;
-            padding: 0 12px;
-          }
-          aside .aside-col > ul > li > a,
-          aside .aside-col > ul > li > .nav-item-wrap > a,
-          aside .aside-col > ul > li > .nav-item-wrap > .nav-link-btn {
-            height: 44px;
-            line-height: 44px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 8px;
-            text-align: left;
-          }
-          aside .aside-col > ul > li > a span,
-          aside .aside-col > ul > li > .nav-item-wrap > a span,
-          aside .aside-col > ul > li > .nav-item-wrap > .nav-link-btn span {
-            display: inline-block;
-          }
-          /* Give sub-items a slight indent on mobile */
-          .aside-dropdown.open li a {
-            padding-left: 24px;
-          }
-          /* Header padding so content isn't behind hamburger */
-          header .header-wrapper .colA {
-            padding-left: 55px;
-          }
-        }
-      `}</style>
     </>
   );
 }
