@@ -844,11 +844,27 @@ app.get("/api/notifications/close-reminders", rateLimit(20, 60_000), closeRemind
 
 // ─── Production SPA static serving ───────────────────────────────────────────
 const distDir = path.join(__dirname, "dist");
+const indexHtml = path.join(distDir, "index.html");
 app.use(express.static(distDir));
-// SPA fallback: serve index.html for any non-API route (public static asset, no rate-limit needed)
+// SPA fallback: serve index.html for any non-API GET request so React Router
+// handles deep links and hard-reloads without returning 404.
 // lgtm[js/missing-rate-limiting]
-app.get(/^(?!\/api\/).*/, (_req, res) => {
-  res.sendFile(path.join(distDir, "index.html"));
+app.get(/^(?!\/api\/).*/, (_req, res, next) => {
+  res.sendFile(indexHtml, (err) => {
+    if (!err) return; // file sent successfully
+    if (err.code === "ENOENT") {
+      // dist/index.html is missing — the app has not been built yet.
+      res
+        .status(503)
+        .type("html")
+        .send(
+          "Service unavailable: the application build is missing. " +
+            "Run <code>npm run build</code> and restart the server."
+        );
+    } else {
+      next(err); // unexpected error — let Express handle it
+    }
+  });
 });
 
 // ─── Start ───────────────────────────────────────────────────────────────────
