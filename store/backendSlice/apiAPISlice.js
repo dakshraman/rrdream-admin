@@ -369,12 +369,26 @@ const queries = {
   },
   getUsers: {
     endpointName: "getUsers",
-    request: () => ({ url: "getallusers", method: "GET" }),
+    request: (arg = {}) => {
+      const { page = 1, per_page = 100, search = "" } = arg || {};
+      return {
+        url: "getallusers",
+        method: "GET",
+        params: cleanNonEmptyParams({ page, per_page, search }),
+      };
+    },
     transformResponse: normalizeUsersResponse,
   },
   getInactiveUsers: {
     endpointName: "getInactiveUsers",
-    request: () => ({ url: "get-inactiveusers", method: "GET" }),
+    request: (arg = {}) => {
+      const { page = 1, per_page = 100, search = "" } = arg || {};
+      return {
+        url: "get-inactiveusers",
+        method: "GET",
+        params: cleanNonEmptyParams({ page, per_page, search }),
+      };
+    },
     transformResponse: normalizeUsersResponse,
   },
   getBanners: {
