@@ -68,6 +68,46 @@ FCM_REMINDER_WINDOW_SECONDS=75
 FCM_REMINDER_TIMEZONE_OFFSET_MINUTES=330
 ```
 
+## Branch Strategy
+
+| Branch | Contents | Status |
+|--------|----------|--------|
+| `migrate-to-react-vite` | React + Vite codebase | ✅ Active — **target for the React app** |
+| `main` | Was Next.js; will become React+Vite after PR #3 merges | ⏳ Pending merge |
+| `copilot/delete-other-branches` | PR branch — complete migration of all pages from `main` to React+Vite | 🔀 Open PR → `main` |
+
+### What is PR #3?
+
+PR #3 (`copilot/delete-other-branches` → `main`) contains the **complete, final React+Vite migration**:
+- All 27 admin pages updated with the latest business logic (server-side pagination, debounced search)
+- `Header.tsx` rebuilt with a working Logout button
+- Store improvements: cache settings, 429 error handling, pagination params
+- All Next.js artefacts removed (`next.config.ts`, `app/layout.tsx`, `app/api/`)
+
+### ⚠️ Where is the latest complete code right now?
+
+The **complete migration** lives on `copilot/delete-other-branches` (= the PR branch).
+
+`migrate-to-react-vite` is **32 files behind** — it is missing the page updates migrated from `main`.
+
+### What to do
+
+**Option A — Merge PR #3 into `main` (recommended)**
+```
+main ← copilot/delete-other-branches   (PR #3)
+```
+After merging, `main` permanently holds the complete React+Vite app.
+Then bring `migrate-to-react-vite` up to date:
+```bash
+git checkout migrate-to-react-vite
+git merge main --ff-only   # or: git reset --hard main
+git push origin migrate-to-react-vite
+```
+
+**Option B — Do NOT close the PR without merging**
+If you close PR #3 without merging, the 32 updated files only exist on the temporary
+`copilot/delete-other-branches` branch. Deleting that branch would permanently lose the work.
+
 ## API Routes (Express)
 
 | Method | Path | Description |
