@@ -374,7 +374,7 @@ export default function StarlineGameName() {
     const [togglingId, setTogglingId]   = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
-    const { data: gamesData, isLoading, isError, error } = useGetStarlineGamesQuery(undefined);
+    const { data: gamesData, isLoading, isError, error, refetch } = useGetStarlineGamesQuery(undefined);
     const [toggleStarlineGame] = useToggleStarlineGameMutation();
 
     const games = gamesData?.data || gamesData?.games || (Array.isArray(gamesData) ? gamesData : []);
@@ -557,7 +557,7 @@ export default function StarlineGameName() {
                 <div style={{ color: "#dc2626", padding: "40px", textAlign: "center", background: "#fef2f2", borderRadius: "12px", border: "1px solid #fecaca" }}>
                     <h3 style={{ marginBottom: "10px" }}>Error loading games</h3>
                     <p>{error?.data?.message || error?.message || "Something went wrong"}</p>
-                    <button onClick={() => window.location.reload()} style={{ marginTop: "15px", padding: "10px 20px", background: "#dc2626", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer" }}>
+                    <button onClick={() => refetch()} style={{ marginTop: "15px", padding: "10px 20px", background: "#dc2626", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer" }}>
                         Retry
                     </button>
                 </div>
@@ -567,7 +567,7 @@ export default function StarlineGameName() {
 
     return (
         <>
-            <style jsx global>{`
+            <style>{`
                 @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
                 .sl-table .rdt_TableHead .rdt_TableHeadRow { background-color: #7c3aed !important; min-height: 46px !important; }
                 .sl-table .rdt_TableHead .rdt_TableHeadRow .rdt_TableCol { background-color: #7c3aed !important; color: #ffffff !important; font-weight: 700 !important; font-size: 13px !important; }

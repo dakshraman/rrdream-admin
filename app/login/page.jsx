@@ -4,12 +4,14 @@ import { useLoginMutation } from "../../store/backendSlice/authAPISlice";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/backendSlice/authReducer";
 import Pageloading from '../Pageloading';
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loginMutation, { isLoading }] = useLoginMutation();
 
@@ -28,7 +30,7 @@ export default function Login() {
         }));
 
         toast.success(payload.message || "Login successful", { duration: 800 });
-        window.location.href = "/dashboard";
+        navigate("/dashboard");
       } else {
         if (!payload) {
           console.error("Unexpected login response payload:", result);

@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { apiAPISlice, useBackendLogoutMutation } from "@/store/backendSlice/apiAPISlice"
 import { logout } from "@/store/backendSlice/authReducer"
 
@@ -25,9 +25,9 @@ export default function Header() {
             <header>
                 <div className="header-wrapper">
                     <div className="colA">
-                        <a href="/dashboard" className="logo">
+                        <Link to="/dashboard" className="logo">
                             <img src="/admin-assets/img/logo.png" alt="UB" style={{ width: "64px", marginLeft: "39px" }} />
-                        </a>
+                        </Link>
                     </div>
                     <div className="colB">
                         <ul>
